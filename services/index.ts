@@ -13,3 +13,4 @@ export * from "./scholarship.service";
 export * from "./roadmap.service";
 export * from "./opportunity.service";
 export * from "./chat.service";
+export * from "./action-radar.service";

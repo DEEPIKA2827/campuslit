@@ -35,16 +35,20 @@ const categories = [
   { id: "merit", label: "Merit-Based" },
 ];
 
+import scholarshipsData from "@/data/scholarships.json";
+
 export interface ScholarshipItem {
   id: string;
   numericId?: number;
   title: string;
   provider: string;
+  source?: string;
+  sourceUrl?: string;
   logo: string;
   type: string;
   grantAmount: string;
   annualValue: number;
-  deadline: string;
+  deadline: string | null;
   daysLeft: number;
   isUrgent: boolean;
   isWomenOnly: boolean;
@@ -58,155 +62,52 @@ export interface ScholarshipItem {
   documentsRequired: string[];
   portalUrl: string;
   verifiedBySenior: boolean;
+  lastVerifiedAt?: string;
 }
 
-// Fallback Curated Karnataka & National Scholarships Data
-const defaultScholarships: ScholarshipItem[] = [
-  {
-    id: "1",
-    numericId: 1,
-    title: "SSP Karnataka Post-Matric Scholarship (2025/26)",
-    provider: "Government of Karnataka • Department of Technical Education",
-    logo: "🏛️",
-    type: "government",
-    grantAmount: "₹25,000 - ₹50,000 / year",
-    annualValue: 35000,
-    deadline: "Dec 31, 2025",
-    daysLeft: 12,
-    isUrgent: true,
-    isWomenOnly: false,
+// Canonical Karnataka & National Scholarships Data
+const defaultScholarships: ScholarshipItem[] = scholarshipsData.map((s) => {
+  const days = s.deadline
+    ? Math.max(1, Math.ceil((new Date(s.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 60;
+  const isUrgent = s.deadline ? days <= 14 : false;
+  const isWomen = s.category === "women_in_tech";
+
+  return {
+    id: String(s.scholarshipId),
+    numericId: s.scholarshipId,
+    title: s.scholarshipName,
+    provider: s.provider,
+    source: s.source,
+    sourceUrl: s.sourceUrl,
+    logo:
+      isWomen
+        ? "👩‍💻"
+        : s.category.includes("government")
+        ? "🏛️"
+        : s.category === "merit_based"
+        ? "🌟"
+        : "💎",
+    type: s.category,
+    grantAmount: s.grantAmount,
+    annualValue: s.annualValue,
+    deadline: s.deadline,
+    daysLeft: days,
+    isUrgent,
+    isWomenOnly: isWomen,
     eligibility: {
-      category: ["General", "OBC", "SC", "ST", "Minorities"],
-      maxIncome: "₹2.5 Lakhs / year",
-      minMarks: "60% in PUC / 10+2",
-      degree: "1st Year Engineering (VTU & Autonomous)",
+      category: ["General", "OBC", "SC/ST", "Minority"],
+      maxIncome: s.maxIncome || "Income guidelines apply",
+      minMarks: s.academicCriteria,
+      degree: "Undergraduate B.E/B.Tech",
     },
-    tags: ["State Govt", "Tuition Fee Waiver", "SSP Portal Sync"],
-    documentsRequired: ["Income Certificate", "PUC Marks Card", "Aadhaar Card", "College Study Certificate"],
-    portalUrl: "https://ssp.postmatric.karnataka.gov.in",
+    tags: s.tags,
+    documentsRequired: s.documentsRequired,
+    portalUrl: s.applicationUrl,
     verifiedBySenior: true,
-  },
-  {
-    id: "2",
-    numericId: 2,
-    title: "Pragati Scholarship for Women in Engineering",
-    provider: "AICTE • Ministry of Education, Govt of India",
-    logo: "👩‍💻",
-    type: "women",
-    grantAmount: "₹50,000 / year (4 Years)",
-    annualValue: 50000,
-    deadline: "Jan 15, 2026",
-    daysLeft: 27,
-    isUrgent: false,
-    isWomenOnly: true,
-    eligibility: {
-      category: ["All Categories"],
-      maxIncome: "₹8.0 Lakhs / year",
-      minMarks: "Admission in 1st Year B.E/B.Tech",
-      degree: "Female Students Only",
-    },
-    tags: ["Women in Tech", "AICTE Central Grant", "Laptop Allowance Included"],
-    documentsRequired: ["Family Income Certificate", "Class 12th Marks Card", "Bank Passbook", "College ID"],
-    portalUrl: "https://scholarships.gov.in",
-    verifiedBySenior: true,
-  },
-  {
-    id: "3",
-    numericId: 3,
-    title: "Reliance Foundation Undergraduate Scholarship",
-    provider: "Reliance Foundation",
-    logo: "💎",
-    type: "private",
-    grantAmount: "₹2,000,000 Total (Over 4 Years)",
-    annualValue: 50000,
-    deadline: "Nov 30, 2025",
-    daysLeft: 5,
-    isUrgent: true,
-    isWomenOnly: false,
-    eligibility: {
-      category: ["All Categories"],
-      maxIncome: "₹15.0 Lakhs / year",
-      minMarks: "60%+ in 12th Standard",
-      degree: "Full-Time 1st Year B.E/B.Tech",
-    },
-    tags: ["Corporate Grant", "Merit-cum-Means", "Mentorship Included"],
-    documentsRequired: ["Aptitude Test Scorecard", "12th Board Certificate", "Income Proof"],
-    portalUrl: "https://scholarships.reliancefoundation.org",
-    verifiedBySenior: true,
-  },
-  {
-    id: "4",
-    numericId: 4,
-    title: "Sitaram Jindal Foundation Engineering Grant",
-    provider: "Sitaram Jindal Foundation • Bengaluru",
-    logo: "🌿",
-    type: "private",
-    grantAmount: "₹18,000 / year",
-    annualValue: 18000,
-    deadline: "Open All Year",
-    daysLeft: 90,
-    isUrgent: false,
-    isWomenOnly: false,
-    eligibility: {
-      category: ["General", "OBC", "SC/ST"],
-      maxIncome: "₹4.0 Lakhs / year",
-      minMarks: "70% for Boys / 65% for Girls",
-      degree: "Engineering Undergraduates",
-    },
-    tags: ["Karnataka Trust", "Need-Based", "Monthly Stipend"],
-    documentsRequired: ["Jindal Form Annexure VII", "Semester Marks Cards", "Income Certificate"],
-    portalUrl: "https://www.sitaramjindalfoundation.org",
-    verifiedBySenior: true,
-  },
-  {
-    id: "5",
-    numericId: 5,
-    title: "Infosys STEM Women Fellowship 2026",
-    provider: "Infosys Foundation",
-    logo: "🏢",
-    type: "women",
-    grantAmount: "₹1,00,000 / year + SDE Mentorship",
-    annualValue: 100000,
-    deadline: "Feb 10, 2026",
-    daysLeft: 52,
-    isUrgent: false,
-    isWomenOnly: true,
-    eligibility: {
-      category: ["CSE / ISE / AI-ML / ECE"],
-      maxIncome: "No Upper Limit (Merit Based)",
-      minMarks: "8.5+ CGPA or 80%+ in PUC",
-      degree: "1st & 2nd Year Women Engineers",
-    },
-    tags: ["Infosys SDE Track", "Women in Engineering", "Direct Interview Fast-track"],
-    documentsRequired: ["Resume", "GitHub / Project Links", "Sem 1 CGPA Card"],
-    portalUrl: "https://www.infosys.com/infosys-foundation",
-    verifiedBySenior: true,
-  },
-  {
-    id: "6",
-    numericId: 6,
-    title: "National Scholarship Portal (NSP) Central Sector Scheme",
-    provider: "Ministry of Human Resource Development (MHRD)",
-    logo: "🇮🇳",
-    type: "government",
-    grantAmount: "₹20,000 / year",
-    annualValue: 20000,
-    deadline: "Dec 15, 2025",
-    daysLeft: 8,
-    isUrgent: true,
-    isWomenOnly: false,
-    eligibility: {
-      category: ["Top 20th Percentile 12th Board"],
-      maxIncome: "₹4.5 Lakhs / year",
-      minMarks: "Above 80th Percentile in State Board",
-      degree: "Regular Degree Students",
-    },
-    tags: ["Central Govt", "NSP Portal", "Direct Bank Transfer"],
-    documentsRequired: ["NSP Application Form", "12th Board Top 20% Certificate", "Aadhaar Bank Link"],
-    portalUrl: "https://scholarships.gov.in",
-    verifiedBySenior: true,
-  },
-];
+    lastVerifiedAt: s.lastVerifiedAt,
+  };
+});
 
 export default function ScholarshipsPage() {
   const [scholarships, setScholarships] = useState<ScholarshipItem[]>(defaultScholarships);
@@ -219,13 +120,10 @@ export default function ScholarshipsPage() {
   const [urgentOnly, setUrgentOnly] = useState(false);
 
   // Application Tracker State
-  const [trackedScholarships, setTrackedScholarships] = useState<{ [id: string]: "saved" | "applied" | "review" | "awarded" }>({
-    "1": "applied",
-    "2": "saved",
-  });
+  const [trackedScholarships, setTrackedScholarships] = useState<{ [id: string]: "saved" | "applied" | "review" | "awarded" }>({});
 
   // Reminders State
-  const [reminders, setReminders] = useState<string[]>(["1"]);
+  const [reminders, setReminders] = useState<string[]>([]);
 
   // Toast / Modal State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -244,7 +142,7 @@ export default function ScholarshipsPage() {
         const res = await fetch("/api/scholarships", { credentials: "include" });
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          if (json.success && Array.isArray(json.data)) {
             const liveItems: ScholarshipItem[] = json.data.map((item: ScholarshipWithBookmarkDTO) => {
               const matchedDefault = defaultScholarships.find(
                 (d) => d.title.toLowerCase() === item.scholarshipName.toLowerCase() || d.id === String(item.scholarshipId)
@@ -255,6 +153,8 @@ export default function ScholarshipsPage() {
                 numericId: item.scholarshipId,
                 title: item.scholarshipName,
                 provider: matchedDefault?.provider || "Karnataka Technical Education",
+                source: matchedDefault?.source || "State Scholarship Portal",
+                sourceUrl: matchedDefault?.sourceUrl || "https://ssp.postmatric.karnataka.gov.in",
                 logo: matchedDefault?.logo || "🎓",
                 type: matchedDefault?.type || "government",
                 grantAmount: matchedDefault?.grantAmount || "₹25,000 - ₹50,000 / year",
@@ -273,11 +173,12 @@ export default function ScholarshipsPage() {
                 documentsRequired: matchedDefault?.documentsRequired || ["Aadhaar Card", "Income Certificate"],
                 portalUrl: item.applicationUrl || matchedDefault?.portalUrl || "https://ssp.postmatric.karnataka.gov.in",
                 verifiedBySenior: true,
+                lastVerifiedAt: matchedDefault?.lastVerifiedAt || "2026-08-20",
               };
             });
 
-            // Update tracked state for bookmarked scholarships
-            const newTracked: { [id: string]: "saved" | "applied" | "review" | "awarded" } = { ...trackedScholarships };
+            // Update tracked state strictly from authentic bookmarked scholarships
+            const newTracked: { [id: string]: "saved" | "applied" | "review" | "awarded" } = {};
             json.data.forEach((item: ScholarshipWithBookmarkDTO) => {
               if (item.isBookmarked) {
                 newTracked[String(item.scholarshipId)] = "saved";
@@ -642,7 +543,7 @@ export default function ScholarshipsPage() {
                     <a
                       href={sch.portalUrl}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-emerald-600/30 hover:from-emerald-500 hover:to-teal-500 transition"
                     >
                       <span>Official Portal</span>
@@ -702,7 +603,7 @@ export default function ScholarshipsPage() {
               <a
                 href={selectedDocChecklist.portalUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-center rounded-xl text-xs font-bold text-white shadow-lg transition"
               >
                 Launch Portal

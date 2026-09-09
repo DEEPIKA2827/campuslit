@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     Logger.info("GET /api/academics/colleges requested", { userId: session.userId });
     const colleges = await academicService.listColleges();
 
-    return ResponseBuilder.success(colleges, "Colleges retrieved successfully.");
+    return ResponseBuilder.cached(colleges, "Colleges retrieved successfully.", 3600, 86400);
   } catch (error: unknown) {
     Logger.error("GET /api/academics/colleges failed", error);
     return ResponseBuilder.error("An unexpected error occurred while retrieving colleges.", 500, "INTERNAL_ERROR");

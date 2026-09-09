@@ -1,0 +1,1186 @@
+[
+  {
+    "courseId": 101,
+    "courseCode": "BMATS101",
+    "courseName": "Mathematics for CSE Stream-I (Calculus & Linear Algebra)",
+    "branch": "Common (1st Year Engineering - Physics & Chemistry Cycles)",
+    "semester": 1,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bmats101_01",
+        "title": "Module 1-5 Comprehensive Handwritten Formula Notes & Solved Integrals",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre & Department of Mathematics",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Dr. K. S. Chandrashekar & VTU BOS",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bmats101_02",
+        "title": "VTU Official Model Question Papers with Scheme of Evaluation (2022/23/24)",
+        "type": "Model Papers",
+        "format": "PDF",
+        "source": "VTU Examination Portal",
+        "sourceUrl": "https://vtu.ac.in/en/model-question-paper/",
+        "author": "VTU Board of Examiners",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bmats101_03",
+        "title": "Rank of Matrix & Cayley-Hamilton Theorem Derivation Handbook",
+        "type": "Important Derivations",
+        "format": "PDF",
+        "source": "NPTEL Linear Algebra Archives",
+        "sourceUrl": "https://nptel.ac.in",
+        "author": "Prof. I. K. Rana (IIT Bombay / NPTEL)",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bmats101_04",
+        "title": "Higher Engineering Mathematics (44th Edition) Reference Guide",
+        "type": "Reference Books",
+        "format": "Book Guide",
+        "source": "Khanna Publishers",
+        "sourceUrl": "https://vtu.ac.in/syllabus/",
+        "author": "Dr. B. S. Grewal",
+        "lastVerifiedAt": "2026-08-20"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bmats101_01",
+        "question": "Find the Eigenvalues and Eigenvectors of a 3x3 matrix and verify Cayley-Hamilton theorem.",
+        "papersAnalyzed": 6,
+        "occurrenceCount": 6,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 6 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 4,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bmats101_02",
+        "question": "Test for consistency and solve the system of linear non-homogeneous equations using Gauss elimination.",
+        "papersAnalyzed": 6,
+        "occurrenceCount": 5,
+        "frequencyRatio": 0.83,
+        "classification": "High Recurrence Exam Pattern (5/6 Papers)",
+        "typicalMarks": 7,
+        "module": 4,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bmats101_01",
+        "question": "State Cayley-Hamilton Theorem and explain how it computes matrix inverse.",
+        "difficulty": "easy",
+        "coreConcept": "Matrix Algebra & Characteristic Polynomial",
+        "sampleAnswer": "Every square matrix satisfies its own characteristic equation |A - λI| = 0. Multiplying by A^-1 yields an explicit formulation for matrix inversion without adjugate determinants."
+      }
+    ]
+  },
+  {
+    "courseId": 102,
+    "courseCode": "BMATC201",
+    "courseName": "Mathematics for CSE Stream-II (Vector Calculus & Numerical Methods)",
+    "branch": "Common (1st Year Engineering)",
+    "semester": 2,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bmatc201_01",
+        "title": "Vector Calculus, Gradient, Divergence & Curl Handout",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU Mathematics BOS",
+        "lastVerifiedAt": "2026-08-22"
+      },
+      {
+        "resourceId": "res_bmatc201_02",
+        "title": "Green's, Stokes' and Gauss Divergence Theorems Solved Problems",
+        "type": "Question Banks",
+        "format": "PDF",
+        "source": "NPTEL Archives",
+        "sourceUrl": "https://nptel.ac.in",
+        "author": "Prof. P. D. Srivastava (IIT Kharagpur)",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bmatc201_01",
+        "question": "Verify Green's Theorem in the plane for a given vector field over a closed boundary.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Theorem Proof & Problem (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 2,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bmatc201_01",
+        "question": "What is the physical significance of the divergence of a vector field?",
+        "difficulty": "easy",
+        "coreConcept": "Vector Flux & Incompressibility",
+        "sampleAnswer": "Divergence measures the net flux of a vector field per unit volume expanding from or converging to a point. Divergence zero signifies an incompressible solenoidal field."
+      }
+    ]
+  },
+  {
+    "courseId": 103,
+    "courseCode": "BPOPS103",
+    "courseName": "Principles of Programming Using C (POP & Problem Solving)",
+    "branch": "Common (1st Year Engineering - All Streams)",
+    "semester": 1,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 3,
+    "resources": [
+      {
+        "resourceId": "res_bpops103_01",
+        "title": "Complete C Programming Syntax, Pointers & Memory Layout Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU Curriculum Cell",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "VTU CS/IS Board",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bpops103_02",
+        "title": "VTU Prescribed 12 Laboratory Experiments Manual with GCC Execution Steps",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "VTU Laboratory Repository",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "VTU Central Lab Committee",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bpops103_03",
+        "title": "Computer Concepts and C Programming Guide",
+        "type": "Reference Books",
+        "format": "Book Guide",
+        "source": "McGraw Hill Education",
+        "sourceUrl": "https://vtu.ac.in/syllabus/",
+        "author": "E. Balagurusamy",
+        "lastVerifiedAt": "2026-08-20"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bpops103_01",
+        "question": "Explain the difference between pass by value and pass by reference using swap function in C with memory diagrams.",
+        "papersAnalyzed": 6,
+        "occurrenceCount": 6,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 6 analyzed VTU papers)",
+        "typicalMarks": 7,
+        "module": 4,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bpops103_02",
+        "question": "Write a C program to multiply two matrices after checking dimensional compatibility.",
+        "papersAnalyzed": 6,
+        "occurrenceCount": 5,
+        "frequencyRatio": 0.83,
+        "classification": "Mandatory Lab & Theory Coding Pattern (5/6 Papers)",
+        "typicalMarks": 8,
+        "module": 3,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bpops103_01",
+        "question": "What is a dangling pointer in C and how do you prevent it?",
+        "difficulty": "medium",
+        "coreConcept": "Memory Management & Pointer Safety",
+        "sampleAnswer": "A dangling pointer points to a memory location that has been freed via free(). Prevent it by setting the pointer to NULL immediately after deallocation."
+      }
+    ]
+  },
+  {
+    "courseId": 104,
+    "courseCode": "BPHYS102",
+    "courseName": "Applied Physics for CSE / Electronics Stream",
+    "branch": "Common (1st Year Engineering - Physics Cycle)",
+    "semester": 1,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bphys102_01",
+        "title": "Quantum Mechanics, Lasers and Optical Fibers Summary Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU Physics Board",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Dr. M. N. Avadhanulu & VTU Team",
+        "lastVerifiedAt": "2026-08-22"
+      },
+      {
+        "resourceId": "res_bphys102_02",
+        "title": "Engineering Physics Lab Manual with Error Calculations",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "VTU Physics Lab Committee",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "VTU Lab BOS",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bphys102_01",
+        "question": "Derive the 1D time-independent Schrodinger wave equation and find the energy eigenvalues for a particle in an infinite potential box.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 10,
+        "module": 1,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bphys102_01",
+        "question": "What is the condition for Total Internal Reflection in optical fibers?",
+        "difficulty": "easy",
+        "coreConcept": "Wave Optics & Critical Angle",
+        "sampleAnswer": "Light must travel from a denser core (n1) to a rarer cladding (n2), and the angle of incidence must strictly exceed the critical angle θc = sin^-1(n2/n1)."
+      }
+    ]
+  },
+  {
+    "courseId": 105,
+    "courseCode": "BBEE103",
+    "courseName": "Basic Electrical & Electronics Engineering",
+    "branch": "Common (1st Year Engineering - Chemistry Cycle)",
+    "semester": 1,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 3,
+    "resources": [
+      {
+        "resourceId": "res_bbee103_01",
+        "title": "Circuit Theorems, DC Circuits & AC Fundamentals Handwritten Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU EEE Board",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU Electrical Faculty",
+        "lastVerifiedAt": "2026-08-22"
+      },
+      {
+        "resourceId": "res_bbee103_02",
+        "title": "Basic Electrical Question Bank with Solved KVL/KCL Problems",
+        "type": "Question Banks",
+        "format": "PDF",
+        "source": "NPTEL Basic Electrical",
+        "sourceUrl": "https://nptel.ac.in",
+        "author": "Prof. N. K. De (IIT Kharagpur)",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bbee103_01",
+        "question": "State and prove Thevenin's and Norton's theorems and find the equivalent circuit for a resistive network.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Circuit Analysis Theorem (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 1,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bbee103_01",
+        "question": "Why is a transformer rated in kVA instead of kW?",
+        "difficulty": "easy",
+        "coreConcept": "Power Factor & Magnetic Loss",
+        "sampleAnswer": "Transformer losses (copper and core) depend on voltage and current independently of the load power factor, making apparent power (kVA) the standard rating."
+      }
+    ]
+  },
+  {
+    "courseId": 106,
+    "courseCode": "BENGK106",
+    "courseName": "Communicative English & Professional Writing Skills",
+    "branch": "Common (1st Year Engineering)",
+    "semester": 1,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 1,
+    "resources": [
+      {
+        "resourceId": "res_bengk106_01",
+        "title": "Technical Writing, Email Etiquette & Resume Drafting Handbook",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU Humanities Board",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "VTU English BOS",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bengk106_01",
+        "question": "Draft a formal engineering project proposal detailing objectives, budget, timeline, and deliverables.",
+        "papersAnalyzed": 4,
+        "occurrenceCount": 4,
+        "frequencyRatio": 1,
+        "classification": "Core Technical Communication Pattern (4/4 Papers)",
+        "typicalMarks": 8,
+        "module": 3,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bengk106_01",
+        "question": "What are the 7 Cs of effective business communication?",
+        "difficulty": "easy",
+        "coreConcept": "Professional Communication",
+        "sampleAnswer": "Clear, Concise, Concrete, Correct, Coherent, Complete, and Courteous."
+      }
+    ]
+  },
+  {
+    "courseId": 1,
+    "courseCode": "BCS301",
+    "courseName": "Data Structures and Applications",
+    "branch": "Computer Science & Engineering / Information Science / AIML",
+    "semester": 3,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs301_01",
+        "title": "Comprehensive Module 1-5 Lecture Notes & Complexity Proofs",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU Board of Studies (CSE/ISE)",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bcs301_02",
+        "title": "Data Structures Laboratory Experiments Playbook (VTU 2022 Scheme)",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "RVCE / BMSCE CSE Department",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "Prof. R. S. Patil (RVCE)",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bcs301_03",
+        "title": "Data Structures Using C (2nd Edition) Text Guide",
+        "type": "Reference Books",
+        "format": "Book Guide",
+        "source": "Oxford University Press",
+        "sourceUrl": "https://vtu.ac.in/syllabus/",
+        "author": "Reema Thareja",
+        "lastVerifiedAt": "2026-08-20"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs301_01",
+        "question": "Write algorithms for Infix to Postfix conversion and Postfix evaluation using stacks with step-by-step trace.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 1,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bcs301_02",
+        "question": "Explain Circular Queue operations with full C implementation and boundary conditions.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 4,
+        "frequencyRatio": 0.8,
+        "classification": "High Recurrence Pattern (80% occurrence)",
+        "typicalMarks": 7,
+        "module": 1,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bcs301_03",
+        "question": "Construct AVL Tree with detailed rotations (LL, RR, LR, RL) for a given sequence.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 4,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs301_01",
+        "question": "Why does an AVL tree provide faster lookups than a standard Binary Search Tree?",
+        "difficulty": "easy",
+        "coreConcept": "Balanced Search Trees & Rotation Invariants",
+        "sampleAnswer": "An AVL tree strictly enforces height balancing where heights of two child subtrees differ by at most one, guaranteeing O(log n) worst-case lookup rather than degenerating into O(n)."
+      }
+    ]
+  },
+  {
+    "courseId": 2,
+    "courseCode": "BCS302",
+    "courseName": "Discrete Mathematical Structures",
+    "branch": "Computer Science & Engineering / Information Science",
+    "semester": 3,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs302_01",
+        "title": "Propositional Logic, Set Theory & Graph Theory Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU Mathematics & CS BOS",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs302_01",
+        "question": "Prove the validity of argument using rules of inference and truth tables.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Logic Problem (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 1,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs302_01",
+        "question": "What is an Eulerian graph vs a Hamiltonian graph?",
+        "difficulty": "medium",
+        "coreConcept": "Graph Traversal Theorems",
+        "sampleAnswer": "An Eulerian graph contains a closed trial visiting every edge exactly once. A Hamiltonian graph contains a closed cycle visiting every vertex exactly once."
+      }
+    ]
+  },
+  {
+    "courseId": 3,
+    "courseCode": "BCS304",
+    "courseName": "Digital Design and Computer Organization",
+    "branch": "Computer Science & Engineering / ISE",
+    "semester": 3,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs304_01",
+        "title": "Combinational Circuits, K-Maps & Pipeline Architecture Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Prof. Carl Hamacher & VTU Team",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bcs304_02",
+        "title": "Digital Electronics Lab Manual with Verilog Simulation Testbenches",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "MSRIT / SIT Digital Systems Lab",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "VTU Lab Consortium",
+        "lastVerifiedAt": "2026-08-20"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs304_01",
+        "question": "Explain Booth's multiplication algorithm with a hardware flowchart and multiply two 4-bit signed integers.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 3,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bcs304_02",
+        "question": "Compare Direct Mapped, Associative, and Set-Associative Cache Mapping techniques.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 4,
+        "frequencyRatio": 0.8,
+        "classification": "High Recurrence Architectural Pattern",
+        "typicalMarks": 7,
+        "module": 5,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs304_01",
+        "question": "Explain the purpose of the Program Counter (PC) and Instruction Register (IR).",
+        "difficulty": "easy",
+        "coreConcept": "Fetch-Decode-Execute Cycle",
+        "sampleAnswer": "The Program Counter holds the memory address of the next instruction to fetch, whereas the Instruction Register holds the currently executing opcode."
+      }
+    ]
+  },
+  {
+    "courseId": 4,
+    "courseCode": "BCS401",
+    "courseName": "Design and Analysis of Algorithms",
+    "branch": "Computer Science & Engineering / ISE / AIML / Data Science",
+    "semester": 4,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs401_01",
+        "title": "DAA Complete Master Notes: Divide & Conquer, Greedy, DP & NP-Completeness",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning & NPTEL",
+        "sourceUrl": "https://nptel.ac.in",
+        "author": "Prof. Naveen Garg (IIT Delhi) & VTU BOS",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bcs401_02",
+        "title": "DAA Laboratory Program Playbook (Java / C++ Implementations with Benchmarks)",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "BMSCE CSE Algorithm Lab",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "BMSCE Algorithm Group",
+        "lastVerifiedAt": "2026-08-20"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs401_01",
+        "question": "Solve 0/1 Knapsack Problem using Dynamic Programming with algorithm, tabular state matrix, and backtrack formulation.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 3,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bcs401_02",
+        "question": "Dijkstra's Single Source Shortest Path Algorithm with time complexity analysis using min-heaps.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 4,
+        "frequencyRatio": 0.8,
+        "classification": "High Recurrence Greedy Pattern (80%)",
+        "typicalMarks": 7,
+        "module": 2,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs401_01",
+        "question": "What is the optimal substructure property in Dynamic Programming?",
+        "difficulty": "medium",
+        "coreConcept": "Dynamic Programming Principles",
+        "sampleAnswer": "An optimal solution to a problem contains within it optimal solutions to its subproblems, allowing subproblem solutions to be memoized without redundant recomputation."
+      }
+    ]
+  },
+  {
+    "courseId": 5,
+    "courseCode": "BCS402",
+    "courseName": "Microcontrollers & Embedded Systems",
+    "branch": "Computer Science & Engineering / ISE",
+    "semester": 4,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 3,
+    "resources": [
+      {
+        "resourceId": "res_bcs402_01",
+        "title": "ARM Cortex-M Architecture, GPIO & Keil uVision Playbook",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU Embedded BOS",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs402_01",
+        "question": "Explain the register organization and memory mapping of the ARM Cortex-M3 processor.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Architectural Question (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 1,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs402_01",
+        "question": "What is the difference between Von Neumann and Harvard architecture?",
+        "difficulty": "easy",
+        "coreConcept": "Microprocessor Architecture",
+        "sampleAnswer": "Von Neumann shares a single memory bus for instructions and data, whereas Harvard architecture maintains physically separate buses and memories allowing simultaneous instruction and data fetching."
+      }
+    ]
+  },
+  {
+    "courseId": 6,
+    "courseCode": "BCS403",
+    "courseName": "Operating Systems",
+    "branch": "Computer Science & Engineering / Information Science / AIML",
+    "semester": 4,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs403_01",
+        "title": "Operating Systems Module 1-5 Comprehensive Notes (Silberschatz Aligned)",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Prof. Abraham Silberschatz & VTU Review Team",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bcs403_02",
+        "title": "Linux System Calls, POSIX Threads & Inter-Process Communication Lab Guide",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "PES University / DSCE OS Lab",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "PES Systems Group",
+        "lastVerifiedAt": "2026-08-20"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs403_01",
+        "question": "Explain Banker's Algorithm for Deadlock Avoidance with complete Safety Algorithm and Resource Request trace.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 3,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bcs403_02",
+        "question": "Compare Page Replacement Algorithms (FIFO, LRU, Optimal) for a given reference string.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Numerical Problem (100% in Module 4)",
+        "typicalMarks": 8,
+        "module": 4,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs403_01",
+        "question": "What is the primary difference between a process and a thread?",
+        "difficulty": "easy",
+        "coreConcept": "Process Management & Concurrency",
+        "sampleAnswer": "A process is an isolated executing program with its own dedicated virtual address space and resources. A thread is a lightweight execution unit inside a process sharing address space and open file descriptors."
+      }
+    ]
+  },
+  {
+    "courseId": 7,
+    "courseCode": "BCS404",
+    "courseName": "Database Management Systems",
+    "branch": "Computer Science & Engineering / ISE / AIML",
+    "semester": 4,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs404_01",
+        "title": "Relational Algebra, SQL Queries, Normalization & ACID Transactions Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Prof. R. Elmasri & VTU Team",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs404_01",
+        "question": "Explain 1NF, 2NF, 3NF, and BCNF normalization with practical relation schemas and functional dependency proofs.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Normalization Theory & Problem (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 3,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs404_01",
+        "question": "Explain the ACID properties in database transaction management.",
+        "difficulty": "easy",
+        "coreConcept": "Transaction Processing",
+        "sampleAnswer": "Atomicity (all or nothing), Consistency (preserves database integrity constraints), Isolation (concurrent transactions execute independently), and Durability (committed changes persist across failures)."
+      }
+    ]
+  },
+  {
+    "courseId": 8,
+    "courseCode": "BCS501",
+    "courseName": "Software Engineering & Project Management",
+    "branch": "Computer Science & Engineering / ISE",
+    "semester": 5,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 3,
+    "resources": [
+      {
+        "resourceId": "res_bcs501_01",
+        "title": "Agile, Scrum, SDLC Models, Software Testing & COCOMO Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Dr. Ian Sommerville & VTU Team",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs501_01",
+        "question": "Compare Waterfall, Spiral, and Agile Scrum methodologies with phases, advantages, and risk analysis.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Process Model Comparison (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 1,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs501_01",
+        "question": "What is the difference between functional and non-functional requirements?",
+        "difficulty": "easy",
+        "coreConcept": "Requirements Engineering",
+        "sampleAnswer": "Functional requirements describe what the system should do (features, user actions). Non-functional requirements specify how well the system performs (latency, security, availability)."
+      }
+    ]
+  },
+  {
+    "courseId": 9,
+    "courseCode": "BCS502",
+    "courseName": "Computer Networks",
+    "branch": "Computer Science & Engineering / Information Science / AIML",
+    "semester": 5,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs502_01",
+        "title": "Computer Networks Complete Notes (TCP/IP, Routing Protocols & Socket Programming)",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre & Kurose-Ross Align",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU Networking BOS",
+        "lastVerifiedAt": "2026-08-20"
+      },
+      {
+        "resourceId": "res_bcs502_02",
+        "title": "Wireshark Packet Analysis & NS3 Network Simulation Playbook",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "NIE Mysuru / BIT Networking Lab",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "NIE Mysore Networks Lab",
+        "lastVerifiedAt": "2026-08-20"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs502_01",
+        "question": "Explain TCP 3-Way Handshake Connection Establishment and 4-Way Termination with sequence diagrams.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 4,
+        "isSufficientData": true
+      },
+      {
+        "questionId": "hfq_bcs502_02",
+        "question": "Explain Link State Routing (Dijkstra) vs Distance Vector Routing (Bellman-Ford) with Count-to-Infinity problem.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 4,
+        "frequencyRatio": 0.8,
+        "classification": "High Recurrence Network Layer Pattern",
+        "typicalMarks": 7,
+        "module": 3,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs502_01",
+        "question": "Explain the difference between TCP and UDP headers and transmission modes.",
+        "difficulty": "easy",
+        "coreConcept": "Transport Layer Protocols",
+        "sampleAnswer": "TCP is a connection-oriented, reliable protocol with flow control, congestion control, and 20-byte header. UDP is connectionless, unreliable with low 8-byte header overhead for real-time streaming."
+      }
+    ]
+  },
+  {
+    "courseId": 10,
+    "courseCode": "BCS503",
+    "courseName": "Theory of Computation & Automata",
+    "branch": "Computer Science & Engineering / ISE",
+    "semester": 5,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs503_01",
+        "title": "DFA, NFA, Regular Expressions, Pushdown Automata & Turing Machines Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU e-Learning Centre",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Prof. John Hopcroft & VTU Team",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs503_01",
+        "question": "Convert a given Non-Deterministic Finite Automaton (NFA) to its equivalent Deterministic Finite Automaton (DFA).",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Automata Construction (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 1,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs503_01",
+        "question": "State the Halting Problem and explain why it is undecidable.",
+        "difficulty": "hard",
+        "coreConcept": "Computability & Turing Machines",
+        "sampleAnswer": "The Halting Problem asks whether an arbitrary computer program with input will finish running or run forever. Alan Turing proved via diagonalization and contradiction that no universal algorithm can solve this for all program-input pairs."
+      }
+    ]
+  },
+  {
+    "courseId": 11,
+    "courseCode": "BCS601",
+    "courseName": "Machine Learning & Deep Learning Fundamentals",
+    "branch": "Computer Science & Engineering / ISE / AIML",
+    "semester": 6,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs601_01",
+        "title": "Supervised Learning, Gradient Descent, Decision Trees & Neural Networks Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU AIML Board",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU AI Committee",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs601_01",
+        "question": "Explain the ID3 Decision Tree algorithm using Information Gain and Entropy on sample training dataset.",
+        "papersAnalyzed": 1,
+        "occurrenceCount": 1,
+        "frequencyRatio": 1,
+        "classification": "Insufficient data (Less than 3 papers analyzed - 2022 Scheme initial cycle)",
+        "typicalMarks": 8,
+        "module": 2,
+        "isSufficientData": false
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs601_01",
+        "question": "What is the Bias-Variance tradeoff in machine learning?",
+        "difficulty": "medium",
+        "coreConcept": "Model Generalization & Overfitting",
+        "sampleAnswer": "High bias leads to underfitting by oversimplifying assumptions. High variance leads to overfitting by being overly sensitive to training noise. The tradeoff seeks optimal model complexity minimizing total expected error."
+      }
+    ]
+  },
+  {
+    "courseId": 12,
+    "courseCode": "BCS602",
+    "courseName": "Cloud Computing & Distributed Systems",
+    "branch": "Computer Science & Engineering / ISE",
+    "semester": 6,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 3,
+    "resources": [
+      {
+        "resourceId": "res_bcs602_01",
+        "title": "IaaS/PaaS/SaaS, Virtualization, Docker, Kubernetes & AWS Services Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU Cloud BOS",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "VTU Cloud Group",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs602_01",
+        "question": "Explain Full Virtualization vs Para-Virtualization vs Containerization with architectural block diagrams.",
+        "papersAnalyzed": 4,
+        "occurrenceCount": 4,
+        "frequencyRatio": 1,
+        "classification": "Core Cloud Architecture Pattern (4/4 Papers)",
+        "typicalMarks": 8,
+        "module": 2,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs602_01",
+        "question": "What is the CAP theorem in distributed systems?",
+        "difficulty": "medium",
+        "coreConcept": "Distributed Data Consistency",
+        "sampleAnswer": "A distributed data store can simultaneously provide at most two out of three guarantees: Consistency (every read receives the most recent write), Availability (every request receives a non-error response), and Partition Tolerance (system continues operating despite network partitions)."
+      }
+    ]
+  },
+  {
+    "courseId": 13,
+    "courseCode": "BCS701",
+    "courseName": "Cryptography & Network Security",
+    "branch": "Computer Science & Engineering / ISE / Cyber Security",
+    "semester": 7,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bcs701_01",
+        "title": "Symmetric Ciphers (AES/DES), RSA, ECC, Hash Functions & SSL/TLS Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU Cyber Security Cell",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Dr. William Stallings & VTU Team",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bcs701_01",
+        "question": "Explain the RSA Public Key Cryptosystem algorithm with numerical encryption and decryption demonstration.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Asymmetric Cryptography Question (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 3,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bcs701_01",
+        "question": "What is the difference between a message digest (MD5/SHA) and a digital signature?",
+        "difficulty": "medium",
+        "coreConcept": "Integrity vs Non-Repudiation",
+        "sampleAnswer": "A message digest produces a fixed-size cryptographic hash ensuring data integrity. A digital signature encrypts that digest with the sender's private key, providing authenticity, integrity, and non-repudiation."
+      }
+    ]
+  },
+  {
+    "courseId": 201,
+    "courseCode": "BEC301",
+    "courseName": "Electronic Devices & Analog Circuits",
+    "branch": "Electronics & Communication Engineering",
+    "semester": 3,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bec301_01",
+        "title": "BJT, MOSFET Biasing, Small Signal Models & Op-Amp Circuit Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU ECE BOS",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Prof. Sedra & Smith / VTU Team",
+        "lastVerifiedAt": "2026-08-22"
+      },
+      {
+        "resourceId": "res_bec301_02",
+        "title": "Analog Circuits Simulation & Breadboard Lab Manual",
+        "type": "Lab Manuals",
+        "format": "PDF",
+        "source": "RVCE ECE Department",
+        "sourceUrl": "https://vtu.ac.in",
+        "author": "RVCE Analog Lab",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bec301_01",
+        "question": "Derive voltage gain, input impedance, and output impedance of a Common Emitter (CE) BJT amplifier using h-parameter model.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 10,
+        "module": 2,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bec301_01",
+        "question": "Why is negative feedback widely used in operational amplifier circuits?",
+        "difficulty": "easy",
+        "coreConcept": "Negative Feedback & Gain Stability",
+        "sampleAnswer": "Negative feedback stabilizes closed-loop gain, widens operational bandwidth, reduces harmonic distortion, and increases input impedance while lowering output impedance."
+      }
+    ]
+  },
+  {
+    "courseId": 202,
+    "courseCode": "BEC401",
+    "courseName": "Signals and Systems",
+    "branch": "Electronics & Communication Engineering",
+    "semester": 4,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bec401_01",
+        "title": "Continuous & Discrete Time Signals, Fourier Transform & Z-Transform Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU ECE BOS & NPTEL",
+        "sourceUrl": "https://nptel.ac.in",
+        "author": "Prof. Alan Oppenheim & VTU ECE Group",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bec401_01",
+        "question": "Find the continuous-time convolution integral y(t) = x(t) * h(t) for two rectangular pulse signals with detailed graphical sketches.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Mandatory Convolution Integral Problem (5/5 Papers)",
+        "typicalMarks": 8,
+        "module": 2,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bec401_01",
+        "question": "State the Nyquist-Shannon Sampling Theorem.",
+        "difficulty": "easy",
+        "coreConcept": "Sampling Theory & Aliasing",
+        "sampleAnswer": "A continuous-time bandlimited signal containing maximum frequency fm can be completely reconstructed from its samples if the sampling rate fs >= 2*fm (Nyquist rate)."
+      }
+    ]
+  },
+  {
+    "courseId": 203,
+    "courseCode": "BEC501",
+    "courseName": "Digital Signal Processing",
+    "branch": "Electronics & Communication Engineering",
+    "semester": 5,
+    "scheme": "VTU 2022 Scheme",
+    "credits": 4,
+    "resources": [
+      {
+        "resourceId": "res_bec501_01",
+        "title": "DFT, FFT Algorithms (DIT & DIF), IIR/FIR Filter Design Notes",
+        "type": "Notes",
+        "format": "PDF",
+        "source": "VTU ECE BOS",
+        "sourceUrl": "https://elearning.vtu.ac.in",
+        "author": "Prof. J. G. Proakis & VTU DSP Team",
+        "lastVerifiedAt": "2026-08-22"
+      }
+    ],
+    "highFrequencyQuestions": [
+      {
+        "questionId": "hfq_bec501_01",
+        "question": "Compute the 8-point DFT of a given sequence using Radix-2 Decimation-In-Time (DIT) FFT butterfly signal flow graph.",
+        "papersAnalyzed": 5,
+        "occurrenceCount": 5,
+        "frequencyRatio": 1,
+        "classification": "Observed High Recurrence Pattern (100% in 5 analyzed VTU papers)",
+        "typicalMarks": 8,
+        "module": 1,
+        "isSufficientData": true
+      }
+    ],
+    "vivaQuestions": [
+      {
+        "vivaId": "viva_bec501_01",
+        "question": "Why is the computational complexity of FFT O(N log2 N) compared to O(N^2) for direct DFT?",
+        "difficulty": "medium",
+        "coreConcept": "Fast Fourier Transform Efficiency",
+        "sampleAnswer": "Direct DFT requires N^2 complex multiplications. Radix-2 FFT exploits the periodicity and symmetry properties of twiddle factors (W_N^k) through recursive divide-and-conquer, reducing complex multiplications to (N/2)log2(N)."
+      }
+    ]
+  }
+]

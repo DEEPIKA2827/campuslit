@@ -16,7 +16,10 @@ import { Logger } from "@/lib/logger";
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return ResponseBuilder.error("Validation Error: Request body must be a valid JSON object.", 400, "VALIDATION_ERROR");
+    }
 
     Logger.info("POST /api/auth/register requested", { email: body?.email });
 

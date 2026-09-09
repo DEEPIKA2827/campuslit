@@ -17,6 +17,7 @@ import {
   StudentCieMarkWithCourseDTO,
   VivaQuestionDTO
 } from "@/types/api.types";
+import { ActionRadarResponseDTO } from "@/types/action-radar.types";
 import {
   BookOpen,
   CheckCircle2,
@@ -240,6 +241,7 @@ export default function Home() {
   const [cieMarks, setCieMarks] = useState<StudentCieMarkWithCourseDTO[]>([]);
   const [vivaQuestions, setVivaQuestions] = useState<VivaQuestionDTO[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  const [actionRadar, setActionRadar] = useState<ActionRadarResponseDTO | null>(null);
 
   // Quick Attendance Logger Modal
   const [showLogModal, setShowLogModal] = useState(false);
@@ -302,12 +304,12 @@ export default function Home() {
           }
         }
 
-        // 4. Fetch Senior Viva Questions
-        const vivaRes = await fetch(`/api/assessments/viva?courseId=${selectedCourseId || 1}`, { credentials: "include" });
-        if (vivaRes.ok) {
-          const vivaJson = await vivaRes.json();
-          if (vivaJson.success && Array.isArray(vivaJson.data)) {
-            setVivaQuestions(vivaJson.data);
+        // 4. Fetch Proactive Action Radar Intelligence
+        const radarRes = await fetch("/api/actions/radar", { credentials: "include" });
+        if (radarRes.ok) {
+          const radarJson = await radarRes.json();
+          if (radarJson.success && radarJson.data) {
+            setActionRadar(radarJson.data);
           }
         }
       } catch {
@@ -316,6 +318,27 @@ export default function Home() {
     };
 
     fetchDashboardData();
+  }, [isAuthenticated]);
+
+  // Fetch Senior Viva Questions for active selected course
+  useEffect(() => {
+    if (!isAuthenticated || !selectedCourseId) return;
+
+    const fetchVivaQuestions = async () => {
+      try {
+        const vivaRes = await fetch(`/api/assessments/viva?courseId=${selectedCourseId}`, { credentials: "include" });
+        if (vivaRes.ok) {
+          const vivaJson = await vivaRes.json();
+          if (vivaJson.success && Array.isArray(vivaJson.data)) {
+            setVivaQuestions(vivaJson.data);
+          }
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    };
+
+    fetchVivaQuestions();
   }, [isAuthenticated, selectedCourseId]);
 
   // Log attendance event directly to backend
@@ -333,7 +356,7 @@ export default function Home() {
         credentials: "include",
         body: JSON.stringify({
           courseId: logCourseId,
-          attendanceDate: new Date().toISOString().split("T")[0],
+          attendanceDate: new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" }),
           status: logStatus,
         }),
       });
@@ -535,6 +558,95 @@ export default function Home() {
           </div>
 
           {/* OS WINDOW FRAME */}
+          {/* PROACTIVE ACTION RADAR & PRIMARY MISSION BANNER (AUTHENTICATED) */}
+          {isAuthenticated && actionRadar && (
+            <div className="mx-auto max-w-6xl mb-6 space-y-4 text-left">
+              {/* PRIMARY MISSION CARD (RULE OF ONE) */}
+              <div className={`relative overflow-hidden rounded-2xl border p-5 sm:p-6 backdrop-blur-xl shadow-xl transition ${
+                actionRadar.primaryMission.urgency === "critical"
+                  ? "border-rose-500/40 bg-gradient-to-r from-rose-950/40 via-red-900/20 to-[#0f111a] shadow-rose-950/30"
+                  : actionRadar.primaryMission.urgency === "high"
+                  ? "border-amber-500/40 bg-gradient-to-r from-amber-950/40 via-yellow-900/20 to-[#0f111a] shadow-amber-950/30"
+                  : "border-purple-500/40 bg-gradient-to-r from-purple-950/40 via-indigo-900/20 to-[#0f111a] shadow-purple-950/30"
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        actionRadar.primaryMission.urgency === "critical"
+                          ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                          : actionRadar.primaryMission.urgency === "high"
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                          : "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                      }`}>
+                        <Sparkles className="size-3.5" />
+                        TODAY&apos;S MISSION • {actionRadar.primaryMission.contextBadge}
+                      </span>
+                      <span className="text-xs text-gray-400 font-mono">
+                        ⏱️ {actionRadar.primaryMission.estimatedMinutes} mins • 🎯 +{actionRadar.primaryMission.xpReward} XP
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                      {actionRadar.primaryMission.title}
+                    </h3>
+                    <p className="text-sm text-gray-300 max-w-3xl leading-relaxed">
+                      {actionRadar.primaryMission.subtitle}
+                    </p>
+
+                    {actionRadar.primaryMission.recoveryNote && (
+                      <p className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-1.5 inline-block">
+                        ⚠️ {actionRadar.primaryMission.recoveryNote}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="shrink-0 flex items-center gap-3">
+                    <Link
+                      href={actionRadar.primaryMission.actionUrl}
+                      className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition hover:scale-[1.02] active:scale-98 cursor-pointer ${
+                        actionRadar.primaryMission.urgency === "critical"
+                          ? "bg-gradient-to-r from-rose-600 to-red-700 shadow-rose-600/30 hover:shadow-rose-500/50"
+                          : actionRadar.primaryMission.urgency === "high"
+                          ? "bg-gradient-to-r from-amber-600 to-orange-700 shadow-amber-600/30 hover:shadow-amber-500/50"
+                          : "bg-gradient-to-r from-purple-600 to-indigo-700 shadow-purple-600/30 hover:shadow-purple-500/50"
+                      }`}
+                    >
+                      <span>{actionRadar.primaryMission.actionLabel}</span>
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* URGENT ALERTS DRAWER (IF ANY EXIST) */}
+              {actionRadar.urgentAlerts.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {actionRadar.urgentAlerts.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-3.5 flex items-start justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-1">
+                        <span className="font-bold text-amber-300 flex items-center gap-1.5">
+                          <AlertTriangle className="size-3.5 text-amber-400 shrink-0" />
+                          {alert.title}
+                        </span>
+                        <p className="text-gray-300">{alert.description}</p>
+                      </div>
+                      <Link
+                        href={alert.actionUrl}
+                        className="shrink-0 text-amber-400 hover:text-amber-300 underline font-medium mt-0.5"
+                      >
+                        {alert.actionLabel} &rarr;
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="relative mx-auto max-w-6xl rounded-2xl border border-white/15 bg-[#0f111a]/90 backdrop-blur-2xl p-2 sm:p-4 shadow-[0_20px_80px_rgba(0,0,0,0.8)]">
             {/* Top Mac Window Control Bar */}
             <div className="flex items-center justify-between border-b border-white/10 px-4 pb-3 pt-1">

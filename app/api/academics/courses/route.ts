@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     Logger.info("GET /api/academics/courses requested", { userId: session.userId, filter });
     const courses = await academicService.listCourses(filter);
 
-    return ResponseBuilder.success(courses, "Courses retrieved successfully.");
+    return ResponseBuilder.cached(courses, "Courses retrieved successfully.", 3600, 86400);
   } catch (error: unknown) {
     Logger.error("GET /api/academics/courses failed", error);
     const message = error instanceof Error ? error.message : "Internal Server Error";

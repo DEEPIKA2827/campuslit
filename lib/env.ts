@@ -8,7 +8,10 @@ export interface EnvironmentVariables {
   NODE_ENV: string;
   DATABASE_URL?: string;
   DIRECT_URL?: string;
-  NEXT_PUBLIC_APP_URL: string;
+  NEXT_PUBLIC_APP_URL?: string;
+  AUTH_SESSION_SECRET?: string;
+  AUTH_SESSION_SECRETS?: string;
+  DB_MAX_CONNECTIONS?: string;
   GEMINI_API_KEY?: string;
 }
 
@@ -32,16 +35,31 @@ class EnvManager {
   }
 
   /**
-   * Validates required database and service keys at application boot time.
-   * TODO: Connect database connection string check once Prisma/Supabase setup begins.
+   * Validates required database and security keys at application boot time.
    */
-  public validateEnv(): boolean {
+  public validateEnv(): { valid: boolean; missing: string[] } {
     const isProd = process.env.NODE_ENV === "production";
-    if (isProd && !process.env.DATABASE_URL) {
-      console.warn("[Env Warning] DATABASE_URL is missing in production environment.");
-      return false;
+    const missing: string[] = [];
+
+    if (!process.env.DATABASE_URL) {
+      missing.push("DATABASE_URL");
     }
-    return true;
+
+    if (!process.env.AUTH_SESSION_SECRET && !process.env.AUTH_SESSION_SECRETS) {
+      missing.push("AUTH_SESSION_SECRET / AUTH_SESSION_SECRETS");
+    }
+
+    if (missing.length > 0) {
+      const msg = `[Env Warning] Missing configuration keys: ${missing.join(", ")}`;
+      if (isProd) {
+        console.error(msg);
+      } else {
+        console.warn(msg);
+      }
+      return { valid: false, missing };
+    }
+
+    return { valid: true, missing: [] };
   }
 }
 

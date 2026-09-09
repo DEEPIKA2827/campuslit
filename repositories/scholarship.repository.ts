@@ -25,6 +25,18 @@ export interface CreateScholarshipInput {
 export interface ScholarshipFilter {
   search?: string;
   activeOnly?: boolean;
+  category?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedScholarshipsResult {
+  items: ScholarshipWithBookmarkDTO[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNextPage: boolean;
 }
 
 export interface BookmarkedScholarshipDetail {
@@ -43,7 +55,7 @@ export class ScholarshipRepository {
   }
 
   /**
-   * Lists all available scholarships with optional search and active deadline filters.
+   * Lists all available scholarships with optional search, category, and active deadline filters.
    */
   async listScholarships(filter?: ScholarshipFilter): Promise<ScholarshipDTO[]> {
     const client = this.getDb();
@@ -60,6 +72,10 @@ export class ScholarshipRepository {
           ilike(schema.scholarships.eligibility, searchPattern)
         )
       );
+    }
+
+    if (filter?.category && filter.category !== "all") {
+      conditions.push(ilike(schema.scholarships.description, `%${filter.category}%`));
     }
 
     if (filter?.activeOnly) {
@@ -87,7 +103,8 @@ export class ScholarshipRepository {
   }
 
   /**
-   * Lists all scholarships with the current user's bookmark state in a single LEFT JOIN (0 N+1 queries).
+   * Lists all scholarships with the current user's bookmark state in a single LEFT JOIN (0 N+1 queries)
+   * with server-side pagination support.
    */
   async listScholarshipsWithBookmarkStatus(
     userId: number,
@@ -109,6 +126,10 @@ export class ScholarshipRepository {
       );
     }
 
+    if (filter?.category && filter.category !== "all") {
+      conditions.push(ilike(schema.scholarships.description, `%${filter.category}%`));
+    }
+
     if (filter?.activeOnly) {
       conditions.push(
         or(
@@ -118,7 +139,7 @@ export class ScholarshipRepository {
       );
     }
 
-    const baseQuery = client
+    let baseQuery = client
       .select({
         scholarshipId: schema.scholarships.scholarshipId,
         scholarshipName: schema.scholarships.scholarshipName,
@@ -137,9 +158,19 @@ export class ScholarshipRepository {
         )
       );
 
-    const records = conditions.length > 0
-      ? await baseQuery.where(and(...conditions)).orderBy(asc(schema.scholarships.deadline))
-      : await baseQuery.orderBy(asc(schema.scholarships.deadline));
+    if (conditions.length > 0) {
+      baseQuery = baseQuery.where(and(...conditions)) as typeof baseQuery;
+    }
+
+    baseQuery = baseQuery.orderBy(asc(schema.scholarships.deadline)) as typeof baseQuery;
+
+    if (filter?.limit) {
+      const page = filter.page && filter.page > 0 ? filter.page : 1;
+      const offset = (page - 1) * filter.limit;
+      baseQuery = baseQuery.limit(filter.limit).offset(offset) as typeof baseQuery;
+    }
+
+    const records = await baseQuery;
 
     return records.map((r) => ({
       scholarshipId: r.scholarshipId,
@@ -240,7 +271,6 @@ export class ScholarshipRepository {
       .returning();
 
     if (!record) {
-      // Record already existed, fetch existing
       const [existing] = await client
         .select()
         .from(schema.studentScholarshipBookmarks)

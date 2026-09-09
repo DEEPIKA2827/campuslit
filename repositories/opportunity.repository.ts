@@ -6,7 +6,7 @@
  */
 
 import { db, schema } from "@/lib/db";
-import { eq, and, desc, ilike, or, isNull, gte, sql } from "drizzle-orm";
+import { eq, and, desc, asc, ilike, or, isNull, gte, sql } from "drizzle-orm";
 import { Logger } from "@/lib/logger";
 import {
   OpportunityDTO,
@@ -26,6 +26,10 @@ export interface CreateOpportunityInput {
 export interface OpportunityFilter {
   search?: string;
   activeOnly?: boolean;
+  category?: string;
+  workMode?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface TrackedOpportunityDetail {
@@ -68,6 +72,14 @@ export class OpportunityRepository {
       );
     }
 
+    if (filter?.category && filter.category !== "all") {
+      conditions.push(ilike(schema.opportunities.description, `%${filter.category}%`));
+    }
+
+    if (filter?.workMode && filter.workMode !== "all") {
+      conditions.push(ilike(schema.opportunities.description, `%${filter.workMode}%`));
+    }
+
     if (filter?.activeOnly) {
       conditions.push(
         or(
@@ -93,7 +105,8 @@ export class OpportunityRepository {
   }
 
   /**
-   * Lists all opportunities with the current student's tracking status in a single LEFT JOIN (0 N+1 queries).
+   * Lists all opportunities with the current student's tracking status in a single LEFT JOIN (0 N+1 queries)
+   * with server-side pagination and multi-facet filtering support.
    */
   async listOpportunitiesWithTrackingStatus(
     userId: number,
@@ -115,6 +128,14 @@ export class OpportunityRepository {
       );
     }
 
+    if (filter?.category && filter.category !== "all") {
+      conditions.push(ilike(schema.opportunities.description, `%${filter.category}%`));
+    }
+
+    if (filter?.workMode && filter.workMode !== "all") {
+      conditions.push(ilike(schema.opportunities.description, `%${filter.workMode}%`));
+    }
+
     if (filter?.activeOnly) {
       conditions.push(
         or(
@@ -124,7 +145,7 @@ export class OpportunityRepository {
       );
     }
 
-    const baseQuery = client
+    let baseQuery = client
       .select({
         opportunityId: schema.opportunities.opportunityId,
         title: schema.opportunities.title,
@@ -144,9 +165,19 @@ export class OpportunityRepository {
         )
       );
 
-    const records = conditions.length > 0
-      ? await baseQuery.where(and(...conditions))
-      : await baseQuery;
+    if (conditions.length > 0) {
+      baseQuery = baseQuery.where(and(...conditions)) as typeof baseQuery;
+    }
+
+    baseQuery = baseQuery.orderBy(asc(schema.opportunities.deadline)) as typeof baseQuery;
+
+    if (filter?.limit) {
+      const page = filter.page && filter.page > 0 ? filter.page : 1;
+      const offset = (page - 1) * filter.limit;
+      baseQuery = baseQuery.limit(filter.limit).offset(offset) as typeof baseQuery;
+    }
+
+    const records = await baseQuery;
 
     return records.map((r) => ({
       opportunityId: r.opportunityId,
@@ -254,7 +285,7 @@ export class OpportunityRepository {
         target: [schema.studentOpportunities.userId, schema.studentOpportunities.opportunityId],
         set: {
           status,
-          savedAt: new Date().toISOString(),
+          savedAt: sql`CURRENT_TIMESTAMP`,
         },
       })
       .returning();
@@ -268,8 +299,7 @@ export class OpportunityRepository {
   }
 
   /**
-   * Untracks/removes an opportunity tracking entry for a student.
-   * Scoped strictly by userId and opportunityId.
+   * Untracks an opportunity for a student. Scoped strictly by userId.
    */
   async untrackOpportunity(userId: number, opportunityId: number): Promise<boolean> {
     const client = this.getDb();
@@ -289,19 +319,49 @@ export class OpportunityRepository {
   }
 
   /**
-   * Retrieves all opportunities tracked by a user with full opportunity details.
-   * Scoped strictly by userId.
+   * Retrieves a student's tracked opportunity status. Scoped strictly by userId.
    */
-  async getUserTrackedOpportunities(
+  async getStudentTrackingStatus(
     userId: number,
-    statusFilter?: OpportunityStatus
+    opportunityId: number
+  ): Promise<StudentOpportunityDTO | null> {
+    const client = this.getDb();
+    Logger.debug("OpportunityRepository.getStudentTrackingStatus", { userId, opportunityId });
+
+    const [record] = await client
+      .select()
+      .from(schema.studentOpportunities)
+      .where(
+        and(
+          eq(schema.studentOpportunities.userId, userId),
+          eq(schema.studentOpportunities.opportunityId, opportunityId)
+        )
+      );
+
+    if (!record) return null;
+
+    return {
+      userId: record.userId,
+      opportunityId: record.opportunityId,
+      status: record.status as OpportunityStatus,
+      savedAt: record.savedAt,
+    };
+  }
+
+  /**
+   * Retrieves all opportunities tracked by a student with full opportunity details.
+   * Scoped strictly by userId, filtered optionally by status.
+   */
+  async getStudentOpportunities(
+    userId: number,
+    status?: OpportunityStatus
   ): Promise<TrackedOpportunityDetail[]> {
     const client = this.getDb();
-    Logger.debug("OpportunityRepository.getUserTrackedOpportunities", { userId, statusFilter });
+    Logger.debug("OpportunityRepository.getStudentOpportunities", { userId, status });
 
     const conditions = [eq(schema.studentOpportunities.userId, userId)];
-    if (statusFilter) {
-      conditions.push(eq(schema.studentOpportunities.status, statusFilter));
+    if (status) {
+      conditions.push(eq(schema.studentOpportunities.status, status));
     }
 
     const records = await client
@@ -338,34 +398,23 @@ export class OpportunityRepository {
   }
 
   /**
-   * Retrieves tracking status for a specific student and opportunity.
-   * Scoped strictly by userId.
+   * Alias for getStudentTrackingStatus for backwards compatibility.
    */
   async getStudentOpportunityStatus(
     userId: number,
     opportunityId: number
   ): Promise<StudentOpportunityDTO | null> {
-    const client = this.getDb();
-    Logger.debug("OpportunityRepository.getStudentOpportunityStatus", { userId, opportunityId });
+    return this.getStudentTrackingStatus(userId, opportunityId);
+  }
 
-    const [record] = await client
-      .select()
-      .from(schema.studentOpportunities)
-      .where(
-        and(
-          eq(schema.studentOpportunities.userId, userId),
-          eq(schema.studentOpportunities.opportunityId, opportunityId)
-        )
-      );
-
-    if (!record) return null;
-
-    return {
-      userId: record.userId,
-      opportunityId: record.opportunityId,
-      status: record.status as OpportunityStatus,
-      savedAt: record.savedAt,
-    };
+  /**
+   * Alias for getStudentOpportunities for backwards compatibility.
+   */
+  async getUserTrackedOpportunities(
+    userId: number,
+    status?: OpportunityStatus
+  ): Promise<TrackedOpportunityDetail[]> {
+    return this.getStudentOpportunities(userId, status);
   }
 }
 

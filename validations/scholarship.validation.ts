@@ -17,6 +17,9 @@ export interface CreateScholarshipInput {
 export interface ScholarshipFilterInput {
   search?: string;
   activeOnly?: boolean;
+  category?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface BookmarkScholarshipInput {
@@ -91,7 +94,7 @@ export class ScholarshipValidation {
   }
 
   /**
-   * Validates scholarship search and active deadline filter.
+   * Validates scholarship search, category, active deadline filter, and pagination.
    */
   static validateScholarshipFilter(
     data: Partial<ScholarshipFilterInput>
@@ -106,8 +109,20 @@ export class ScholarshipValidation {
       }
     }
 
+    if (data.category !== undefined && typeof data.category !== "string") {
+      errors.push("Category must be a string.");
+    }
+
     if (data.activeOnly !== undefined && typeof data.activeOnly !== "boolean") {
       errors.push("activeOnly must be a boolean.");
+    }
+
+    if (data.page !== undefined && (!Number.isInteger(data.page) || data.page < 1)) {
+      errors.push("page must be a positive integer.");
+    }
+
+    if (data.limit !== undefined && (!Number.isInteger(data.limit) || data.limit < 1 || data.limit > 100)) {
+      errors.push("limit must be an integer between 1 and 100.");
     }
 
     if (errors.length > 0) {
@@ -119,7 +134,10 @@ export class ScholarshipValidation {
       success: true,
       data: {
         ...(data.search !== undefined && { search: data.search.trim() }),
+        ...(data.category !== undefined && { category: data.category.trim() }),
         ...(data.activeOnly !== undefined && { activeOnly: data.activeOnly }),
+        ...(data.page !== undefined && { page: data.page }),
+        ...(data.limit !== undefined && { limit: data.limit }),
       },
     };
   }

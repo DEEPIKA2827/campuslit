@@ -1,12 +1,15 @@
 /**
  * @file db/seed.ts
  * @description Master Seed Script for CampusOS.
- * @purpose Populates the database with realistic, synthetic demo data across all 21 tables.
+ * @purpose Populates the database with realistic, authentic catalog data across all 21 tables using the Ingestion Engine.
  * @order Strictly respects topological dependency order (Level 0 through Level 4).
  */
 
 import { db, schema } from "@/lib/db";
 import { Logger } from "@/lib/logger";
+import { eq, gt } from "drizzle-orm";
+import { CatalogIngestionEngine } from "@/lib/ingestion";
+import karnatakaCollegesData from "@/data/karnataka_engineering_colleges.json";
 
 export async function runSeed(): Promise<void> {
   if (!db) {
@@ -15,7 +18,7 @@ export async function runSeed(): Promise<void> {
     );
   }
 
-  Logger.info("Starting CampusOS Master Seed Pipeline across 21 tables...");
+  Logger.info("Starting CampusOS Master Seed Pipeline across 21 tables via CatalogIngestionEngine...");
 
   try {
     // =========================================================================
@@ -23,22 +26,22 @@ export async function runSeed(): Promise<void> {
     // =========================================================================
     Logger.info("Seeding Level 0: Master Tables (users, colleges, scholarships, roadmaps, opportunities)...");
 
-    // 1. Users (5 Demo Accounts: 1 Admin, 1 Faculty, 3 Engineering Students)
+    // 1. Users (5 Core Demo Users)
     const seededUsers = await db
       .insert(schema.users)
       .values([
         {
-          email: "admin@campusos.internal",
+          email: "admin@campusos.demo",
           passwordHash: "$2a$12$demo_admin_hash_for_testing_purposes_only",
           role: "admin",
         },
         {
-          email: "faculty.cs@rvce.edu.in",
+          email: "faculty.sharma@campusos.demo",
           passwordHash: "$2a$12$demo_faculty_hash_for_testing_purposes_only",
           role: "faculty",
         },
         {
-          email: "student.rahul@campusos.demo",
+          email: "test.primary@campusos.internal",
           passwordHash: "$2a$12$demo_student_hash_for_testing_purposes_only",
           role: "student",
         },
@@ -56,53 +59,71 @@ export async function runSeed(): Promise<void> {
       .onConflictDoNothing()
       .returning();
 
-    // 2. Colleges (4 Demo Engineering Colleges)
-    const seededColleges = await db
-      .insert(schema.colleges)
-      .values([
-        { collegeName: "RV College of Engineering (RVCE)", location: "Bengaluru, Karnataka" },
-        { collegeName: "BMS College of Engineering (BMSCE)", location: "Bengaluru, Karnataka" },
-        { collegeName: "PES University (PESU)", location: "Bengaluru, Karnataka" },
-        { collegeName: "M.S. Ramaiah Institute of Technology (MSRIT)", location: "Bengaluru, Karnataka" },
-      ])
-      .onConflictDoNothing()
-      .returning();
+    // 2. Colleges (Canonical Dataset of 192 Verified Karnataka Engineering Institutions)
+    const existingColleges = await db.select().from(schema.colleges);
 
-    // 3. Scholarships (4 Demo Government & Foundation Scholarships)
-    const seededScholarships = await db
-      .insert(schema.scholarships)
-      .values([
-        {
-          scholarshipName: "SSP Post-Matric Scholarship (Karnataka)",
-          description: "State Scholarship Portal financial assistance for eligible Karnataka undergraduate students.",
-          eligibility: "Karnataka domicile, parental income < 2.5 LPA, enrolled in recognized degree.",
-          applicationUrl: "https://ssp.postmatric.karnataka.gov.in",
-          deadline: "2026-10-31",
-        },
-        {
-          scholarshipName: "Vidyasiri E-Pass Scheme",
-          description: "Hostel and fee reimbursement support for backward classes and minority students in Karnataka.",
-          eligibility: "OBC / Minority students studying in accredited technical institutions.",
-          applicationUrl: "https://karepass.cgg.gov.in",
-          deadline: "2026-11-15",
-        },
-        {
-          scholarshipName: "National Scholarship Portal (NSP) Merit-cum-Means",
-          description: "Central government merit-cum-means financial grant for professional and technical education.",
-          eligibility: "Minimum 50% marks in previous final exam, family income < 2.5 LPA.",
-          applicationUrl: "https://scholarships.gov.in",
-          deadline: "2026-12-01",
-        },
-        {
-          scholarshipName: "Foundation for Excellence (FFE) Engineering Grant",
-          description: "Need-cum-merit financial support for exceptional first-year engineering students.",
-          eligibility: "Top ranks in KCET/JEE with demonstrated financial need.",
-          applicationUrl: "https://ffe.org",
-          deadline: "2026-09-30",
-        },
-      ])
-      .onConflictDoNothing()
-      .returning();
+    for (let i = 0; i < karnatakaCollegesData.length; i++) {
+      const c = karnatakaCollegesData[i];
+      const existing = existingColleges.find((ex) => ex.collegeId === c.collegeId);
+      if (existing) {
+        await db
+          .update(schema.colleges)
+          .set({
+            collegeName: c.collegeName,
+            location: `${c.location} • ${c.affiliation} • ${c.type}`,
+          })
+          .where(eq(schema.colleges.collegeId, c.collegeId));
+      } else {
+        await db.insert(schema.colleges).values({
+          collegeName: c.collegeName,
+          location: `${c.location} • ${c.affiliation} • ${c.type}`,
+        });
+      }
+    }
+
+    // Clean up any extraneous rows beyond the 192 canonical institutions
+    await db
+      .delete(schema.colleges)
+      .where(gt(schema.colleges.collegeId, 192));
+
+    const seededColleges = await db.select().from(schema.colleges);
+
+    // 3. Scholarships (Ingested via CatalogIngestionEngine)
+    const scholarshipValidation = CatalogIngestionEngine.loadScholarships();
+    const existingScholarships = await db
+      .select({ id: schema.scholarships.scholarshipId, name: schema.scholarships.scholarshipName })
+      .from(schema.scholarships);
+    const existingSchMap = new Map(
+      existingScholarships.map((s) => [s.name.toLowerCase().trim(), s.id])
+    );
+
+    for (const s of scholarshipValidation.validRecords) {
+      const formattedDesc = `${s.provider} • Source: ${s.source} • Category: ${s.category} • Amount: ${s.grantAmount} • Verified: ${s.lastVerifiedAt} [${s.verificationStatus}]`;
+      const formattedElig = `${s.eligibility} • Criteria: ${s.academicCriteria}${s.maxIncome ? ` • Income: ${s.maxIncome}` : ""}`;
+
+      const existingId = existingSchMap.get(s.scholarshipName.toLowerCase().trim());
+      if (existingId) {
+        await db
+          .update(schema.scholarships)
+          .set({
+            description: formattedDesc,
+            eligibility: formattedElig,
+            applicationUrl: s.applicationUrl,
+            deadline: s.deadline,
+          })
+          .where(eq(schema.scholarships.scholarshipId, existingId));
+      } else {
+        await db.insert(schema.scholarships).values({
+          scholarshipName: s.scholarshipName,
+          description: formattedDesc,
+          eligibility: formattedElig,
+          applicationUrl: s.applicationUrl,
+          deadline: s.deadline,
+        });
+      }
+    }
+
+    const seededScholarships = await db.select().from(schema.scholarships);
 
     // 4. Roadmaps (3 Demo Career Roadmaps)
     const seededRoadmaps = await db
@@ -127,55 +148,48 @@ export async function runSeed(): Promise<void> {
       .onConflictDoNothing()
       .returning();
 
-    // 5. Opportunities (5 Demo Tech Internships & Hackathons)
-    const seededOpportunities = await db
-      .insert(schema.opportunities)
-      .values([
-        {
-          title: "Software Engineering Intern (Summer 2027)",
-          company: "CloudTech Solutions Bengaluru",
-          description: "Frontend & backend engineering internship for 3rd/4th year undergraduate engineering students.",
-          applicationUrl: "https://careers.cloudtech-demo.internal/jobs/101",
-          deadline: "2026-11-30",
-        },
-        {
-          title: "Karnataka State Smart Campus Hackathon 2026",
-          company: "Department of Higher Education Karnataka",
-          description: "48-hour state-wide hackathon focusing on AI for public university administration and student tools.",
-          applicationUrl: "https://hackathon.karnataka-demo.internal",
-          deadline: "2026-09-15",
-        },
-        {
-          title: "Data Science Research Fellow",
-          company: "AI Labs Innovation Center",
-          description: "Part-time research fellowship analyzing educational learning graphs and predictive attendance models.",
-          applicationUrl: "https://ailabs-demo.internal/fellowships",
-          deadline: "2026-10-15",
-        },
-        {
-          title: "Backend Engineering Trainee (Go / Node.js)",
-          company: "FinFlow Technologies",
-          description: "6-month paid industrial training on high-throughput distributed transaction systems.",
-          applicationUrl: "https://finflow-demo.internal/careers",
-          deadline: "2026-12-15",
-        },
-        {
-          title: "Google Developer Student Clubs Ideathon",
-          company: "GDSC Karnataka Chapter",
-          description: "Ideation sprint for high-impact sustainable open-source software solutions.",
-          applicationUrl: "https://gdsc-karnataka-demo.internal",
-          deadline: "2026-09-20",
-        },
-      ])
-      .onConflictDoNothing()
-      .returning();
+    // 5. Opportunities (Ingested via CatalogIngestionEngine)
+    const opportunityValidation = CatalogIngestionEngine.loadOpportunities();
+    const existingOpportunities = await db
+      .select({ id: schema.opportunities.opportunityId, title: schema.opportunities.title })
+      .from(schema.opportunities);
+    const existingOppMap = new Map(
+      existingOpportunities.map((o) => [o.title.toLowerCase().trim(), o.id])
+    );
 
-    // Fetch master records if returning was empty due to existing conflicts
+    for (const o of opportunityValidation.validRecords) {
+      const formattedDesc = `${o.description} • Source: ${o.source} • Category: ${o.category} • Mode: ${o.workMode} • Stipend: ${o.stipend} • Tags: ${o.tags.join(", ")} • Batch: ${o.batch.join(", ")} • Verified: ${o.lastVerifiedAt}`;
+
+      const existingId = existingOppMap.get(o.title.toLowerCase().trim());
+      if (existingId) {
+        await db
+          .update(schema.opportunities)
+          .set({
+            company: o.company,
+            description: formattedDesc,
+            applicationUrl: o.applicationUrl,
+            deadline: o.deadline,
+          })
+          .where(eq(schema.opportunities.opportunityId, existingId));
+      } else {
+        await db.insert(schema.opportunities).values({
+          title: o.title,
+          company: o.company,
+          description: formattedDesc,
+          applicationUrl: o.applicationUrl,
+          deadline: o.deadline,
+        });
+      }
+    }
+
+    const seededOpportunities = await db.select().from(schema.opportunities);
+
+    // Fetch master records
     const allUsers = seededUsers.length > 0 ? seededUsers : await db.select().from(schema.users);
     const allColleges = seededColleges.length > 0 ? seededColleges : await db.select().from(schema.colleges);
-    const allScholarships = seededScholarships.length > 0 ? seededScholarships : await db.select().from(schema.scholarships);
+    const allScholarships = seededScholarships;
     const allRoadmaps = seededRoadmaps.length > 0 ? seededRoadmaps : await db.select().from(schema.roadmaps);
-    const allOpportunities = seededOpportunities.length > 0 ? seededOpportunities : await db.select().from(schema.opportunities);
+    const allOpportunities = seededOpportunities;
 
     // =========================================================================
     // LEVEL 1: First-Tier Dependencies
@@ -278,35 +292,25 @@ export async function runSeed(): Promise<void> {
     // =========================================================================
     Logger.info("Seeding Level 2: Courses, Chat Messages, Student Roadmap Progress...");
 
-    // 12. Courses (Linked to Academic Schemes)
-    const seededCourses = await db
-      .insert(schema.courses)
-      .values([
-        {
-          schemeId: allSchemes[0].schemeId,
-          courseName: "Data Structures and Applications",
-          courseCode: "21CS32",
-        },
-        {
-          schemeId: allSchemes[0].schemeId,
-          courseName: "Database Management Systems",
-          courseCode: "21CS42",
-        },
-        {
-          schemeId: allSchemes[0].schemeId,
-          courseName: "Operating Systems",
-          courseCode: "21CS43",
-        },
-        {
-          schemeId: allSchemes[0].schemeId,
-          courseName: "Computer Networks",
-          courseCode: "21CS52",
-        },
-      ])
-      .onConflictDoNothing()
-      .returning();
+    // 12. Courses (Synchronized from Ingested Academic Resource Vault)
+    const academicVaultValidation = CatalogIngestionEngine.loadAcademicResources();
+    const existingCourses = await db.select().from(schema.courses);
+    const existingCourseMap = new Map(existingCourses.map((c) => [c.courseCode?.toUpperCase() || "", c]));
 
-    const allCourses = seededCourses.length > 0 ? seededCourses : await db.select().from(schema.courses);
+    for (const cv of academicVaultValidation.validRecords) {
+      if (!existingCourseMap.has(cv.courseCode.toUpperCase())) {
+        await db
+          .insert(schema.courses)
+          .values({
+            schemeId: allSchemes[0].schemeId,
+            courseName: cv.courseName,
+            courseCode: cv.courseCode,
+          })
+          .onConflictDoNothing();
+      }
+    }
+
+    const allCourses = await db.select().from(schema.courses);
 
     // 13. Chat Messages (Linked to Chat Threads)
     if (allThreads.length > 0) {
@@ -354,7 +358,7 @@ export async function runSeed(): Promise<void> {
     // =========================================================================
     Logger.info("Seeding Level 3: Student Profiles, Attendance Logs/Summaries, CIE Assessments, Question Banks...");
 
-    // 15. Student Profiles (Linked to users, colleges, courses — STRICTLY NO scheme_id)
+    // 15. Student Profiles (Linked to users, colleges, courses)
     const studentUsers = allUsers.filter((u) => u.role === "student");
     const demoProfiles = [
       {
@@ -389,7 +393,7 @@ export async function runSeed(): Promise<void> {
 
     // 16. Attendance Logs (Daily entries)
     const primaryStudent = demoProfiles[0].userId;
-    const dbmsCourse = allCourses[1].courseId;
+    const dbmsCourse = allCourses[1]?.courseId || allCourses[0].courseId;
 
     await db
       .insert(schema.attendanceLogs)
@@ -436,55 +440,51 @@ export async function runSeed(): Promise<void> {
 
     const allCie = seededCie.length > 0 ? seededCie : await db.select().from(schema.cieAssessments);
 
-    // 19. PYQs (Previous-Year Questions)
-    await db
-      .insert(schema.pyqs)
-      .values([
-        {
-          courseId: dbmsCourse,
-          question: "Explain the three-schema architecture of DBMS and differentiate between logical and physical data independence.",
-          examYear: 2024,
-          marks: "10.00",
-          difficulty: "medium",
-        },
-        {
-          courseId: dbmsCourse,
-          question: "What is BCNF? How does it differ from 3NF? Illustrate with a relation schema that satisfies 3NF but not BCNF.",
-          examYear: 2023,
-          marks: "10.00",
-          difficulty: "hard",
-        },
-        {
-          courseId: dbmsCourse,
-          question: "Define primary key, candidate key, foreign key, and super key with appropriate examples.",
-          examYear: 2024,
-          marks: "5.00",
-          difficulty: "easy",
-        },
-      ])
-      .onConflictDoNothing();
+    // 19. PYQs (Previous-Year Questions from canonical resources)
+    const pyqValues = [];
 
-    // 20. Viva Questions
-    await db
-      .insert(schema.vivaQuestions)
-      .values([
-        {
-          courseId: dbmsCourse,
-          question: "What is the difference between TRUNCATE, DROP, and DELETE statements in SQL?",
-          difficulty: "easy",
-        },
-        {
-          courseId: dbmsCourse,
-          question: "Why are B+ trees preferred over B trees for disk-based database indexing?",
-          difficulty: "medium",
-        },
-        {
-          courseId: dbmsCourse,
-          question: "What are ACID properties? How does Write-Ahead Logging (WAL) guarantee durability?",
-          difficulty: "hard",
-        },
-      ])
-      .onConflictDoNothing();
+    for (const courseData of academicVaultValidation.validRecords) {
+      const matchCourse = allCourses.find(
+        (c) => c.courseCode?.toUpperCase() === courseData.courseCode.toUpperCase() ||
+               c.courseName.toLowerCase() === courseData.courseName.toLowerCase()
+      ) || allCourses[0];
+
+      for (const hfq of courseData.highFrequencyQuestions) {
+        pyqValues.push({
+          courseId: matchCourse.courseId,
+          question: hfq.question,
+          examYear: 2024,
+          marks: hfq.typicalMarks.toFixed(2),
+          difficulty: hfq.frequencyRatio >= 0.8 ? ("hard" as const) : ("medium" as const),
+        });
+      }
+    }
+
+    if (pyqValues.length > 0) {
+      await db.insert(schema.pyqs).values(pyqValues).onConflictDoNothing();
+    }
+
+    // 20. Viva Questions (from canonical resources)
+    const vivaValues = [];
+
+    for (const courseData of academicVaultValidation.validRecords) {
+      const matchCourse = allCourses.find(
+        (c) => c.courseCode?.toUpperCase() === courseData.courseCode.toUpperCase() ||
+               c.courseName.toLowerCase() === courseData.courseName.toLowerCase()
+      ) || allCourses[0];
+
+      for (const v of courseData.vivaQuestions) {
+        vivaValues.push({
+          courseId: matchCourse.courseId,
+          question: v.question,
+          difficulty: v.difficulty as "easy" | "medium" | "hard",
+        });
+      }
+    }
+
+    if (vivaValues.length > 0) {
+      await db.insert(schema.vivaQuestions).values(vivaValues).onConflictDoNothing();
+    }
 
     // =========================================================================
     // LEVEL 4: Fourth-Tier Dependencies (CIE Marks)

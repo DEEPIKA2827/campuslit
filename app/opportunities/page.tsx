@@ -29,18 +29,26 @@ import {
 const categories = [
   { id: "all", label: "All Opportunities" },
   { id: "internships", label: "Internships" },
+  { id: "jobs", label: "Full-Time Jobs" },
   { id: "hackathons", label: "Hackathons" },
-  { id: "scholarships", label: "Scholarships" },
   { id: "competitions", label: "Competitions" },
+  { id: "fellowships", label: "Fellowships" },
   { id: "opensource", label: "Open Source" },
   { id: "campus_drives", label: "Campus Drives" },
+  { id: "research", label: "Research" },
+  { id: "trainee_roles", label: "GET & Trainee" },
+  { id: "apprenticeships", label: "Apprenticeships" },
 ];
+
+import opportunitiesData from "@/data/opportunities.json";
 
 export interface OpportunityItem {
   id: string;
   numericId?: number;
   title: string;
   organization: string;
+  source?: string;
+  sourceUrl?: string;
   logo: string;
   category: string;
   workMode: string;
@@ -49,150 +57,58 @@ export interface OpportunityItem {
   minCGPA: number;
   stipend: string;
   isPaid: boolean;
-  deadline: string;
+  deadline: string | null;
   isUrgent: boolean;
   tags: string[];
   description: string;
   teammatesNeeded: boolean;
   verifiedBySenior: boolean;
   applicationUrl?: string | null;
+  lastVerifiedAt?: string;
 }
 
-// Fallback & Curated Opportunities Data for Karnataka Students
-const defaultOpportunities: OpportunityItem[] = [
-  {
-    id: "1",
-    numericId: 1,
-    title: "SDE Summer Intern 2026",
-    organization: "Bosch Global Software Technologies",
-    logo: "⚡",
-    category: "internships",
-    workMode: "Hybrid",
-    location: "Bengaluru, KA",
-    batch: ["2026", "2027"],
-    minCGPA: 7.0,
-    stipend: "₹35,000 / month",
-    isPaid: true,
-    deadline: "In 3 days",
-    isUrgent: true,
-    tags: ["C++", "Python", "Embedded Systems", "Linux"],
-    description: "Build automotive software & cloud microservices with Bosch India engineering teams.",
-    teammatesNeeded: false,
-    verifiedBySenior: true,
-    applicationUrl: "https://www.bosch.in/careers",
-  },
-  {
-    id: "2",
-    numericId: 2,
-    title: "RVCE National Hackathon 2026 (HackRVCE)",
-    organization: "RV College of Engineering • IEEE Student Branch",
-    logo: "🏆",
-    category: "hackathons",
-    workMode: "On-site",
-    location: "Bengaluru, KA",
-    batch: ["2025", "2026", "2027", "2028"],
-    minCGPA: 0.0,
-    stipend: "₹1,50,000 Prize Pool",
-    isPaid: true,
-    deadline: "In 5 days",
-    isUrgent: false,
-    tags: ["Web Dev", "AI/ML", "IoT", "Open Track"],
-    description: "36-hour flagship hackathon at RVCE Campus. Free food, schwag & direct interview bypass for top 3 teams.",
-    teammatesNeeded: true,
-    verifiedBySenior: true,
-    applicationUrl: "https://hackrvce.com",
-  },
-  {
-    id: "3",
-    numericId: 3,
-    title: "SSP Karnataka Post-Matric State Scholarship",
-    organization: "Government of Karnataka • State Scholarship Portal",
-    logo: "🎓",
-    category: "scholarships",
-    workMode: "Remote",
-    location: "Karnataka State",
-    batch: ["2025", "2026", "2027", "2028"],
-    minCGPA: 6.0,
-    stipend: "₹25,000 / year",
-    isPaid: true,
-    deadline: "In 12 days",
-    isUrgent: false,
-    tags: ["Government Grant", "SSP Portal", "Tuition Fee Reimbursement"],
-    description: "State government merit & fee reimbursement grant for engineering students in VTU & Autonomous colleges.",
-    teammatesNeeded: false,
-    verifiedBySenior: true,
-    applicationUrl: "https://ssp.postmatric.karnataka.gov.in",
-  },
-  {
-    id: "4",
-    numericId: 4,
-    title: "Google Summer of Code (GSoC) 2026",
-    organization: "Google Open Source",
-    logo: "🌐",
-    category: "opensource",
-    workMode: "Remote",
-    location: "Global Remote",
-    batch: ["2025", "2026", "2027", "2028"],
-    minCGPA: 0.0,
-    stipend: "$1,500 - $3,000 Stipend",
-    isPaid: true,
-    deadline: "In 8 days",
-    isUrgent: false,
-    tags: ["Open Source", "Git", "Python", "Go", "Rust"],
-    description: "12-week global remote program writing code for open source organizations under expert mentors.",
-    teammatesNeeded: false,
-    verifiedBySenior: true,
-    applicationUrl: "https://summerofcode.withgoogle.com",
-  },
-  {
-    id: "5",
-    numericId: 5,
-    title: "Cisco Campus Graduate Placement Drive",
-    organization: "Cisco Systems India",
-    logo: "🚀",
-    category: "campus_drives",
-    workMode: "On-site",
-    location: "Bengaluru, KA",
-    batch: ["2026"],
-    minCGPA: 8.0,
-    stipend: "18.5 LPA (CTC)",
-    isPaid: true,
-    deadline: "In 48 hours",
-    isUrgent: true,
-    tags: ["Networking", "Python", "DSA", "Operating Systems"],
-    description: "Exclusive campus placement drive for Karnataka engineering colleges. Online test on Thursday.",
-    teammatesNeeded: false,
-    verifiedBySenior: true,
-    applicationUrl: "https://jobs.cisco.com",
-  },
-  {
-    id: "6",
-    numericId: 6,
-    title: "IEEE Xtreme 24-Hour Competitive Coding",
-    organization: "IEEE Global",
-    logo: "⚡",
-    category: "competitions",
-    workMode: "Remote",
-    location: "Online / Local Campus",
-    batch: ["2025", "2026", "2027", "2028"],
-    minCGPA: 0.0,
-    stipend: "Global Ranking & Trips",
-    isPaid: false,
-    deadline: "In 6 days",
-    isUrgent: false,
-    tags: ["DSA", "Algorithms", "C++", "Competitive Programming"],
-    description: "Virtual 24-hour algorithmic battle against 10,000+ IEEE student members worldwide.",
-    teammatesNeeded: true,
-    verifiedBySenior: true,
-    applicationUrl: "https://ieeextreme.org",
-  },
-];
+// Canonical Karnataka & Tech Industry Opportunities Data
+const defaultOpportunities: OpportunityItem[] = opportunitiesData.map((o) => ({
+  id: String(o.opportunityId),
+  numericId: o.opportunityId,
+  title: o.title,
+  organization: o.company,
+  source: o.source,
+  sourceUrl: o.sourceUrl,
+  logo:
+    o.category === "hackathons"
+      ? "🏆"
+      : o.category === "opensource"
+      ? "🌐"
+      : o.category === "campus_drives"
+      ? "🏢"
+      : o.category === "fellowships"
+      ? "🎓"
+      : o.category === "competitions"
+      ? "💡"
+      : "⚡",
+  category: o.category,
+  workMode: o.workMode,
+  location: o.location,
+  batch: o.batch,
+  minCGPA: o.minCGPA,
+  stipend: o.stipend,
+  isPaid: o.isPaid,
+  deadline: o.deadline,
+  isUrgent: o.isUrgent,
+  tags: o.tags,
+  description: o.description,
+  teammatesNeeded: o.teammatesNeeded,
+  verifiedBySenior: true,
+  applicationUrl: o.applicationUrl,
+  lastVerifiedAt: o.lastVerifiedAt,
+}));
 
 export default function OpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<OpportunityItem[]>(defaultOpportunities);
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [bookmarks, setBookmarks] = useState<string[]>(["2"]);
+  const [bookmarks, setBookmarks] = useState<string[]>([]);
 
   // Filter States
   const [workModeFilter, setWorkModeFilter] = useState("all");
@@ -211,7 +127,7 @@ export default function OpportunitiesPage() {
         const res = await fetch("/api/opportunities", { credentials: "include" });
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          if (json.success && Array.isArray(json.data)) {
             const liveItems: OpportunityItem[] = json.data.map((item: OpportunityWithTrackingDTO, idx: number) => {
               const matchedDefault = defaultOpportunities.find(
                 (d) => d.title.toLowerCase() === item.title.toLowerCase() || d.id === String(item.opportunityId)
@@ -221,6 +137,8 @@ export default function OpportunitiesPage() {
                 numericId: item.opportunityId,
                 title: item.title,
                 organization: item.company || matchedDefault?.organization || "Karnataka Tech Partner",
+                source: matchedDefault?.source || "Company Career Portal",
+                sourceUrl: matchedDefault?.sourceUrl || "https://unstop.com",
                 logo: matchedDefault?.logo || "🚀",
                 category: matchedDefault?.category || "internships",
                 workMode: matchedDefault?.workMode || "Hybrid",
@@ -236,18 +154,16 @@ export default function OpportunitiesPage() {
                 teammatesNeeded: matchedDefault?.teammatesNeeded ?? false,
                 verifiedBySenior: true,
                 applicationUrl: item.applicationUrl || matchedDefault?.applicationUrl,
+                lastVerifiedAt: matchedDefault?.lastVerifiedAt || "2026-08-20",
               };
             });
 
-            // Extract live bookmarked IDs
+            // Extract live bookmarked IDs strictly from authenticated server response
             const trackedIds = json.data
               .filter((d: OpportunityWithTrackingDTO) => d.trackingStatus === "saved" || d.trackingStatus === "applied")
               .map((d: OpportunityWithTrackingDTO) => String(d.opportunityId));
 
-            if (trackedIds.length > 0) {
-              setBookmarks(trackedIds);
-            }
-
+            setBookmarks(trackedIds);
             setOpportunities(liveItems);
           }
         }
@@ -638,7 +554,7 @@ export default function OpportunitiesPage() {
                       <a
                         href={opp.applicationUrl || "#"}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-purple-600/30 hover:from-purple-500 hover:to-indigo-500 transition"
                       >
                         <span>Apply Now</span>

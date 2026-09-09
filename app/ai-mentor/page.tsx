@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/auth-provider";
 import {
   MessageSquare,
   Plus,
@@ -65,22 +66,39 @@ const promptCategories = [
   },
 ];
 
-// Initial Messages Thread
-const initialMessages = [
-  {
-    id: "m1",
-    sender: "ai",
-    text: "Good evening, Deepika 👋 I'm your CampusOS AI Senior Mentor, pre-configured with VTU 2025 scheme guidelines and senior playbooks. How can I help you conquer your engineering semester today?",
-    timestamp: "8:00 PM",
-    verified: true,
-  },
-];
-
 const getMessageId = () => `m_${Date.now()}`;
 const getFormattedTime = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 export default function AIMentorPage() {
-  const [messages, setMessages] = useState(initialMessages);
+  const { user, profile } = useAuth();
+  const studentName = profile?.firstName || user?.email?.split("@")[0] || "Engineer";
+
+  const [messages, setMessages] = useState([
+    {
+      id: "m1",
+      sender: "ai",
+      text: `Hello ${studentName} 👋 I'm your CampusOS AI Senior Mentor, pre-configured with VTU 2025 scheme guidelines and senior playbooks. How can I help you conquer your engineering semester today?`,
+      timestamp: "8:00 PM",
+      verified: true,
+    },
+  ]);
+
+  // Update initial greeting when profile loads
+  useEffect(() => {
+    if (profile?.firstName) {
+      setMessages((prev) =>
+        prev.map((m, idx) =>
+          idx === 0 && m.sender === "ai"
+            ? {
+                ...m,
+                text: `Hello ${profile.firstName} 👋 I'm your CampusOS AI Senior Mentor, pre-configured with VTU 2025 scheme guidelines and senior playbooks. How can I help you conquer your engineering semester today?`,
+              }
+            : m
+        )
+      );
+    }
+  }, [profile?.firstName]);
+
   const [inputPrompt, setInputPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -178,7 +196,15 @@ Feel free to ask me to debug code, generate project specs, or explain any VTU mo
   };
 
   const handleNewChat = () => {
-    setMessages(initialMessages);
+    setMessages([
+      {
+        id: getMessageId(),
+        sender: "ai",
+        text: `Hello ${studentName} 👋 I'm your CampusOS AI Senior Mentor, pre-configured with VTU 2025 scheme guidelines and senior playbooks. How can I help you conquer your engineering semester today?`,
+        timestamp: getFormattedTime(),
+        verified: true,
+      },
+    ]);
     showNotification("Started New Senior Mentor Session");
   };
 

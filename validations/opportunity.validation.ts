@@ -18,6 +18,10 @@ export interface CreateOpportunityInput {
 export interface OpportunityFilterInput {
   search?: string;
   activeOnly?: boolean;
+  category?: string;
+  workMode?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface TrackOpportunityInput {
@@ -94,7 +98,7 @@ export class OpportunityValidation {
   }
 
   /**
-   * Validates opportunity catalog search and active deadline filter.
+   * Validates opportunity catalog search, category, workMode, active deadline filter, and pagination.
    */
   static validateOpportunityFilter(
     data: Partial<OpportunityFilterInput>
@@ -109,8 +113,24 @@ export class OpportunityValidation {
       }
     }
 
+    if (data.category !== undefined && typeof data.category !== "string") {
+      errors.push("Category must be a string.");
+    }
+
+    if (data.workMode !== undefined && typeof data.workMode !== "string") {
+      errors.push("WorkMode must be a string.");
+    }
+
     if (data.activeOnly !== undefined && typeof data.activeOnly !== "boolean") {
       errors.push("activeOnly must be a boolean.");
+    }
+
+    if (data.page !== undefined && (!Number.isInteger(data.page) || data.page < 1)) {
+      errors.push("page must be a positive integer.");
+    }
+
+    if (data.limit !== undefined && (!Number.isInteger(data.limit) || data.limit < 1 || data.limit > 100)) {
+      errors.push("limit must be an integer between 1 and 100.");
     }
 
     if (errors.length > 0) {
@@ -122,7 +142,11 @@ export class OpportunityValidation {
       success: true,
       data: {
         ...(data.search !== undefined && { search: data.search.trim() }),
+        ...(data.category !== undefined && { category: data.category.trim() }),
+        ...(data.workMode !== undefined && { workMode: data.workMode.trim() }),
         ...(data.activeOnly !== undefined && { activeOnly: data.activeOnly }),
+        ...(data.page !== undefined && { page: data.page }),
+        ...(data.limit !== undefined && { limit: data.limit }),
       },
     };
   }

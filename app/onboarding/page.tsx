@@ -23,7 +23,10 @@ import {
   ArrowRight,
   Flame,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Search,
+  Building2,
+  X,
 } from "lucide-react";
 
 // Fallback academic data while API loads
@@ -158,6 +161,10 @@ function OnboardingContent() {
   const [studyTime, setStudyTime] = useState("30mins");
   const [selectedInterests, setSelectedInterests] = useState<string[]>(["web", "ai"]);
 
+  // Searchable College Combobox State
+  const [collegeSearch, setCollegeSearch] = useState("");
+  const [focusedIndex, setFocusedIndex] = useState(0);
+
   const [isFinished, setIsFinished] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -202,6 +209,24 @@ function OnboardingContent() {
       if (profile.semester) setSemester(profile.semester);
     }
   }, [profile]);
+
+  const displayColleges = colleges.length > 0 ? colleges : defaultColleges;
+  const displayCourses = courses.length > 0 ? courses : defaultCourses;
+
+  const currentCollegeName =
+    displayColleges.find((c) => c.collegeId === collegeId)?.collegeName || "Your College";
+  const currentCourseName =
+    displayCourses.find((c) => c.courseId === courseId)?.courseName || "Your Branch";
+
+  // Filtered colleges for searchable combobox
+  const filteredColleges = displayColleges.filter((c) => {
+    const query = collegeSearch.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      c.collegeName.toLowerCase().includes(query) ||
+      (c.location && c.location.toLowerCase().includes(query))
+    );
+  });
 
   const toggleInterest = (id: string) => {
     if (selectedInterests.includes(id)) {
@@ -294,14 +319,6 @@ function OnboardingContent() {
   };
 
   const progressPercentage = Math.round((step / totalSteps) * 100);
-
-  const displayColleges = colleges.length > 0 ? colleges : defaultColleges;
-  const displayCourses = courses.length > 0 ? courses : defaultCourses;
-
-  const currentCollegeName =
-    displayColleges.find((c) => c.collegeId === collegeId)?.collegeName || "Karnataka Engineering College";
-  const currentCourseName =
-    displayCourses.find((c) => c.courseId === courseId)?.courseName || "Computer Science & Engineering";
 
   return (
     <main className="min-h-screen bg-[#08090e] text-[#f3f4f6] selection:bg-purple-500/30 selection:text-purple-200 flex flex-col justify-between relative overflow-x-hidden">
@@ -425,35 +442,117 @@ function OnboardingContent() {
         ) : (
           /* 9 QUESTION CARDS */
           <div className="space-y-6">
-            {/* Q1: COLLEGE */}
+            {/* Q1: COLLEGE (Searchable Combobox) */}
             {step === 1 && (
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">Question 1 of 9</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">Question 1 of 9</span>
+                    <span className="text-[11px] text-gray-400 font-semibold">{displayColleges.length} institutions in catalogue</span>
+                  </div>
                   <h1 className="text-xl sm:text-2xl font-extrabold text-white">Which college did you join?</h1>
-                  <p className="text-xs text-gray-400">Unlocks campus-specific senior playbooks and viva cheat sheets.</p>
+                  <p className="text-xs text-gray-400">Search across 190+ accredited Karnataka engineering institutions for syllabus & senior playbooks.</p>
                 </div>
-                <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
-                  {displayColleges.map((col) => {
-                    const isSelected = collegeId === col.collegeId;
-                    return (
-                      <div
-                        key={col.collegeId}
-                        onClick={() => setCollegeId(col.collegeId)}
-                        className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between ${
-                          isSelected
-                            ? "bg-purple-600/20 border-purple-500 text-white font-bold"
-                            : "bg-white/[0.03] border-white/10 text-gray-300 hover:bg-white/[0.06]"
-                        }`}
-                      >
-                        <div className="space-y-0.5">
-                          <span className="text-xs sm:text-sm block">{col.collegeName}</span>
-                          <span className="text-[10px] text-gray-400 block">{col.location || "Karnataka"}</span>
+
+                {/* Search Input Box */}
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-purple-400" />
+                  <input
+                    type="text"
+                    value={collegeSearch}
+                    onChange={(e) => {
+                      setCollegeSearch(e.target.value);
+                      setFocusedIndex(0);
+                    }}
+                    onKeyDown={(e) => {
+                      if (filteredColleges.length === 0) return;
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        setFocusedIndex((prev) => (prev < filteredColleges.length - 1 ? prev + 1 : prev));
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+                      } else if (e.key === "Enter") {
+                        e.preventDefault();
+                        const target = filteredColleges[focusedIndex] || filteredColleges[0];
+                        if (target) {
+                          setCollegeId(target.collegeId);
+                        }
+                      } else if (e.key === "Escape") {
+                        setCollegeSearch("");
+                      }
+                    }}
+                    placeholder="Search by college name, code, or city (e.g. DSATM, RVCE, Belagavi)..."
+                    className="w-full pl-10 pr-9 py-2.5 bg-white/[0.05] border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition shadow-inner"
+                    autoFocus
+                  />
+                  {collegeSearch && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCollegeSearch("");
+                        setFocusedIndex(0);
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Selected College Quick Badge */}
+                {currentCollegeName && (
+                  <div className="flex items-center justify-between p-2.5 rounded-lg border border-purple-500/30 bg-purple-500/10 text-xs text-purple-300">
+                    <div className="flex items-center gap-2 truncate">
+                      <Building2 className="size-4 shrink-0 text-purple-400" />
+                      <span className="truncate">Selected: <strong className="text-white">{currentCollegeName}</strong></span>
+                    </div>
+                    <Check className="size-4 text-emerald-400 shrink-0" />
+                  </div>
+                )}
+
+                {/* Results List */}
+                <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
+                  {filteredColleges.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-gray-400 rounded-xl border border-white/5 bg-white/[0.02]">
+                      <p className="font-semibold text-gray-300">No colleges match &ldquo;{collegeSearch}&rdquo;</p>
+                      <p className="text-[11px] mt-1 text-gray-500">Try searching by institution abbreviation (e.g. DSATM, SIT, BIT) or city name.</p>
+                    </div>
+                  ) : (
+                    filteredColleges.map((col, idx) => {
+                      const isSelected = collegeId === col.collegeId;
+                      const isFocused = focusedIndex === idx;
+                      return (
+                        <div
+                          key={col.collegeId}
+                          onClick={() => {
+                            setCollegeId(col.collegeId);
+                            setFocusedIndex(idx);
+                          }}
+                          onMouseEnter={() => setFocusedIndex(idx)}
+                          className={`p-3 rounded-xl border transition cursor-pointer flex items-center justify-between ${
+                            isSelected
+                              ? "bg-purple-600/20 border-purple-500 text-white font-bold shadow-sm shadow-purple-500/20"
+                              : isFocused
+                              ? "bg-white/[0.08] border-white/20 text-white"
+                              : "bg-white/[0.03] border-white/10 text-gray-300 hover:bg-white/[0.06]"
+                          }`}
+                        >
+                          <div className="space-y-0.5 truncate pr-2">
+                            <span className="text-xs sm:text-sm block truncate">{col.collegeName}</span>
+                            <span className="text-[10px] text-gray-400 block">{col.location || "Karnataka"}</span>
+                          </div>
+                          {isSelected ? (
+                            <div className="size-5 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0 border border-purple-500/40">
+                              <Check className="size-3.5 text-purple-300" />
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-gray-500 shrink-0 font-mono">#{col.collegeId}</span>
+                          )}
                         </div>
-                        {isSelected && <Check className="size-4 text-purple-400 shrink-0" />}
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}

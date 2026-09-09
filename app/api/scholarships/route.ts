@@ -1,7 +1,7 @@
 /**
  * @file app/api/scholarships/route.ts
  * @description Next.js 16 Route Handler for Scholarship Catalog Feed.
- * @purpose Exposes GET endpoint returning scholarships joined with student bookmark status.
+ * @purpose Exposes GET endpoint returning scholarships joined with student bookmark status, supporting search, category, active deadline filters, and pagination.
  * @security Strictly enforces getAuthenticatedUser() session verification.
  */
 
@@ -14,7 +14,7 @@ import { Logger } from "@/lib/logger";
 
 /**
  * GET /api/scholarships
- * Retrieves scholarship catalog with student bookmark state, supporting search and active deadline filters.
+ * Retrieves scholarship catalog with student bookmark state, supporting search, category, active deadline, and pagination.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -25,12 +25,35 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const searchParam = searchParams.get("search");
+    const categoryParam = searchParams.get("category");
     const activeOnlyParam = searchParams.get("activeOnly");
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
 
-    const rawFilter: { search?: string; activeOnly?: boolean } = {};
+    const rawFilter: {
+      search?: string;
+      category?: string;
+      activeOnly?: boolean;
+      page?: number;
+      limit?: number;
+    } = {};
 
     if (searchParam !== null) {
       rawFilter.search = searchParam;
+    }
+
+    if (categoryParam !== null && categoryParam !== "all") {
+      rawFilter.category = categoryParam;
+    }
+
+    if (pageParam !== null) {
+      const parsedPage = parseInt(pageParam, 10);
+      if (!isNaN(parsedPage)) rawFilter.page = parsedPage;
+    }
+
+    if (limitParam !== null) {
+      const parsedLimit = parseInt(limitParam, 10);
+      if (!isNaN(parsedLimit)) rawFilter.limit = parsedLimit;
     }
 
     if (activeOnlyParam !== null) {

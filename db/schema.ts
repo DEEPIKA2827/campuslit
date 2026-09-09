@@ -32,6 +32,7 @@ export const users = pgTable(
   "users",
   {
     userId: bigint("user_id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+    clerkId: varchar("clerk_id", { length: 128 }).unique(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     passwordHash: text("password_hash").notNull(),
     role: varchar("role", { length: 30 }).notNull().default("student"),

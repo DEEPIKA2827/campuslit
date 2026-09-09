@@ -18,12 +18,15 @@ import {
   Briefcase,
   GraduationCap,
   MessageSquare,
-  ChevronDown
+  ChevronDown,
+  Menu,
+  X
 } from "lucide-react";
 
 export function Navbar() {
   const { user, profile, isAuthenticated, isLoading, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const displayName = profile?.firstName || user?.email?.split("@")[0] || "Student";
   const userInitials = profile?.firstName
@@ -48,7 +51,7 @@ export function Navbar() {
           </div>
         </Link>
 
-        {/* Navigation Links */}
+        {/* Navigation Links (Desktop) */}
         <nav className="hidden items-center gap-6 text-sm font-medium text-gray-400 md:flex">
           <Link href="/roadmap" className="transition hover:text-white flex items-center gap-1.5">
             <Compass className="size-4 text-purple-400" />
@@ -72,7 +75,7 @@ export function Navbar() {
           </Link>
         </nav>
 
-        {/* Authentication Actions */}
+        {/* Authentication Actions & Mobile Toggle */}
         <div className="flex items-center gap-3">
           <Link
             href="/roadmap"
@@ -146,8 +149,65 @@ export function Navbar() {
               </Link>
             </div>
           )}
+
+          {/* Mobile Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+            className="flex items-center justify-center size-9 rounded-xl border border-white/10 bg-white/[0.04] text-gray-300 hover:text-white md:hidden cursor-pointer"
+          >
+            {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div className="border-t border-white/10 bg-[#0b0d16] px-4 py-4 md:hidden animate-in fade-in slide-in-from-top-2 space-y-3">
+          <nav className="flex flex-col gap-2">
+            <Link
+              href="/roadmap"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm font-medium text-gray-200 hover:bg-white/[0.08] transition"
+            >
+              <Compass className="size-4 text-purple-400" />
+              <span>Interactive Roadmap</span>
+            </Link>
+            <Link
+              href="/opportunities"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm font-medium text-gray-200 hover:bg-white/[0.08] transition"
+            >
+              <Briefcase className="size-4 text-blue-400" />
+              <span>Opportunities & Internships</span>
+            </Link>
+            <Link
+              href="/scholarships"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm font-medium text-gray-200 hover:bg-white/[0.08] transition"
+            >
+              <GraduationCap className="size-4 text-emerald-400" />
+              <span>Scholarships & Grants</span>
+            </Link>
+            <Link
+              href="/ai-mentor"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm font-medium text-gray-200 hover:bg-white/[0.08] transition"
+            >
+              <MessageSquare className="size-4 text-cyan-400" />
+              <span>AI Senior Mentor</span>
+            </Link>
+            <Link
+              href="/onboarding"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-sm font-semibold text-purple-300 hover:bg-purple-500/20 transition"
+            >
+              <Sparkles className="size-4 text-purple-400" />
+              <span>Quick Onboarding Setup</span>
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
