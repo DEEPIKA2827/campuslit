@@ -1,159 +1,113 @@
 /**
  * @file app/roadmap/page.tsx
- * @description Interactive Roadmap & Milestone Hub for CampusOS.
- * @purpose Renders node-by-node semester progress tree; integrates with /api/roadmaps and /api/roadmaps/[id]/progress.
+ * @description Interactive Personalized Milestone Roadmap Hub for CampusOS.
+ * @purpose Renders student's personalized curriculum tree from GET /api/roadmaps/personalized.
+ *          Provides interactive specialization branch selection and authoritative progress tracking.
  */
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
-import { RoadmapNodeDTO, RoadmapProgressStatus } from "@/types/api.types";
+import {
+  PersonalizedRoadmapResponseDTO,
+  PersonalizedRoadmapDTO,
+  PersonalizedRoadmapNodeDTO,
+  RoadmapStudentContextDTO,
+  RoadmapNodeStatus,
+} from "@/types/api.types";
 import {
   Compass,
   CheckCircle2,
   Clock,
   Lock,
-  BookOpen,
+  Sparkles,
+  Award,
   Code,
   FolderGit2,
-  Award,
-  Sparkles,
-  ExternalLink,
   X,
-  Check
+  Check,
+  ChevronRight,
+  RefreshCw,
+  AlertCircle,
+  Cpu,
+  Radio,
+  Bot,
+  GraduationCap,
+  Globe2,
+  Briefcase,
+  Layers,
+  ArrowRight,
 } from "lucide-react";
 
-// Filter Selector Data
-const karnatakaColleges = [
-  "RV College of Engineering (RVCE), Bengaluru",
-  "BMS College of Engineering (BMSCE), Bengaluru",
-  "PES University, Bengaluru",
-  "MS Ramaiah Institute of Technology (MSRIT), Bengaluru",
-  "KLS Gogte Institute of Technology (GIT), Belagavi",
-  "The National Institute of Engineering (NIE), Mysore",
-  "Siddaganga Institute of Technology (SIT), Tumakuru",
-  "VTU Main Campus, Belagavi",
-  "Nitte Meenakshi Institute of Technology (NMIT), Bengaluru",
-  "Other Karnataka Engineering College",
-];
+// Canonical Career Display Mapping
+const CAREER_LABELS: Record<string, string> = {
+  sde: "Software Engineering (SDE)",
+  ai_ml: "AI & Machine Learning",
+  core: "Core Engineering",
+  higher_ed: "Higher Studies",
+  founder: "Startup Founder / Product Creator",
+};
 
-const engineeringBranches = [
-  { id: "cse", label: "Computer Science (CSE)" },
-  { id: "ise", label: "Information Science (ISE)" },
-  { id: "aiml", label: "AI & Machine Learning (AI&ML)" },
-  { id: "ece", label: "Electronics & Comm. (ECE)" },
-  { id: "eee", label: "Electrical & Electronics (EEE)" },
-  { id: "mech", label: "Mechanical Engineering" },
-  { id: "civil", label: "Civil Engineering" },
-];
-
-const careerGoals = [
-  { id: "sde", label: "Software Engineer (SDE)" },
-  { id: "ai_ml", label: "AI / Machine Learning Specialist" },
-  { id: "core", label: "Core Electronics / Embedded Systems" },
-  { id: "gate", label: "Higher Studies (GATE / MS)" },
-  { id: "founder", label: "Startup Founder / Product Creator" },
-];
-
-export interface NodeItem {
-  id: string;
-  nodeId?: number;
-  roadmapId?: number;
-  sem: number;
-  title: string;
-  category: string;
-  status: "completed" | "in_progress" | "locked" | "available";
-  desc: string;
-  topics: string[];
-  resourceLink: string;
-}
-
-// Fallback Curated Nodes
-const defaultRoadmapNodes: NodeItem[] = [
+// Core Engineering Specialization Options
+const CORE_SPECIALIZATION_OPTIONS = [
   {
-    id: "1",
-    nodeId: 1,
-    roadmapId: 1,
-    sem: 1,
-    title: "Sem 1: C Programming & Git Baseline",
-    category: "Foundation",
-    status: "completed",
-    desc: "Master variables, loops, functions, array manipulations, and commit your first code to GitHub.",
-    topics: ["Variables & Operators", "Control Flow & Loops", "Functions & Scope", "1D/2D Arrays", "Git & GitHub Setup"],
-    resourceLink: "C Programming Lab Senior Playbook",
+    branch: "embedded",
+    title: "Embedded Systems",
+    subtitle: "Microcontroller Firmware & Hardware Interfacing",
+    desc: "C/C++, ARM Cortex, FreeRTOS, GPIO/SPI/I2C protocols, and bare-metal firmware programming.",
+    icon: Cpu,
   },
   {
-    id: "2",
-    nodeId: 2,
-    roadmapId: 1,
-    sem: 1,
-    title: "Sem 1: Engg Mathematics I (BMAT101)",
-    category: "Academics",
-    status: "completed",
-    desc: "Calculus, Taylor Series, Curvature, and Cayley-Hamilton Theorem derivations for IA1 & SEE exams.",
-    topics: ["Differential Calculus", "Partial Differentiation", "Linear Algebra", "Eigenvalues"],
-    resourceLink: "BMAT101 PYQ Frequency Sheet",
+    branch: "iot",
+    title: "Internet of Things (IoT)",
+    subtitle: "Connected Sensors & Cloud Ingestion Pipelines",
+    desc: "ESP32, MQTT/CoAP telemetry, edge analytics, AWS/GCP IoT Core, and sensor network design.",
+    icon: Radio,
   },
   {
-    id: "3",
-    nodeId: 3,
-    roadmapId: 1,
-    sem: 2,
-    title: "Sem 2: Data Structures Starter in C/C++",
-    category: "Core Skill",
-    status: "in_progress",
-    desc: "Pointers, Dynamic Memory Allocation, Singly Linked Lists, Stacks, Queues, and 25 LeetCode Easy problems.",
-    topics: ["Pointers & References", "Malloc / Calloc", "Singly Linked List", "Stack & Queue", "25 LeetCode Problems"],
-    resourceLink: "DSA Starter Sheet",
-  },
-  {
-    id: "4",
-    nodeId: 4,
-    roadmapId: 1,
-    sem: 2,
-    title: "Sem 2: First Proof-of-Work Project",
-    category: "Projects",
-    status: "in_progress",
-    desc: "Build a CLI or Web app (e.g. VTU SGPA Calculator or Library Management System) and push to GitHub.",
-    topics: ["Project Architecture", "File Handling in C/C++", "GitHub Readme Styling", "Public Demo Link"],
-    resourceLink: "Project Spec & Code Template",
-  },
-  {
-    id: "5",
-    nodeId: 5,
-    roadmapId: 1,
-    sem: 3,
-    title: "Sem 3: Object-Oriented Programming (Java/C++)",
-    category: "Core Skill",
-    status: "locked",
-    desc: "Classes, Inheritance, Polymorphism, Encapsulation, Exception Handling, and File I/O.",
-    topics: ["Classes & Objects", "Inheritance", "Polymorphism", "Exception Handling"],
-    resourceLink: "OOP Interview Questions",
-  },
-  {
-    id: "6",
-    nodeId: 6,
-    roadmapId: 1,
-    sem: 4,
-    title: "Sem 4: DBMS & Web Tech Stack",
-    category: "Full Stack",
-    status: "locked",
-    desc: "SQL queries, Relational Database Design, ER Diagrams, HTML/CSS/JS, and REST API integration.",
-    topics: ["SQL Joins & Indexing", "ER Modeling", "HTML5 & Tailwind CSS", "Node.js Basics"],
-    resourceLink: "DBMS Lab Queries Cheat Sheet",
+    branch: "robotics",
+    title: "Robotics & Automation",
+    subtitle: "Actuators, Kinematics & Autonomous Control",
+    desc: "ROS2, motor drivers, PID controllers, inverse kinematics, sensor fusion, and computer vision.",
+    icon: Bot,
   },
 ];
 
-// Projects Specs Data
+// Higher Studies Specialization Options
+const HIGHER_ED_SPECIALIZATION_OPTIONS = [
+  {
+    branch: "gate",
+    title: "GATE Examination",
+    subtitle: "Technical Mastery for PSU & M.Tech Admissions",
+    desc: "Discrete Math, Algorithms, Computer Systems/Signals, Engineering Math, and PYQ mock test series.",
+    icon: GraduationCap,
+  },
+  {
+    branch: "ms",
+    title: "Masters Abroad (MS)",
+    subtitle: "Global University Applications & Research Profile",
+    desc: "GRE/TOEFL preparation, statement of purpose (SOP), academic LORs, and research paper publications.",
+    icon: Globe2,
+  },
+  {
+    branch: "mba",
+    title: "MBA / Management Entrance",
+    subtitle: "Business Leadership & Entrance Examinations",
+    desc: "CAT/GMAT quantitative aptitude, verbal ability, data interpretation (DILR), and case interviews.",
+    icon: Briefcase,
+  },
+];
+
+// Complementary Proof-of-Work Projects Data
 const projectSpecs = [
   {
     id: "p1",
     title: "VTU SGPA & CIE Risk Calculator",
     level: "Beginner",
     techStack: ["C++", "Python", "File I/O"],
-    desc: "Calculates SGPA/CGPA based on VTU 2022/2025 credit scheme and predicts 75% attendance bunk allowances.",
+    desc: "Calculates SGPA/CGPA based on VTU credit scheme and predicts 75% attendance bunk allowances.",
     deliverables: ["CLI Executable", "GitHub Repository", "Sample Data Input File"],
   },
   {
@@ -174,7 +128,7 @@ const projectSpecs = [
   },
 ];
 
-// Certifications Data
+// Complementary Certifications Data
 const certifications = [
   {
     title: "NPTEL Programming in C / Data Structures",
@@ -202,19 +156,19 @@ const certifications = [
   },
 ];
 
-// DSA Track Data
+// Complementary DSA Track Data
 const dsaTrack = [
-  { topic: "Arrays & Strings", count: "10 Problems", status: "Completed", difficulty: "Easy" },
-  { topic: "Pointers & Memory Allocation", count: "8 Problems", status: "In Progress", difficulty: "Easy / Med" },
-  { topic: "Singly & Doubly Linked Lists", count: "7 Problems", status: "Up Next", difficulty: "Easy" },
+  { topic: "Arrays & Strings", count: "10 Problems", status: "Available", difficulty: "Easy" },
+  { topic: "Pointers & Memory Allocation", count: "8 Problems", status: "Locked", difficulty: "Easy / Med" },
+  { topic: "Singly & Doubly Linked Lists", count: "7 Problems", status: "Locked", difficulty: "Easy" },
   { topic: "Stacks & Queues", count: "6 Problems", status: "Locked", difficulty: "Medium" },
   { topic: "Recursion & Backtracking", count: "5 Problems", status: "Locked", difficulty: "Medium" },
 ];
 
-// Resume Checklist Data
+// Complementary Resume Checklist Data
 const resumeChecklist = [
-  { id: "r1", title: "Setup GitHub Profile & Add Bio", done: true, phase: "Sem 1" },
-  { id: "r2", title: "Complete First Proof-of-Work Project (C++/Python)", done: true, phase: "Sem 1" },
+  { id: "r1", title: "Setup GitHub Profile & Add Bio", done: false, phase: "Sem 1" },
+  { id: "r2", title: "Complete First Proof-of-Work Project (C++/Python)", done: false, phase: "Sem 1" },
   { id: "r3", title: "Solve 25 LeetCode Easy Problems", done: false, phase: "Sem 2" },
   { id: "r4", title: "Join Campus Tech Club (IEEE / GDSC / ACM)", done: false, phase: "Sem 2" },
   { id: "r5", title: "Participate in First 24h Hackathon", done: false, phase: "Sem 2" },
@@ -222,108 +176,138 @@ const resumeChecklist = [
 ];
 
 export default function RoadmapPage() {
-  // State Selectors
-  const [college, setCollege] = useState(karnatakaColleges[0]);
-  const [branch, setBranch] = useState("cse");
-  const [semester, setSemester] = useState<number>(2);
-  const [goal, setGoal] = useState("sde");
+  // Primary State from Backend Personalized Roadmap API
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [configured, setConfigured] = useState(false);
+  const [studentContext, setStudentContext] = useState<RoadmapStudentContextDTO | null>(null);
+  const [roadmap, setRoadmap] = useState<PersonalizedRoadmapDTO | null>(null);
 
-  const [nodes, setNodes] = useState<NodeItem[]>(defaultRoadmapNodes);
-  const [activeRoadmapId, setActiveRoadmapId] = useState<number>(1);
+  // Specialization Action State
+  const [specializationUpdating, setSpecializationUpdating] = useState(false);
+  const [specializationError, setSpecializationError] = useState<string | null>(null);
+  const [showSwitchGateway, setShowSwitchGateway] = useState(false);
 
-  // Tab State
-  const [activeTab, setActiveTab] = useState<"tree" | "projects" | "resources" | "certs" | "dsa" | "resume">("tree");
+  // Active Tab State
+  const [activeTab, setActiveTab] = useState<"tree" | "projects" | "dsa" | "certs" | "resume">("tree");
 
   // Selected Node Modal State
-  const [selectedNode, setSelectedNode] = useState<NodeItem | null>(null);
+  const [selectedNode, setSelectedNode] = useState<PersonalizedRoadmapNodeDTO | null>(null);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   // Resume Checklist Toggle State
   const [checklistState, setChecklistState] = useState(resumeChecklist);
 
-  // Fetch active roadmap and nodes from API on mount
-  useEffect(() => {
-    const fetchRoadmaps = async () => {
-      try {
-        const res = await fetch("/api/roadmaps", { credentials: "include" });
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-            const firstRoadmap = json.data[0];
-            setActiveRoadmapId(firstRoadmap.roadmapId);
+  /**
+   * Fetches authenticated student's personalized roadmap from GET /api/roadmaps/personalized
+   */
+  const fetchPersonalizedRoadmap = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch("/api/roadmaps/personalized", {
+        credentials: "include",
+      });
 
-            // Fetch nodes for active roadmap
-            const nodesRes = await fetch(`/api/roadmaps/${firstRoadmap.roadmapId}`, {
-              credentials: "include",
-            });
-            if (nodesRes.ok) {
-              const nodesJson = await nodesRes.json();
-              if (nodesJson.success && nodesJson.data?.nodes) {
-                const apiNodes: RoadmapNodeDTO[] = nodesJson.data.nodes;
-                const progressMap: Record<number, RoadmapProgressStatus> = {};
-                if (Array.isArray(nodesJson.data.userProgress)) {
-                  nodesJson.data.userProgress.forEach((p: { nodeId: number; status: RoadmapProgressStatus }) => {
-                    progressMap[p.nodeId] = p.status;
-                  });
-                }
-
-                if (apiNodes.length > 0) {
-                  const mapped: NodeItem[] = apiNodes.map((n, idx) => {
-                    const fallback = defaultRoadmapNodes[idx % defaultRoadmapNodes.length];
-                    const userStatus = progressMap[n.nodeId] || (idx === 0 ? "completed" : idx === 1 ? "in_progress" : "locked");
-
-                    return {
-                      id: String(n.nodeId),
-                      nodeId: n.nodeId,
-                      roadmapId: firstRoadmap.roadmapId,
-                      sem: Math.min(8, Math.max(1, Math.ceil((n.sequenceNo || idx + 1) / 2))),
-                      title: n.title,
-                      category: fallback?.category || "Core Skill",
-                      status: userStatus as "completed" | "in_progress" | "locked" | "available",
-                      desc: n.description || fallback?.desc || "Master key competencies for this milestone.",
-                      topics: fallback?.topics || ["Core Fundamentals", "Practical Labs", "Exam Derivations"],
-                      resourceLink: fallback?.resourceLink || "Senior Notes Attached",
-                    };
-                  });
-                  setNodes(mapped);
-                }
-              }
-            }
-          }
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError("Authentication required. Please sign in to view your personalized roadmap.");
+          setLoading(false);
+          return;
         }
-      } catch {
-        // Fallback gracefully to default curated nodes
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.message || `Server error (${res.status})`);
       }
-    };
 
-    fetchRoadmaps();
+      const json: { success: boolean; data: PersonalizedRoadmapResponseDTO; message?: string } = await res.json();
+      if (json.success && json.data) {
+        setConfigured(Boolean(json.data.configured));
+        setStudentContext(json.data.studentContext || null);
+        setRoadmap(json.data.roadmap || null);
+      } else {
+        setConfigured(false);
+        setRoadmap(null);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load personalized roadmap.";
+      setError(msg);
+      setRoadmap(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchPersonalizedRoadmap();
+  }, [fetchPersonalizedRoadmap]);
+
   /**
-   * Updates node progress and persists to /api/roadmaps/[id]/progress
+   * Updates student's specialization branch via PATCH /api/roadmaps/specialization
    */
-  const updateNodeStatus = async (node: NodeItem, newStatus: "completed" | "in_progress" | "available" | "locked") => {
-    const updated = nodes.map((n) => (n.id === node.id ? { ...n, status: newStatus } : n));
-    setNodes(updated);
+  const handleSelectSpecialization = async (branch: string) => {
+    try {
+      setSpecializationUpdating(true);
+      setSpecializationError(null);
 
-    if (selectedNode && selectedNode.id === node.id) {
-      setSelectedNode({ ...selectedNode, status: newStatus });
-    }
+      const res = await fetch("/api/roadmaps/specialization", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ specializationBranch: branch }),
+      });
 
-    if (node.nodeId) {
-      try {
-        const roadmapId = node.roadmapId || activeRoadmapId;
-        await fetch(`/api/roadmaps/${roadmapId}/progress`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            nodeId: node.nodeId,
-            status: newStatus === "locked" ? "not_started" : newStatus,
-          }),
-        });
-      } catch {
-        // Graceful silent fallback
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Failed to update specialization branch.");
       }
+
+      // Re-fetch authoritative personalized roadmap
+      await fetchPersonalizedRoadmap();
+      setShowSwitchGateway(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error selecting specialization branch.";
+      setSpecializationError(msg);
+    } finally {
+      setSpecializationUpdating(false);
+    }
+  };
+
+  /**
+   * Updates a milestone node's progress via PATCH /api/roadmaps/[id]/progress
+   */
+  const handleUpdateNodeProgress = async (
+    node: PersonalizedRoadmapNodeDTO,
+    newStatus: "in_progress" | "completed"
+  ) => {
+    if (!roadmap) return;
+
+    try {
+      setStatusUpdating(true);
+      const res = await fetch(`/api/roadmaps/${roadmap.id}/progress`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          nodeId: node.id,
+          status: newStatus,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Failed to update milestone progress.");
+      }
+
+      // Refetch authoritative personalized roadmap to recalculate statuses and unlock downstream nodes
+      await fetchPersonalizedRoadmap();
+
+      // Update selected modal node with updated state from response if possible
+      setSelectedNode((prev) => (prev && prev.id === node.id ? { ...prev, status: newStatus } : prev));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update node progress.";
+      alert(msg);
+    } finally {
+      setStatusUpdating(false);
     }
   };
 
@@ -332,6 +316,29 @@ export default function RoadmapPage() {
       checklistState.map((item) => (item.id === id ? { ...item, done: !item.done } : item))
     );
   };
+
+  // Determine active career and specialization details
+  const careerSlug = roadmap?.careerSlug || studentContext?.careerGoal || "";
+  const careerLabel = CAREER_LABELS[careerSlug] || (careerSlug ? careerSlug.toUpperCase() : "Custom Track");
+  const specializationBranch = studentContext?.specializationBranch || null;
+  const isBranchableTrack = careerSlug === "core" || careerSlug === "higher_ed";
+  const needsSpecialization = isBranchableTrack && specializationBranch === null;
+
+  // Group visible nodes by targetSemester
+  const nodesBySemester = React.useMemo(() => {
+    if (!roadmap?.nodes || !Array.isArray(roadmap.nodes)) return {};
+    const groups: Record<number, PersonalizedRoadmapNodeDTO[]> = {};
+    roadmap.nodes.forEach((n) => {
+      const sem = n.targetSemester || 1;
+      if (!groups[sem]) groups[sem] = [];
+      groups[sem].push(n);
+    });
+    return groups;
+  }, [roadmap?.nodes]);
+
+  const sortedSemesters = Object.keys(nodesBySemester)
+    .map(Number)
+    .sort((a, b) => a - b);
 
   return (
     <main className="min-h-screen bg-[#08090e] text-[#f3f4f6] selection:bg-purple-500/30 selection:text-purple-200">
@@ -344,85 +351,105 @@ export default function RoadmapPage() {
       {/* DYNAMIC HEADER NAVBAR */}
       <Navbar />
 
-      {/* HERO & CONFIGURATOR BAR */}
+      {/* HERO & CONTEXT HEADER */}
       <section className="relative z-10 pt-8 pb-6 border-b border-white/10 bg-white/[0.01]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-purple-400 flex items-center gap-1.5">
-              <Compass className="size-4" />
-              Interactive Semester Milestone Engine
-            </span>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Your Personalized Engineering Roadmap.
-            </h1>
-            <p className="text-sm text-gray-400 max-w-2xl">
-              Configure your college, branch, semester, and target career goal to receive a node-by-node execution path from Day 1 to Graduation.
-            </p>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-purple-400 flex items-center gap-1.5">
+                <Compass className="size-4" />
+                Deterministic Personalized Roadmap Engine
+              </span>
+              <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                {configured && roadmap ? `${roadmap.title}` : "Your Engineering Milestone Roadmap"}
+              </h1>
+              <p className="text-sm text-gray-400 max-w-2xl">
+                {configured && roadmap?.description
+                  ? roadmap.description
+                  : "Personalized milestone execution path mapped to your career goal, university semesters, and prerequisite DAG."}
+              </p>
+            </div>
+
+            {/* QUICK STATS CARD */}
+            {configured && roadmap && (
+              <div className="rounded-2xl border border-white/15 bg-black/60 p-4 backdrop-blur-xl flex items-center gap-6 self-start lg:self-auto">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Total Milestones</span>
+                  <span className="text-2xl font-black text-white">{roadmap.totalNodes}</span>
+                </div>
+                <div className="h-8 w-px bg-white/10" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Completed</span>
+                  <span className="text-2xl font-black text-emerald-400">{roadmap.completedNodes}</span>
+                </div>
+                <div className="h-8 w-px bg-white/10" />
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Progress</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl font-black text-purple-400">{roadmap.progressPercentage}%</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* 4 DROPDOWN CONFIGURATOR BAR */}
-          <div className="rounded-2xl border border-white/15 bg-black/60 p-4 backdrop-blur-xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">1. College</label>
-              <select
-                value={college}
-                onChange={(e) => setCollege(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
-              >
-                {karnatakaColleges.map((c, i) => (
-                  <option key={i} value={c} className="bg-gray-900 text-gray-200">{c}</option>
-                ))}
-              </select>
-            </div>
+          {/* ACTIVE STUDENT CONTEXT SUMMARY BAR */}
+          {configured && studentContext && (
+            <div className="rounded-2xl border border-white/15 bg-black/60 p-4 backdrop-blur-xl flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-gray-400">Career Track:</span>
+                  <span className="font-bold text-white bg-white/10 px-2.5 py-1 rounded-lg">
+                    {careerLabel}
+                  </span>
+                </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">2. Branch</label>
-              <select
-                value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
-              >
-                {engineeringBranches.map((b) => (
-                  <option key={b.id} value={b.id} className="bg-gray-900 text-gray-200">{b.label}</option>
-                ))}
-              </select>
-            </div>
+                {isBranchableTrack && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-gray-400">Specialization:</span>
+                    {specializationBranch ? (
+                      <span className="font-bold text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2.5 py-1 rounded-lg capitalize flex items-center gap-1.5">
+                        <Sparkles className="size-3" />
+                        {specializationBranch}
+                      </span>
+                    ) : (
+                      <span className="font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                        <AlertCircle className="size-3" />
+                        Branch Selection Required
+                      </span>
+                    )}
+                  </div>
+                )}
 
-            <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">3. Semester</label>
-              <select
-                value={semester}
-                onChange={(e) => setSemester(Number(e.target.value))}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                  <option key={s} value={s} className="bg-gray-900 text-gray-200">Semester {s}</option>
-                ))}
-              </select>
-            </div>
+                {studentContext.semester && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-gray-400">Current Semester:</span>
+                    <span className="font-semibold text-white bg-white/5 px-2 py-0.5 rounded">
+                      Semester {studentContext.semester}
+                    </span>
+                  </div>
+                )}
+              </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">4. Career Goal</label>
-              <select
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
-              >
-                {careerGoals.map((g) => (
-                  <option key={g.id} value={g.id} className="bg-gray-900 text-gray-200">{g.label}</option>
-                ))}
-              </select>
+              {isBranchableTrack && specializationBranch && (
+                <button
+                  onClick={() => setShowSwitchGateway(!showSwitchGateway)}
+                  className="text-xs text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-4 cursor-pointer"
+                >
+                  {showSwitchGateway ? "Hide Branch Options" : "Switch Specialization"}
+                </button>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* 6 OUTPUT TABS NAVIGATION */}
+      {/* 5 OUTPUT TABS NAVIGATION */}
       <section className="relative z-10 border-b border-white/10 bg-black/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 overflow-x-auto py-2.5 scrollbar-none">
             {[
-              { id: "tree", label: "Learning Tree (Visual Nodes)", icon: Compass },
+              { id: "tree", label: "Learning Tree (Personalized Nodes)", icon: Compass },
               { id: "projects", label: "Proof-of-Work Projects", icon: FolderGit2 },
               { id: "dsa", label: "DSA & LeetCode Track", icon: Code },
               { id: "certs", label: "Industry Certifications", icon: Award },
@@ -452,78 +479,251 @@ export default function RoadmapPage() {
       {/* MAIN CONTENT AREA */}
       <section className="relative z-10 py-8">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* TAB 1: LEARNING TREE NODES */}
-          {activeTab === "tree" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-bold text-white">Visual Milestone Roadmap</h2>
-                  <p className="text-xs text-gray-400">Click any milestone node to view topics, senior playbooks, and update progress status.</p>
-                </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
-                    <span className="size-2 rounded-full bg-emerald-400 animate-pulse" /> Completed
-                  </span>
-                  <span className="flex items-center gap-1.5 text-purple-400 font-medium">
-                    <span className="size-2 rounded-full bg-purple-400" /> In Progress
-                  </span>
-                  <span className="flex items-center gap-1.5 text-gray-500 font-medium">
-                    <span className="size-2 rounded-full bg-gray-500" /> Locked
-                  </span>
-                </div>
-              </div>
+          {/* LOADING STATE */}
+          {loading && (
+            <div className="py-20 flex flex-col items-center justify-center space-y-4">
+              <RefreshCw className="size-8 text-purple-400 animate-spin" />
+              <p className="text-sm text-gray-400 font-medium">Resolving your personalized roadmap from the curriculum engine...</p>
+            </div>
+          )}
 
-              {/* NODE TREE GRID */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {nodes.map((node) => {
-                  const isCompleted = node.status === "completed";
-                  const isInProgress = node.status === "in_progress";
+          {/* ERROR STATE */}
+          {!loading && error && (
+            <div className="rounded-3xl border border-red-500/30 bg-red-950/20 p-8 text-center space-y-4 max-w-xl mx-auto">
+              <AlertCircle className="size-10 text-red-400 mx-auto" />
+              <h2 className="text-lg font-bold text-white">Unable to Load Roadmap</h2>
+              <p className="text-xs text-gray-300 leading-relaxed">{error}</p>
+              <button
+                onClick={fetchPersonalizedRoadmap}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white transition cursor-pointer"
+              >
+                <RefreshCw className="size-3.5" />
+                Retry Loading
+              </button>
+            </div>
+          )}
+
+          {/* UNCONFIGURED STUDENT STATE (configured === false) */}
+          {!loading && !error && !configured && (
+            <div className="rounded-3xl border border-white/15 bg-black/60 p-10 text-center space-y-5 max-w-2xl mx-auto backdrop-blur-xl">
+              <div className="size-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center mx-auto text-purple-400">
+                <Compass className="size-7" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-white">Career Track Not Selected Yet</h2>
+                <p className="text-sm text-gray-400 max-w-lg mx-auto leading-relaxed">
+                  CampusOS builds your milestone execution tree around your target career goal (SDE, AI/ML, Core Engineering, Higher Studies, or Startup Founder).
+                </p>
+              </div>
+              <div className="pt-2">
+                <Link
+                  href="/onboarding"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white shadow-lg shadow-purple-600/30 transition"
+                >
+                  Configure Career Goal in Onboarding
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 1: PERSONALIZED LEARNING TREE */}
+          {!loading && !error && configured && roadmap && activeTab === "tree" && (
+            <div className="space-y-8">
+              {/* SPECIALIZATION GATEWAY (When branch selection is required or toggled) */}
+              {(needsSpecialization || showSwitchGateway) && isBranchableTrack && (
+                <div className="rounded-3xl border border-purple-500/40 bg-gradient-to-b from-purple-950/30 to-black/60 p-6 md:p-8 backdrop-blur-xl space-y-6 shadow-2xl">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-purple-400 flex items-center gap-1.5">
+                      <Sparkles className="size-3.5" />
+                      Specialization Gateway
+                    </span>
+                    <h2 className="text-lg sm:text-xl font-bold text-white">
+                      {careerSlug === "core"
+                        ? "Choose Your Core Engineering Specialization"
+                        : "Choose Your Higher Studies Pathway"}
+                    </h2>
+                    <p className="text-xs text-gray-300 max-w-3xl leading-relaxed">
+                      {careerSlug === "core"
+                        ? "Selecting a branch unlocks specialized hardware/firmware milestones and the terminal convergence capstone milestone (core_11)."
+                        : "Selecting a branch unlocks exam/application preparation modules and the final convergence transition milestone (he_08)."}
+                    </p>
+                  </div>
+
+                  {specializationError && (
+                    <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-3 text-xs text-red-300 flex items-center gap-2">
+                      <AlertCircle className="size-4 shrink-0" />
+                      <span>{specializationError}</span>
+                    </div>
+                  )}
+
+                  {/* BRANCH CARDS */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {(careerSlug === "core" ? CORE_SPECIALIZATION_OPTIONS : HIGHER_ED_SPECIALIZATION_OPTIONS).map(
+                      (opt) => {
+                        const IconComp = opt.icon;
+                        const isCurrent = specializationBranch === opt.branch;
+
+                        return (
+                          <div
+                            key={opt.branch}
+                            onClick={() => !specializationUpdating && handleSelectSpecialization(opt.branch)}
+                            className={`rounded-2xl border p-5 flex flex-col justify-between space-y-4 transition cursor-pointer ${
+                              isCurrent
+                                ? "border-purple-500 bg-purple-950/40 shadow-lg shadow-purple-500/20"
+                                : "border-white/10 bg-white/[0.02] hover:border-purple-500/50 hover:bg-white/[0.04]"
+                            } ${specializationUpdating ? "opacity-50 pointer-events-none" : ""}`}
+                          >
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="size-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-300">
+                                  <IconComp className="size-5" />
+                                </div>
+                                {isCurrent && (
+                                  <span className="text-[10px] font-bold text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-0.5 rounded-full">
+                                    Active Branch
+                                  </span>
+                                )}
+                              </div>
+                              <h3 className="text-sm font-bold text-white">{opt.title}</h3>
+                              <p className="text-[11px] font-medium text-purple-300/80">{opt.subtitle}</p>
+                              <p className="text-xs text-gray-400 leading-relaxed">{opt.desc}</p>
+                            </div>
+
+                            <button
+                              disabled={specializationUpdating}
+                              className={`w-full py-2 text-xs font-bold rounded-xl transition ${
+                                isCurrent
+                                  ? "bg-purple-600 text-white"
+                                  : "bg-white/10 hover:bg-white/20 text-white"
+                              }`}
+                            >
+                              {specializationUpdating ? "Updating..." : isCurrent ? "Current Branch" : `Select ${opt.title}`}
+                            </button>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* SEMESTER-BY-SEMESTER NODE TREE */}
+              <div className="space-y-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-white/10 pb-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Layers className="size-4 text-purple-400" />
+                      Authoritative Semester Milestone Tree
+                    </h2>
+                    <p className="text-xs text-gray-400">
+                      Organized strictly by curriculum target semester. Click any milestone to inspect syllabus, prerequisites, and update completion.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 text-xs">
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <span className="size-2 rounded-full bg-emerald-400" /> Completed
+                    </span>
+                    <span className="flex items-center gap-1.5 text-purple-400 font-medium">
+                      <span className="size-2 rounded-full bg-purple-400" /> In Progress
+                    </span>
+                    <span className="flex items-center gap-1.5 text-cyan-400 font-medium">
+                      <span className="size-2 rounded-full bg-cyan-400" /> Available
+                    </span>
+                    <span className="flex items-center gap-1.5 text-gray-500 font-medium">
+                      <span className="size-2 rounded-full bg-gray-500" /> Locked
+                    </span>
+                  </div>
+                </div>
+
+                {/* SEMESTER GROUPS */}
+                {sortedSemesters.map((semNum) => {
+                  const semesterNodes = nodesBySemester[semNum] || [];
 
                   return (
-                    <div
-                      key={node.id}
-                      onClick={() => setSelectedNode(node)}
-                      className={`group relative rounded-3xl border p-5 shadow-xl transition-all cursor-pointer flex flex-col justify-between ${
-                        isCompleted
-                          ? "border-emerald-500/30 bg-emerald-950/10 hover:border-emerald-500/60"
-                          : isInProgress
-                          ? "border-purple-500/40 bg-purple-950/20 hover:border-purple-500/80 animate-pulse-glow"
-                          : "border-white/10 bg-white/[0.02] hover:border-white/20 opacity-70"
-                      }`}
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                            Sem {node.sem} • {node.category}
-                          </span>
-                          {isCompleted ? (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                              <CheckCircle2 className="size-3" /> Done
-                            </span>
-                          ) : isInProgress ? (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full border border-purple-500/30">
-                              <Clock className="size-3" /> In Progress
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">
-                              <Lock className="size-3" /> Locked
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition">
-                          {node.title}
-                        </h3>
-                        <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
-                          {node.desc}
-                        </p>
+                    <div key={semNum} className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold uppercase tracking-wider text-purple-300 bg-purple-950/60 border border-purple-500/30 px-3 py-1 rounded-lg">
+                          Semester {semNum}
+                        </span>
+                        <div className="h-px flex-1 bg-white/10" />
+                        <span className="text-xs text-gray-500 font-medium">
+                          {semesterNodes.length} {semesterNodes.length === 1 ? "Milestone" : "Milestones"}
+                        </span>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-                        <span className="text-[11px] text-gray-500">{node.topics.length} Key Topics</span>
-                        <span className="text-purple-400 font-semibold group-hover:translate-x-1 transition-transform">
-                          Inspect Node →
-                        </span>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {semesterNodes.map((node) => {
+                          const isCompleted = node.status === "completed";
+                          const isInProgress = node.status === "in_progress";
+                          const isUnlocked = node.status === "unlocked";
+
+                          return (
+                            <div
+                              key={node.id}
+                              onClick={() => setSelectedNode(node)}
+                              className={`group relative rounded-3xl border p-5 shadow-xl transition-all cursor-pointer flex flex-col justify-between ${
+                                isCompleted
+                                  ? "border-emerald-500/30 bg-emerald-950/10 hover:border-emerald-500/60"
+                                  : isInProgress
+                                  ? "border-purple-500/40 bg-purple-950/20 hover:border-purple-500/80 shadow-purple-500/10 shadow-lg"
+                                  : isUnlocked
+                                  ? "border-cyan-500/30 bg-cyan-950/10 hover:border-cyan-500/60"
+                                  : "border-white/10 bg-white/[0.02] hover:border-white/20 opacity-70"
+                              }`}
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                      #{node.sequenceNo} • Sem {node.targetSemester || semNum}
+                                    </span>
+                                    {node.branch && (
+                                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded">
+                                        {node.branch}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {isCompleted ? (
+                                    <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                      <CheckCircle2 className="size-3" /> Done
+                                    </span>
+                                  ) : isInProgress ? (
+                                    <span className="flex items-center gap-1 text-[11px] font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full border border-purple-500/30">
+                                      <Clock className="size-3" /> In Progress
+                                    </span>
+                                  ) : isUnlocked ? (
+                                    <span className="flex items-center gap-1 text-[11px] font-bold text-cyan-300 bg-cyan-500/20 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                                      <Sparkles className="size-3" /> Available
+                                    </span>
+                                  ) : (
+                                    <span className="flex items-center gap-1 text-[11px] font-bold text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">
+                                      <Lock className="size-3" /> Locked
+                                    </span>
+                                  )}
+                                </div>
+
+                                <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition">
+                                  {node.title}
+                                </h3>
+
+                                <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                                  {node.description || "Core milestone node."}
+                                </p>
+                              </div>
+
+                              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                                <span className="text-[11px] text-gray-500 font-mono">
+                                  {node.nodeKey}
+                                </span>
+                                <span className="text-purple-400 font-semibold group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                                  Inspect <ChevronRight className="size-3.5" />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );
@@ -630,7 +830,7 @@ export default function RoadmapPage() {
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-purple-400">
-                  Semester {selectedNode.sem} • {selectedNode.category}
+                  Semester {selectedNode.targetSemester || 1} • Milestone #{selectedNode.sequenceNo}
                 </span>
                 <h3 className="text-base font-bold text-white">{selectedNode.title}</h3>
               </div>
@@ -642,37 +842,83 @@ export default function RoadmapPage() {
               </button>
             </div>
 
-            <p className="text-xs text-gray-300 leading-relaxed">{selectedNode.desc}</p>
+            <div className="space-y-3 text-xs leading-relaxed text-gray-300">
+              <p>{selectedNode.description || "Core milestone for this semester."}</p>
 
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-gray-400">Key Syllabus Topics:</span>
-              <div className="flex flex-wrap gap-1.5">
-                {selectedNode.topics.map((t, idx) => (
-                  <span key={idx} className="rounded-lg bg-white/[0.05] border border-white/10 px-2.5 py-1 text-xs text-gray-200">
-                    {t}
+              {selectedNode.evidencePrompt && (
+                <div className="rounded-xl border border-purple-500/20 bg-purple-950/20 p-3 space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block">
+                    Proof-of-Work Evidence
                   </span>
-                ))}
-              </div>
+                  <p className="text-xs text-gray-300">{selectedNode.evidencePrompt}</p>
+                </div>
+              )}
             </div>
 
-            {/* Progress Selector */}
-            <div className="space-y-2 pt-2 border-t border-white/10">
-              <span className="text-xs font-bold text-gray-400">Update Status:</span>
-              <div className="grid grid-cols-3 gap-2">
-                {(["completed", "in_progress", "locked"] as const).map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => updateNodeStatus(selectedNode, st)}
-                    className={`py-2 text-xs font-semibold rounded-xl border transition capitalize cursor-pointer ${
-                      selectedNode.status === st
-                        ? "bg-purple-600 border-purple-500 text-white"
-                        : "bg-white/[0.03] border-white/10 text-gray-400 hover:text-white"
-                    }`}
-                  >
-                    {st.replace("_", " ")}
-                  </button>
-                ))}
+            {/* PREREQUISITES INSPECTOR */}
+            {selectedNode.prerequisiteKeys && selectedNode.prerequisiteKeys.length > 0 && (
+              <div className="space-y-2 border-t border-white/10 pt-3 text-xs">
+                <span className="text-gray-400 font-bold block">Prerequisites:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedNode.prerequisiteKeys.map((prereq) => {
+                    const isMissing = selectedNode.missingPrerequisites?.includes(prereq);
+                    return (
+                      <span
+                        key={prereq}
+                        className={`px-2 py-0.5 rounded text-[11px] font-mono border ${
+                          isMissing
+                            ? "bg-red-500/10 border-red-500/30 text-red-300"
+                            : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                        }`}
+                      >
+                        {prereq} {isMissing ? "• pending" : "• done"}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
+            )}
+
+            {/* STATUS & PROGRESS UPDATE BUTTONS */}
+            <div className="space-y-3 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-400 font-medium">Status:</span>
+                <span className="font-bold capitalize text-white">{selectedNode.status.replace("_", " ")}</span>
+              </div>
+
+              {selectedNode.status === "unlocked" && (
+                <button
+                  disabled={statusUpdating}
+                  onClick={() => handleUpdateNodeProgress(selectedNode, "in_progress")}
+                  className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white rounded-xl transition cursor-pointer shadow-lg shadow-purple-600/30 disabled:opacity-50"
+                >
+                  {statusUpdating ? "Updating..." : "Start Milestone (In Progress)"}
+                </button>
+              )}
+
+              {selectedNode.status === "in_progress" && (
+                <button
+                  disabled={statusUpdating}
+                  onClick={() => handleUpdateNodeProgress(selectedNode, "completed")}
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white rounded-xl transition cursor-pointer shadow-lg shadow-emerald-600/30 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  <CheckCircle2 className="size-4" />
+                  {statusUpdating ? "Updating..." : "Mark Milestone Completed"}
+                </button>
+              )}
+
+              {selectedNode.status === "completed" && (
+                <div className="w-full py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-xs font-semibold text-center flex items-center justify-center gap-1.5">
+                  <CheckCircle2 className="size-4" />
+                  Milestone Completed
+                </div>
+              )}
+
+              {selectedNode.status === "locked" && (
+                <div className="w-full py-2 bg-white/5 border border-white/10 text-gray-400 rounded-xl text-xs text-center">
+                  Prerequisites pending. Complete prior milestones to unlock.
+                </div>
+              )}
             </div>
 
             <div className="pt-2">
