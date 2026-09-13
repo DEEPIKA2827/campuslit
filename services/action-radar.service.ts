@@ -18,7 +18,7 @@ import { AssessmentRepository } from "@/repositories/assessment.repository";
 import { AcademicRepository } from "@/repositories/academic.repository";
 import { ScholarshipRepository } from "@/repositories/scholarship.repository";
 import { OpportunityRepository } from "@/repositories/opportunity.repository";
-import { RoadmapRepository } from "@/repositories/roadmap.repository";
+import { roadmapService, RoadmapService } from "@/services/roadmap.service";
 import { CatalogIngestionEngine } from "@/lib/ingestion";
 import { Logger } from "@/lib/logger";
 import { db, schema } from "@/lib/db";
@@ -38,7 +38,7 @@ export class ActionRadarService {
   private academicRepo: AcademicRepository;
   private scholarshipRepo: ScholarshipRepository;
   private opportunityRepo: OpportunityRepository;
-  private roadmapRepo: RoadmapRepository;
+  private roadmapService: RoadmapService;
 
   constructor() {
     this.attendanceRepo = new AttendanceRepository();
@@ -46,7 +46,7 @@ export class ActionRadarService {
     this.academicRepo = new AcademicRepository();
     this.scholarshipRepo = new ScholarshipRepository();
     this.opportunityRepo = new OpportunityRepository();
-    this.roadmapRepo = new RoadmapRepository();
+    this.roadmapService = roadmapService;
   }
 
   /**
@@ -412,27 +412,71 @@ export class ActionRadarService {
       }
 
       // -----------------------------------------------------------------------
-      // 4. EVALUATE ROADMAP MILESTONES
+      // 4. EVALUATE PERSONALIZED ROADMAP & MILESTONES (MILESTONE #7)
       // -----------------------------------------------------------------------
-      const roadmaps = await this.roadmapRepo.listRoadmaps();
-      let activeRoadmapTitle = "Full-Stack Web Developer Roadmap";
+      let activeRoadmapTitle = "Career Roadmap Not Configured";
       let activeRoadmapProgressPct = 0;
 
-      if (roadmaps.length > 0) {
-        const primaryRoadmap = roadmaps[0];
-        activeRoadmapTitle = primaryRoadmap.title;
-        const nodeProgressList = await this.roadmapRepo.getStudentProgressForRoadmap(userId, primaryRoadmap.roadmapId);
+      const personalizedRoadmapResp = await this.roadmapService.getPersonalizedRoadmapForStudent(userId);
 
-        const totalNodes = nodeProgressList.length;
-        const completedCount = nodeProgressList.filter((item) => item.progress?.status === "completed").length;
-        activeRoadmapProgressPct = totalNodes > 0 ? Math.round((completedCount / totalNodes) * 100) : 0;
+      if (!personalizedRoadmapResp.configured || !personalizedRoadmapResp.roadmap) {
+        // Unconfigured student -> Direct to onboarding to set up career profile
+        candidates.push({
+          id: "road_onboarding_profile",
+          category: "roadmap_milestone",
+          urgency: "medium",
+          compositeScore: 400,
+          timeProximitySeconds: 86400 * 3,
+          severityMagnitude: 20,
+          title: "Complete your CampusOS profile",
+          subtitle: "Set your career goals to unlock personalized engineering roadmaps and milestones.",
+          description:
+            personalizedRoadmapResp.message ||
+            "Complete your onboarding profile to unlock your personalized curriculum and milestone tracker.",
+          estimatedMinutes: 5,
+          xpReward: 50,
+          actionUrl: "/onboarding",
+          actionLabel: "Complete Profile",
+          contextBadge: "Profile Setup",
+        });
+      } else {
+        const roadmap = personalizedRoadmapResp.roadmap;
+        activeRoadmapTitle = roadmap.title;
+        activeRoadmapProgressPct = roadmap.progressPercentage;
 
-        // Find next incomplete milestone node
-        const nextItem = nodeProgressList.find((item) => item.progress?.status !== "completed");
-        if (nextItem) {
-          const nextNode = nextItem.node;
-          const isStarted = nextItem.progress?.status === "in_progress";
-          const score = isStarted ? 550 : 450;
+        // If student is in Core or Higher Ed and specialization branch selection is required
+        if (roadmap.requiresSpecializationSelection) {
+          candidates.push({
+            id: `road_specialization_gateway_${roadmap.id}`,
+            category: "roadmap_milestone",
+            urgency: "high",
+            compositeScore: 620,
+            timeProximitySeconds: 86400,
+            severityMagnitude: 40,
+            title: "Choose Your Specialization Track",
+            subtitle:
+              roadmap.specializationPrompt ||
+              "Select your specialization track to continue your personalized roadmap.",
+            description:
+              "Your personalized roadmap requires selecting a specialization branch to unlock specialized milestones.",
+            estimatedMinutes: 5,
+            xpReward: 30,
+            actionUrl: "/roadmap",
+            actionLabel: "Choose Specialization",
+            contextBadge: `${roadmap.title} Gateway`,
+          });
+        }
+
+        // Selection precedence for milestones:
+        // A. First actionable in_progress node
+        // B. Otherwise first actionable unlocked node
+        // (Action Radar must NEVER select a locked node)
+        const inProgressNode = roadmap.nodes.find((n) => n.status === "in_progress");
+        const nextNode = inProgressNode || roadmap.nodes.find((n) => n.status === "unlocked");
+
+        if (nextNode) {
+          const isStarted = nextNode.status === "in_progress";
+          const score = isStarted ? 550 : 480;
 
           candidates.push({
             id: `road_${nextNode.nodeId}`,
@@ -442,39 +486,58 @@ export class ActionRadarService {
             timeProximitySeconds: 86400 * 2,
             severityMagnitude: 20,
             title: `Today's Mission: ${nextNode.title}`,
-            subtitle: `${primaryRoadmap.career || "Core Engineering Track"} • Step ${nextNode.sequenceNo} of ${totalNodes}`,
-            description: nextNode.description || `Advance your engineering skill path by completing this milestone.`,
+            subtitle: `${roadmap.title} • Milestone ${nextNode.sequenceNo} of ${roadmap.totalNodes}`,
+            description: nextNode.description || "Advance your engineering skill path by completing this milestone.",
             estimatedMinutes: 25,
             xpReward: 50,
             actionUrl: `/roadmap?nodeId=${nextNode.nodeId}`,
             actionLabel: isStarted ? "Resume Mission" : "Start Mission",
-            contextBadge: `${primaryRoadmap.career || "Roadmap Track"} (+50 XP)`,
+            contextBadge: `${roadmap.title} (+50 XP)`,
             attachedResource: {
               title: `${nextNode.title} Learning Module`,
               url: `/roadmap?nodeId=${nextNode.nodeId}`,
               type: "Interactive Roadmap Node",
             },
           });
+        } else if (roadmap.totalNodes > 0 && roadmap.completedNodes === roadmap.totalNodes) {
+          // All visible nodes are completed
+          candidates.push({
+            id: `road_completed_${roadmap.id}`,
+            category: "roadmap_milestone",
+            urgency: "low",
+            compositeScore: 100,
+            timeProximitySeconds: 999999,
+            severityMagnitude: 10,
+            title: `Roadmap Completed: ${roadmap.title}`,
+            subtitle: "You have completed all milestones in your personalized engineering track!",
+            description:
+              "Maintain your project portfolio, apply to target opportunities, or explore advanced specialization tracks.",
+            estimatedMinutes: 15,
+            xpReward: 100,
+            actionUrl: "/roadmap",
+            actionLabel: "Review Roadmap",
+            contextBadge: "Track Mastered",
+          });
         }
       }
 
-      // Default fallback mission if student has completed everything or no records exist
+      // Safe truthful all-clear fallback if no candidates exist across all domains
       if (candidates.length === 0) {
         candidates.push({
-          id: "road_default_fresher",
-          category: "roadmap_milestone",
+          id: "action_all_clear",
+          category: "discovery_recommendation",
           urgency: "low",
-          compositeScore: 200,
+          compositeScore: 50,
           timeProximitySeconds: 999999,
-          severityMagnitude: 10,
-          title: "Today's Mission: Engineering Foundations & Git Setup",
-          subtitle: "Kickstart your semester milestone track",
-          description: "Initialize your developer environment, terminal configuration, and Git workflow.",
-          estimatedMinutes: 25,
-          xpReward: 50,
+          severityMagnitude: 0,
+          title: "All Academic & Career Milestones Current",
+          subtitle: "No urgent academic or career actions pending today.",
+          description: "Your attendance is healthy, assessments are covered, and your career milestones are up to date.",
+          estimatedMinutes: 10,
+          xpReward: 20,
           actionUrl: "/roadmap",
-          actionLabel: "Start Mission",
-          contextBadge: "Sem 1 Foundation (+50 XP)",
+          actionLabel: "View Roadmap",
+          contextBadge: "All Clear",
         });
       }
 
