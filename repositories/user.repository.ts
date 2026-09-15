@@ -27,6 +27,12 @@ export interface UpsertProfileInput {
   collegeId?: number | null;
   courseId?: number | null;
   semester?: number | null;
+  careerGoal?: string | null;
+  evaluationScheme?: string | null;
+  targetSgpa?: number | null;
+  programmingLevel?: string | null;
+  technicalInterests?: string[] | null;
+  specializationBranch?: string | null;
 }
 
 export interface UpdateSettingsInput {
@@ -141,6 +147,12 @@ export class UserRepository {
             collegeId: profileInput.collegeId || null,
             courseId: profileInput.courseId || null,
             semester: profileInput.semester || null,
+            careerGoal: profileInput.careerGoal || null,
+            evaluationScheme: profileInput.evaluationScheme || null,
+            targetSgpa: profileInput.targetSgpa !== undefined && profileInput.targetSgpa !== null ? profileInput.targetSgpa.toFixed(2) : null,
+            programmingLevel: profileInput.programmingLevel || null,
+            technicalInterests: profileInput.technicalInterests || null,
+            specializationBranch: profileInput.specializationBranch || null,
           })
           .returning();
         profileRecord = insertedProfile;
@@ -168,6 +180,12 @@ export class UserRepository {
               collegeId: profileRecord.collegeId,
               courseId: profileRecord.courseId,
               semester: profileRecord.semester,
+              careerGoal: profileRecord.careerGoal,
+              evaluationScheme: profileRecord.evaluationScheme,
+              targetSgpa: profileRecord.targetSgpa ? parseFloat(profileRecord.targetSgpa) : null,
+              programmingLevel: profileRecord.programmingLevel,
+              technicalInterests: profileRecord.technicalInterests,
+              specializationBranch: profileRecord.specializationBranch ?? null,
               createdAt: profileRecord.createdAt,
             }
           : null,
@@ -196,6 +214,12 @@ export class UserRepository {
       collegeId: record.collegeId,
       courseId: record.courseId,
       semester: record.semester,
+      careerGoal: record.careerGoal,
+      evaluationScheme: record.evaluationScheme,
+      targetSgpa: record.targetSgpa ? parseFloat(record.targetSgpa) : null,
+      programmingLevel: record.programmingLevel,
+      technicalInterests: record.technicalInterests,
+      specializationBranch: record.specializationBranch ?? null,
       createdAt: record.createdAt,
     };
   }
@@ -207,6 +231,11 @@ export class UserRepository {
     const client = this.getDb();
     Logger.info("UserRepository.upsertProfile", { userId });
 
+    const targetSgpaStr =
+      input.targetSgpa !== undefined && input.targetSgpa !== null
+        ? input.targetSgpa.toFixed(2)
+        : null;
+
     const [record] = await client
       .insert(schema.studentProfiles)
       .values({
@@ -216,6 +245,12 @@ export class UserRepository {
         collegeId: input.collegeId || null,
         courseId: input.courseId || null,
         semester: input.semester || null,
+        careerGoal: input.careerGoal || null,
+        evaluationScheme: input.evaluationScheme || null,
+        targetSgpa: targetSgpaStr,
+        programmingLevel: input.programmingLevel || null,
+        technicalInterests: input.technicalInterests || null,
+        specializationBranch: input.specializationBranch || null,
       })
       .onConflictDoUpdate({
         target: schema.studentProfiles.userId,
@@ -225,6 +260,12 @@ export class UserRepository {
           collegeId: input.collegeId || null,
           courseId: input.courseId || null,
           semester: input.semester || null,
+          ...(input.careerGoal !== undefined && { careerGoal: input.careerGoal || null }),
+          ...(input.evaluationScheme !== undefined && { evaluationScheme: input.evaluationScheme || null }),
+          ...(input.targetSgpa !== undefined && { targetSgpa: targetSgpaStr }),
+          ...(input.programmingLevel !== undefined && { programmingLevel: input.programmingLevel || null }),
+          ...(input.technicalInterests !== undefined && { technicalInterests: input.technicalInterests || null }),
+          ...(input.specializationBranch !== undefined && { specializationBranch: input.specializationBranch || null }),
         },
       })
       .returning();
@@ -236,6 +277,12 @@ export class UserRepository {
       collegeId: record.collegeId,
       courseId: record.courseId,
       semester: record.semester,
+      careerGoal: record.careerGoal,
+      evaluationScheme: record.evaluationScheme,
+      targetSgpa: record.targetSgpa ? parseFloat(record.targetSgpa) : null,
+      programmingLevel: record.programmingLevel,
+      technicalInterests: record.technicalInterests,
+      specializationBranch: record.specializationBranch ?? null,
       createdAt: record.createdAt,
     };
   }
@@ -327,6 +374,12 @@ export class UserRepository {
             collegeId: record.profile.collegeId,
             courseId: record.profile.courseId,
             semester: record.profile.semester,
+            careerGoal: record.profile.careerGoal ?? null,
+            evaluationScheme: record.profile.evaluationScheme ?? null,
+            targetSgpa: record.profile.targetSgpa ? parseFloat(record.profile.targetSgpa) : null,
+            programmingLevel: record.profile.programmingLevel ?? null,
+            technicalInterests: record.profile.technicalInterests ?? null,
+            specializationBranch: record.profile.specializationBranch ?? null,
             createdAt: record.profile.createdAt,
           }
         : null,

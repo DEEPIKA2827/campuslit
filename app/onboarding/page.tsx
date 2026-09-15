@@ -156,6 +156,7 @@ function OnboardingContent() {
   const [semester, setSemester] = useState<number>(1);
   const [evalType, setEvalType] = useState("vtu");
   const [careerGoal, setCareerGoal] = useState("sde");
+  const [targetSgpa, setTargetSgpa] = useState<number>(8.5);
   const [progLevel, setProgLevel] = useState("beginner");
   const [prefLang, setPrefLang] = useState("english");
   const [studyTime, setStudyTime] = useState("30mins");
@@ -207,6 +208,19 @@ function OnboardingContent() {
       if (profile.collegeId) setCollegeId(profile.collegeId);
       if (profile.courseId) setCourseId(profile.courseId);
       if (profile.semester) setSemester(profile.semester);
+      if (profile.careerGoal) setCareerGoal(profile.careerGoal);
+      if (profile.evaluationScheme) setEvalType(profile.evaluationScheme);
+      if (profile.targetSgpa !== null && profile.targetSgpa !== undefined) {
+        setTargetSgpa(Number(profile.targetSgpa));
+      }
+      if (profile.programmingLevel) setProgLevel(profile.programmingLevel);
+      if (
+        profile.technicalInterests &&
+        Array.isArray(profile.technicalInterests) &&
+        profile.technicalInterests.length > 0
+      ) {
+        setSelectedInterests(profile.technicalInterests);
+      }
     }
   }, [profile]);
 
@@ -267,6 +281,11 @@ function OnboardingContent() {
         collegeId: Number(collegeId),
         courseId: Number(courseId),
         semester: Number(semester),
+        careerGoal,
+        evaluationScheme: evalType,
+        targetSgpa: Number(targetSgpa),
+        programmingLevel: progLevel,
+        technicalInterests: selectedInterests,
       };
 
       const profileRes = await fetch("/api/profile", {
@@ -417,6 +436,21 @@ function OnboardingContent() {
                 <div>
                   <span className="text-gray-500 block text-[10px]">Target Career</span>
                   <strong className="text-purple-400">{careerGoals.find((c) => c.id === careerGoal)?.title}</strong>
+                </div>
+                <div className="col-span-2 pt-1 border-t border-white/5 flex items-center justify-between">
+                  <span className="text-gray-400 text-[11px] font-semibold">Target SGPA:</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="range"
+                      min="6.0"
+                      max="10.0"
+                      step="0.1"
+                      value={targetSgpa}
+                      onChange={(e) => setTargetSgpa(Number(e.target.value))}
+                      className="w-24 sm:w-32 accent-purple-500 h-1.5 bg-white/10 rounded-lg cursor-pointer"
+                    />
+                    <strong className="text-purple-300 font-mono text-xs">{targetSgpa.toFixed(1)}</strong>
+                  </div>
                 </div>
               </div>
             </div>

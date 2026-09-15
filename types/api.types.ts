@@ -73,6 +73,18 @@ export interface StudentProfileDTO {
   courseId: number | null;
   /** semester (SMALLINT NULL) */
   semester: number | null;
+  /** career_goal (VARCHAR 50 NULLABLE) */
+  careerGoal: string | null;
+  /** evaluation_scheme (VARCHAR 50 NULLABLE) */
+  evaluationScheme: string | null;
+  /** target_sgpa (DECIMAL 4,2 NULLABLE) */
+  targetSgpa: number | null;
+  /** programming_level (VARCHAR 50 NULLABLE) */
+  programmingLevel: string | null;
+  /** technical_interests (TEXT[] NULLABLE) */
+  technicalInterests: string[] | null;
+  /** specialization_branch (VARCHAR 50 NULLABLE) */
+  specializationBranch: string | null;
   /** created_at (TIMESTAMP) */
   createdAt: string;
 }
@@ -353,6 +365,8 @@ export interface RoadmapDTO {
   description: string | null;
   /** career (VARCHAR 150 NULL) */
   career: string | null;
+  /** career_slug (VARCHAR 50 NULL) */
+  careerSlug?: string | null;
 }
 
 /**
@@ -401,6 +415,85 @@ export interface RoadmapWithProgressSummaryDTO {
   completedNodes: number;
   inProgressNodes: number;
   completionPercentage: number;
+}
+
+/**
+ * Roadmap Node Calculated Status
+ */
+export type RoadmapNodeStatus = "locked" | "unlocked" | "in_progress" | "completed";
+
+/**
+ * Personalized Roadmap Header DTO
+ */
+export interface PersonalizedRoadmapDTO {
+  id: number;
+  roadmapId?: number;
+  careerSlug: string;
+  title: string;
+  description: string | null;
+  career?: string | null;
+  totalNodes: number;
+  completedNodes: number;
+  inProgressNodes: number;
+  progressPercentage: number;
+  requiresSpecializationSelection: boolean;
+  specializationPrompt: string | null;
+  nodes: PersonalizedRoadmapNodeDTO[];
+}
+
+/**
+ * Student Context for Personalized Roadmap DTO
+ */
+export interface RoadmapStudentContextDTO {
+  userId?: number;
+  careerGoal: string | null;
+  specializationBranch: string | null;
+  semester: number | null;
+  programmingLevel?: string | null;
+  technicalInterests: string[] | null;
+  targetSgpa?: number | null;
+  evaluationScheme?: string | null;
+}
+
+/**
+ * Node within a Personalized Roadmap DTO
+ */
+export interface PersonalizedRoadmapNodeDTO {
+  id: number;
+  nodeId?: number;
+  roadmapId: number;
+  nodeKey: string;
+  sequenceNo: number;
+  title: string;
+  description: string | null;
+  category: string | null;
+  tier: string | null;
+  branch: string | null;
+  branchKey?: string;
+  isElective: boolean;
+  isGateway: boolean;
+  isConvergence: boolean;
+  targetSemester?: number | null;
+  difficulty?: string | null;
+  skills?: string[];
+  prerequisiteKeys: string[];
+  evidencePrompt?: string | null;
+  status: RoadmapNodeStatus;
+  isUnlocked: boolean;
+  prerequisiteSatisfied?: boolean;
+  lockedReason?: string | null;
+  missingPrerequisites?: string[];
+}
+
+/**
+ * Complete Personalized Roadmap Response DTO
+ */
+export interface PersonalizedRoadmapResponseDTO {
+  configured: boolean;
+  roadmap: PersonalizedRoadmapDTO | null;
+  studentContext: RoadmapStudentContextDTO;
+  nodes?: PersonalizedRoadmapNodeDTO[];
+  message?: string;
 }
 
 /**

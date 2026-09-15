@@ -13,6 +13,8 @@ export interface EnvironmentVariables {
   AUTH_SESSION_SECRETS?: string;
   DB_MAX_CONNECTIONS?: string;
   GEMINI_API_KEY?: string;
+  XAI_API_KEY?: string;
+  XAI_MODEL?: string;
 }
 
 class EnvManager {
@@ -50,11 +52,12 @@ class EnvManager {
     }
 
     if (missing.length > 0) {
-      const msg = `[Env Warning] Missing configuration keys: ${missing.join(", ")}`;
+      const msg = `[Env Error] Missing mandatory configuration keys: ${missing.join(", ")}`;
       if (isProd) {
         console.error(msg);
+        throw new Error(msg);
       } else {
-        console.warn(msg);
+        console.warn(`[Env Warning] Missing configuration keys: ${missing.join(", ")}`);
       }
       return { valid: false, missing };
     }

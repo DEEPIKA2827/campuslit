@@ -250,6 +250,16 @@ export default function Home() {
   const [logLoading, setLogLoading] = useState(false);
   const [logSuccessMessage, setLogSuccessMessage] = useState<string | null>(null);
 
+  // Quick CIE Marks Logger Modal
+  const [showMarkModal, setShowMarkModal] = useState(false);
+  const [markCourseId, setMarkCourseId] = useState<number>(1);
+  const [markAssessmentsList, setMarkAssessmentsList] = useState<{ cieId: number; assessmentName: string; maxMarks: number }[]>([]);
+  const [selectedCieId, setSelectedCieId] = useState<number | null>(null);
+  const [markObtained, setMarkObtained] = useState<string>("35");
+  const [markLoading, setMarkLoading] = useState(false);
+  const [markSuccessMessage, setMarkSuccessMessage] = useState<string | null>(null);
+  const [markErrorMessage, setMarkErrorMessage] = useState<string | null>(null);
+
   // Simulator State
   const [simAttendance, setSimAttendance] = useState<number>(82);
   const [targetSGPA, setTargetSGPA] = useState<number>(8.5);
@@ -278,6 +288,7 @@ export default function Home() {
             if (attJson.data.length > 0 && !selectedCourseId) {
               setSelectedCourseId(attJson.data[0].courseId);
               setLogCourseId(attJson.data[0].courseId);
+              setMarkCourseId(attJson.data[0].courseId);
             }
           }
         }
@@ -291,6 +302,7 @@ export default function Home() {
             if (courseJson.data.length > 0 && !selectedCourseId) {
               setSelectedCourseId(courseJson.data[0].courseId);
               setLogCourseId(courseJson.data[0].courseId);
+              setMarkCourseId(courseJson.data[0].courseId);
             }
           }
         }
@@ -320,6 +332,13 @@ export default function Home() {
     fetchDashboardData();
   }, [isAuthenticated]);
 
+  // Sync targetSGPA simulator from authenticated student profile if persisted
+  useEffect(() => {
+    if (profile?.targetSgpa !== null && profile?.targetSgpa !== undefined) {
+      setTargetSGPA(Number(profile.targetSgpa));
+    }
+  }, [profile?.targetSgpa]);
+
   // Fetch Senior Viva Questions for active selected course
   useEffect(() => {
     if (!isAuthenticated || !selectedCourseId) return;
@@ -340,6 +359,32 @@ export default function Home() {
 
     fetchVivaQuestions();
   }, [isAuthenticated, selectedCourseId]);
+
+  // Fetch course CIE assessments when mark modal opens or course selection changes
+  useEffect(() => {
+    if (!showMarkModal || !markCourseId) return;
+
+    const fetchCieAssessments = async () => {
+      try {
+        const res = await fetch(`/api/assessments/cie?courseId=${markCourseId}`, { credentials: "include" });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            setMarkAssessmentsList(json.data);
+            if (json.data.length > 0) {
+              setSelectedCieId(json.data[0].cieId);
+            } else {
+              setSelectedCieId(null);
+            }
+          }
+        }
+      } catch {
+        // Fallback gracefully
+      }
+    };
+
+    fetchCieAssessments();
+  }, [showMarkModal, markCourseId]);
 
   // Log attendance event directly to backend
   const handleLogAttendance = async (e: React.FormEvent) => {
@@ -386,6 +431,51 @@ export default function Home() {
     }
   };
 
+  // Record CIE mark directly to backend
+  const handleRecordMark = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedCieId) return;
+
+    setMarkLoading(true);
+    setMarkSuccessMessage(null);
+    setMarkErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/assessments/marks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          cieId: selectedCieId,
+          marksObtained: Number(markObtained),
+        }),
+      });
+
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setMarkSuccessMessage("CIE Mark recorded successfully!");
+        // Refresh marks
+        const marksRes = await fetch("/api/assessments/marks", { credentials: "include" });
+        if (marksRes.ok) {
+          const marksJson = await marksRes.json();
+          if (marksJson.success && Array.isArray(marksJson.data)) {
+            setCieMarks(marksJson.data);
+          }
+        }
+        setTimeout(() => {
+          setShowMarkModal(false);
+          setMarkSuccessMessage(null);
+        }, 1200);
+      } else {
+        setMarkErrorMessage(json.message || "Failed to record mark.");
+      }
+    } catch {
+      setMarkErrorMessage("Network error while recording mark.");
+    } finally {
+      setMarkLoading(false);
+    }
+  };
+
   const handleWaitlistSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
@@ -393,21 +483,29 @@ export default function Home() {
     }
   };
 
-  // Calculate live aggregate attendance
+  // Calculate live aggregate attendance (strictly honest: null when 0 records)
   const totalClassesAggregate = attendanceSummaries.reduce((sum, item) => sum + item.totalClasses, 0);
   const attendedClassesAggregate = attendanceSummaries.reduce((sum, item) => sum + item.attendedClasses, 0);
+  const hasAttendanceRecords = attendanceSummaries.length > 0 && totalClassesAggregate > 0;
   const liveAttendancePct =
-    totalClassesAggregate > 0
+    hasAttendanceRecords
       ? parseFloat(((attendedClassesAggregate / totalClassesAggregate) * 100).toFixed(1))
-      : 84.2;
+      : null;
 
-  // Real 75% Bunk Defense calculation
+  // Real 75% Bunk Defense calculation (strictly honest: null when 0 records)
   const liveSafeBunks =
-    totalClassesAggregate > 0
+    hasAttendanceRecords
       ? Math.max(0, Math.floor(attendedClassesAggregate / 0.75 - totalClassesAggregate))
-      : Math.max(0, Math.floor((simAttendance - 75) / 2.5));
+      : null;
 
-  // Simulator outputs
+  // Real CIE Marks & SGPA calculation (strictly honest: null when 0 records)
+  const hasCieRecords = cieMarks.length > 0;
+  const projectedSgpa =
+    hasCieRecords
+      ? parseFloat((cieMarks.reduce((sum, m) => sum + (m.marksObtained / m.maxMarks) * 10, 0) / cieMarks.length).toFixed(2))
+      : null;
+
+  // Simulator outputs for prospective landing page demo
   const simBunkAllowance = Math.max(0, Math.floor((simAttendance - 75) / 2.5));
   const simReqIAMarks = Math.min(40, Math.max(16, Math.round(targetSGPA * 4)));
 
@@ -656,16 +754,25 @@ export default function Home() {
                 <span className="size-3 rounded-full bg-emerald-500/80 inline-block" />
                 <span className="ml-3 text-xs font-mono text-gray-400 flex items-center gap-2">
                   <Terminal className="size-3 text-purple-400" />
-                  CampusOS v1.0.4 — [{profile?.collegeId ? "RVCE / VTU 2025 Scheme" : "VTU 2025 Scheme / Sem 1 CSE"}]
+                  CampusOS v1.0.4 — [{profile?.semester ? `Semester ${profile.semester} Engineering Workspace` : "Engineering Workspace"}]
                 </span>
               </div>
               <div className="hidden sm:flex items-center gap-3 text-xs text-gray-400">
-                <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20 font-medium">
-                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  Attendance: {liveAttendancePct}% {liveAttendancePct >= 75 ? "Safe" : "Warning"}
+                <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2.5 py-1 rounded-full font-medium">
+                  Start your CampusOS journey 🔥
                 </span>
+                {hasAttendanceRecords ? (
+                  <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20 font-medium">
+                    <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Attendance: {liveAttendancePct}% {liveAttendancePct! >= 75 ? "Safe" : "Warning"}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 bg-white/[0.04] text-gray-400 px-2.5 py-1 rounded-full border border-white/10 font-medium">
+                    Attendance: Not recorded yet
+                  </span>
+                )}
                 <span className="bg-white/[0.06] px-2.5 py-1 rounded-md text-gray-300">
-                  Target: 8.5 SGPA
+                  {hasCieRecords ? `Projected: ${projectedSgpa} SGPA` : "SGPA: Not recorded yet"}
                 </span>
               </div>
             </div>
@@ -735,37 +842,74 @@ export default function Home() {
                         </h3>
                       </div>
                       <div className="flex items-center gap-2 text-xs">
-                        <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-medium">
-                          IA Target: 36/40
-                        </span>
+                        {hasCieRecords ? (
+                          <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-medium">
+                            IA Target: 36/40
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setShowMarkModal(true)}
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-3 py-1 text-xs font-bold text-white shadow-md shadow-purple-600/30 transition cursor-pointer"
+                          >
+                            <Plus className="size-3.5" />
+                            <span>Add CIE Marks</span>
+                          </button>
+                        )}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                        <span className="text-xs text-gray-400">Current CIE Marks</span>
-                        <p className="text-xl font-bold text-white mt-1">
-                          {cieMarks.length > 0 ? `${cieMarks[0].marksObtained} / ${cieMarks[0].maxMarks}` : "34 / 40"}
-                        </p>
-                        <span className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1">
-                          <CheckCircle2 className="size-3" /> IA1 Completed
-                        </span>
+                    {hasCieRecords ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <span className="text-xs text-gray-400">Current CIE Marks</span>
+                          <p className="text-xl font-bold text-white mt-1">
+                            {`${cieMarks[0].marksObtained} / ${cieMarks[0].maxMarks}`}
+                          </p>
+                          <span className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1">
+                            <CheckCircle2 className="size-3" /> {cieMarks[0].assessmentName || "CIE Recorded"}
+                          </span>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <span className="text-xs text-gray-400">VTU Exam Weightage</span>
+                          <p className="text-xl font-bold text-purple-400 mt-1">50% CIE + 50% SEE</p>
+                          <span className="text-[11px] text-gray-400 mt-1 block">Pass Cutoff: 40%</span>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <span className="text-xs text-gray-400">Projected SGPA</span>
+                          <p className="text-xl font-bold text-cyan-400 mt-1">{projectedSgpa} SGPA</p>
+                          <span className="text-[11px] text-cyan-300 mt-1 block">Based on recorded marks</span>
+                        </div>
                       </div>
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                        <span className="text-xs text-gray-400">VTU Exam Weightage</span>
-                        <p className="text-xl font-bold text-purple-400 mt-1">50% CIE + 50% SEE</p>
-                        <span className="text-[11px] text-gray-400 mt-1 block">Pass Cutoff: 40%</span>
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-6 text-center space-y-3">
+                        <div className="size-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mx-auto">
+                          <BookOpen className="size-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white">CIE Performance</h4>
+                          <p className="text-xs text-purple-300 font-semibold mt-0.5">No marks recorded yet</p>
+                          <p className="text-xs text-gray-400 mt-1 max-w-md mx-auto leading-relaxed">
+                            Add your assessment marks to track CIE performance and projected academic outcomes.
+                          </p>
+                        </div>
+                        <div className="pt-1">
+                          <button
+                            onClick={() => setShowMarkModal(true)}
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-purple-600/30 transition cursor-pointer"
+                          >
+                            <Plus className="size-3.5" />
+                            <span>Add CIE Marks</span>
+                          </button>
+                        </div>
                       </div>
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                        <span className="text-xs text-gray-400">Projected SGPA</span>
-                        <p className="text-xl font-bold text-cyan-400 mt-1">8.75 SGPA</p>
-                        <span className="text-[11px] text-cyan-300 mt-1 block">On Track for Distinction</span>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Syllabus modules */}
                     <div className="space-y-3">
-                      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">VTU Module Syllabus Tracker</h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Module Syllabus Reference</h4>
+                        <span className="text-[11px] text-gray-500">Progress not tracked yet</span>
+                      </div>
                       
                       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -775,8 +919,8 @@ export default function Home() {
                             <p className="text-xs text-gray-400">Rolle&apos;s Theorem, Taylor Series, Curvature</p>
                           </div>
                         </div>
-                        <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-                          <Check className="size-3" /> Completed
+                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">
+                          Not tracked yet
                         </span>
                       </div>
 
@@ -788,8 +932,8 @@ export default function Home() {
                             <p className="text-xs text-gray-400">Rank of Matrix, Eigenvalues, Cayley-Hamilton Theorem</p>
                           </div>
                         </div>
-                        <span className="text-xs bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-                          <Clock className="size-3" /> In Progress (65%)
+                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">
+                          Not tracked yet
                         </span>
                       </div>
                     </div>
@@ -813,78 +957,95 @@ export default function Home() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-400">Overall Attendance</span>
-                          <span className={`font-bold ${liveAttendancePct >= 75 ? "text-emerald-400" : "text-rose-400"}`}>
-                            {liveAttendancePct}%
-                          </span>
-                        </div>
-                        <div className="h-2.5 w-full bg-white/10 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full ${
-                              liveAttendancePct >= 75
-                                ? "bg-gradient-to-r from-emerald-500 to-teal-400"
-                                : "bg-gradient-to-r from-rose-500 to-amber-500"
-                            }`}
-                            style={{ width: `${Math.min(100, liveAttendancePct)}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-gray-400">
-                          Total Classes: <strong className="text-white">{totalClassesAggregate || 120}</strong> | Attended: <strong className="text-white">{attendedClassesAggregate || 101}</strong>
-                        </p>
-                      </div>
+                    {hasAttendanceRecords ? (
+                      <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-gray-400">Overall Attendance</span>
+                              <span className={`font-bold ${liveAttendancePct! >= 75 ? "text-emerald-400" : "text-rose-400"}`}>
+                                {liveAttendancePct}%
+                              </span>
+                            </div>
+                            <div className="h-2.5 w-full bg-white/10 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full ${
+                                  liveAttendancePct! >= 75
+                                    ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                                    : "bg-gradient-to-r from-rose-500 to-amber-500"
+                                }`}
+                                style={{ width: `${Math.min(100, liveAttendancePct!)}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-gray-400">
+                              Total Classes: <strong className="text-white">{totalClassesAggregate}</strong> | Attended: <strong className="text-white">{attendedClassesAggregate}</strong>
+                            </p>
+                          </div>
 
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 flex flex-col justify-between">
-                        <div>
-                          <span className="text-xs text-gray-400">Calculated Safe Bunks</span>
-                          <p className={`text-2xl font-bold mt-1 ${liveSafeBunks > 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                            {liveSafeBunks > 0 ? `${liveSafeBunks} Classes Buffer` : "0 Classes (At Cutoff!)"}
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 flex flex-col justify-between">
+                            <div>
+                              <span className="text-xs text-gray-400">Calculated Safe Bunks</span>
+                              <p className={`text-2xl font-bold mt-1 ${liveSafeBunks! > 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                                {liveSafeBunks! > 0 ? `${liveSafeBunks} Classes Buffer` : "0 Classes (At Cutoff!)"}
+                              </p>
+                            </div>
+                            <p className="text-xs text-gray-400">
+                              {liveSafeBunks! > 0
+                                ? `You can safely miss ${liveSafeBunks} classes without dipping below 75%.`
+                                : "Must attend upcoming lectures to avoid detention lists."}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Course Attendance List */}
+                        <div className="space-y-2">
+                          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Subject Attendance Radar</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {attendanceSummaries.map((s, idx) => (
+                              <div
+                                key={s.summaryId || idx}
+                                className="p-3 rounded-xl border border-white/10 bg-white/[0.02] flex items-center justify-between"
+                              >
+                                <div>
+                                  <strong className="text-xs text-white block">{s.courseName}</strong>
+                                  <span className="text-[10px] text-gray-400">{s.attendedClasses}/{s.totalClasses} Classes</span>
+                                </div>
+                                <span
+                                  className={`text-xs font-bold px-2 py-1 rounded-lg ${
+                                    s.attendancePercentage >= 75
+                                      ? "bg-emerald-500/20 text-emerald-300"
+                                      : "bg-rose-500/20 text-rose-300"
+                                  }`}
+                                >
+                                  {s.attendancePercentage}%
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center space-y-4">
+                        <div className="size-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+                          <ShieldCheck className="size-6" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-base font-bold text-white">Attendance Not Recorded Yet</h4>
+                          <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+                            Start logging your classes to see attendance percentage, attendance risk, and safe-bunk calculations.
                           </p>
                         </div>
-                        <p className="text-xs text-gray-400">
-                          {liveSafeBunks > 0
-                            ? `You can safely miss ${liveSafeBunks} classes without dipping below 75%.`
-                            : "Must attend upcoming lectures to avoid detention lists."}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Course Attendance List */}
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Subject Attendance Radar</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {(attendanceSummaries.length > 0
-                          ? attendanceSummaries
-                          : [
-                              { summaryId: 1, courseName: "Engg Mathematics I", courseCode: "BMAT101", totalClasses: 30, attendedClasses: 26, attendancePercentage: 86.6 },
-                              { summaryId: 2, courseName: "C Programming Lab", courseCode: "BPOPS103", totalClasses: 24, attendedClasses: 21, attendancePercentage: 87.5 },
-                              { summaryId: 3, courseName: "Physics Cycle Lab", courseCode: "BPHYS102", totalClasses: 20, attendedClasses: 16, attendancePercentage: 80.0 },
-                              { summaryId: 4, courseName: "Basic Electronics", courseCode: "BEC104", totalClasses: 26, attendedClasses: 21, attendancePercentage: 80.7 },
-                            ]
-                        ).map((s, idx) => (
-                          <div
-                            key={idx}
-                            className="p-3 rounded-xl border border-white/10 bg-white/[0.02] flex items-center justify-between"
+                        <div>
+                          <button
+                            onClick={() => setShowLogModal(true)}
+                            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/30 transition cursor-pointer"
                           >
-                            <div>
-                              <strong className="text-xs text-white block">{s.courseName}</strong>
-                              <span className="text-[10px] text-gray-400">{s.attendedClasses}/{s.totalClasses} Classes</span>
-                            </div>
-                            <span
-                              className={`text-xs font-bold px-2 py-1 rounded-lg ${
-                                s.attendancePercentage >= 75
-                                  ? "bg-emerald-500/20 text-emerald-300"
-                                  : "bg-rose-500/20 text-rose-300"
-                              }`}
-                            >
-                              {s.attendancePercentage}%
-                            </span>
-                          </div>
-                        ))}
+                            <Plus className="size-4" />
+                            <span>Log Attendance</span>
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 )}
 
@@ -955,7 +1116,7 @@ export default function Home() {
                             <p className="text-xs text-gray-400">Create GitHub profile, commit lab codes, learn basic bash</p>
                           </div>
                         </div>
-                        <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-full font-medium">Completed</span>
+                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">Available</span>
                       </div>
 
                       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
@@ -966,7 +1127,7 @@ export default function Home() {
                             <p className="text-xs text-gray-400">Arrays, Pointers, Linked Lists & 25 LeetCode Easy problems</p>
                           </div>
                         </div>
-                        <span className="text-xs bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded-full font-medium">In Progress</span>
+                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">Locked</span>
                       </div>
 
                       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
@@ -977,7 +1138,7 @@ export default function Home() {
                             <p className="text-xs text-gray-400">Build a mini-project for college tech fest (IEEE / GDSC)</p>
                           </div>
                         </div>
-                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">Up Next</span>
+                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">Locked</span>
                       </div>
                     </div>
                   </div>
@@ -1064,6 +1225,111 @@ export default function Home() {
                     className="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-emerald-600/30 transition disabled:opacity-50 cursor-pointer"
                   >
                     {logLoading ? "Saving..." : "Record Entry"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* QUICK CIE MARKS LOGGER MODAL */}
+      {showMarkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="relative w-full max-w-md rounded-3xl border border-purple-500/30 bg-[#0d0f18] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <BookOpen className="size-5 text-purple-400" />
+                <h3 className="text-sm font-bold text-white">Record CIE Marks</h3>
+              </div>
+              <button
+                onClick={() => setShowMarkModal(false)}
+                className="text-gray-400 hover:text-white cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {markSuccessMessage ? (
+              <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-center space-y-2">
+                <CheckCircle2 className="size-8 text-purple-400 mx-auto" />
+                <p className="text-xs font-bold text-purple-300">{markSuccessMessage}</p>
+              </div>
+            ) : (
+              <form onSubmit={handleRecordMark} className="space-y-4">
+                {markErrorMessage && (
+                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
+                    {markErrorMessage}
+                  </div>
+                )}
+                <div>
+                  <label className="block text-xs font-medium text-gray-300 mb-1">Select Course</label>
+                  <select
+                    value={markCourseId}
+                    onChange={(e) => setMarkCourseId(Number(e.target.value))}
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    {(courses.length > 0
+                      ? courses
+                      : [{ courseId: 1, courseName: "Engg Mathematics I (BMAT101)" }]
+                    ).map((c) => (
+                      <option key={c.courseId} value={c.courseId} className="bg-gray-900 text-gray-200">
+                        {c.courseName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-300 mb-1">Select Assessment</label>
+                  {markAssessmentsList.length > 0 ? (
+                    <select
+                      value={selectedCieId || ""}
+                      onChange={(e) => setSelectedCieId(Number(e.target.value))}
+                      className="w-full rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
+                    >
+                      {markAssessmentsList.map((a) => (
+                        <option key={a.cieId} value={a.cieId} className="bg-gray-900 text-gray-200">
+                          {a.assessmentName} (Max: {a.maxMarks})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5">
+                      No CIE assessments registered for this course yet. Please check back after curriculum setup.
+                    </p>
+                  )}
+                </div>
+
+                {markAssessmentsList.length > 0 && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-300 mb-1">Marks Obtained</label>
+                    <input
+                      type="number"
+                      min={0}
+                      max={markAssessmentsList.find((a) => a.cieId === selectedCieId)?.maxMarks || 50}
+                      value={markObtained}
+                      onChange={(e) => setMarkObtained(e.target.value)}
+                      className="w-full rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-xs text-white focus:border-purple-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="pt-2 flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowMarkModal(false)}
+                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 rounded-xl text-xs font-bold text-white transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={markLoading || !selectedCieId}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-xs font-bold text-white shadow-lg shadow-purple-600/30 transition disabled:opacity-50 cursor-pointer"
+                  >
+                    {markLoading ? "Saving..." : "Record Mark"}
                   </button>
                 </div>
               </form>

@@ -73,6 +73,8 @@ export const roadmaps = pgTable("roadmaps", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   career: varchar("career", { length: 150 }),
+  careerSlug: varchar("career_slug", { length: 50 }),
+  isActive: boolean("is_active").default(true).notNull(),
 });
 
 /**
@@ -159,6 +161,13 @@ export const roadmapNodes = pgTable(
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
     sequenceNo: integer("sequence_no").notNull(),
+    nodeKey: varchar("node_key", { length: 50 }),
+    branchKey: varchar("branch_key", { length: 50 }).default("common").notNull(),
+    targetSemester: smallint("target_semester"),
+    difficulty: varchar("difficulty", { length: 20 }),
+    skills: text("skills").array().default(sql`'{}'`).notNull(),
+    prerequisiteKeys: text("prerequisite_keys").array().default(sql`'{}'`).notNull(),
+    evidencePrompt: text("evidence_prompt"),
   },
   (table) => [
     unique("uq_roadmap_nodes_roadmap_seq").on(table.roadmapId, table.sequenceNo),
@@ -261,6 +270,12 @@ export const studentProfiles = pgTable("student_profiles", {
   collegeId: bigint("college_id", { mode: "number" }).references(() => colleges.collegeId, { onDelete: "set null" }),
   courseId: bigint("course_id", { mode: "number" }).references(() => courses.courseId, { onDelete: "set null" }),
   semester: smallint("semester"),
+  careerGoal: varchar("career_goal", { length: 50 }),
+  evaluationScheme: varchar("evaluation_scheme", { length: 50 }),
+  targetSgpa: decimal("target_sgpa", { precision: 4, scale: 2 }),
+  programmingLevel: varchar("programming_level", { length: 50 }),
+  technicalInterests: text("technical_interests").array(),
+  specializationBranch: varchar("specialization_branch", { length: 50 }),
   createdAt: timestamp("created_at", { mode: "string", withTimezone: false }).defaultNow().notNull(),
 });
 

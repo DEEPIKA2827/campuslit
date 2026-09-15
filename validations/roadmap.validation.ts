@@ -14,7 +14,7 @@ export interface CreateRoadmapInput {
 }
 
 export interface CreateRoadmapNodeInput {
-  roadmapId: number;
+  roadmapId?: number;
   title: string;
   description?: string | null;
   sequenceNo: number;
@@ -85,8 +85,8 @@ export class RoadmapValidation {
   static validateCreateNodeInput(data: Partial<CreateRoadmapNodeInput>): ValidationResult<CreateRoadmapNodeInput> {
     const errors: string[] = [];
 
-    if (data.roadmapId === undefined || typeof data.roadmapId !== "number" || !Number.isInteger(data.roadmapId) || data.roadmapId <= 0) {
-      errors.push("Roadmap ID is required and must be a positive integer.");
+    if (data.roadmapId !== undefined && (typeof data.roadmapId !== "number" || !Number.isInteger(data.roadmapId) || data.roadmapId <= 0)) {
+      errors.push("Roadmap ID must be a positive integer.");
     }
 
     if (!data.title || typeof data.title !== "string" || data.title.trim().length === 0) {
@@ -177,6 +177,60 @@ export class RoadmapValidation {
       data: {
         ...(data.career !== undefined && { career: data.career.trim() }),
       },
+    };
+  }
+
+  /**
+   * Validates gateway specialization branch selection input.
+   */
+  static validateSpecializationBranchInput(
+    careerGoal: string | null,
+    branch: unknown
+  ): ValidationResult<{ specializationBranch: string | null }> {
+    const errors: string[] = [];
+
+    if (!careerGoal) {
+      errors.push("Cannot select a specialization branch without an active career goal.");
+      return { valid: false, success: false, errors };
+    }
+
+    if (branch === null || branch === undefined || (typeof branch === "string" && branch.trim().length === 0)) {
+      return {
+        valid: true,
+        success: true,
+        data: { specializationBranch: null },
+      };
+    }
+
+    if (typeof branch !== "string") {
+      errors.push("Specialization branch must be a string or null.");
+      return { valid: false, success: false, errors };
+    }
+
+    const cleanBranch = branch.trim();
+
+    if (careerGoal === "core") {
+      const allowed = ["embedded", "iot", "robotics"];
+      if (!allowed.includes(cleanBranch)) {
+        errors.push(`Invalid specialization branch for Core Engineering: '${cleanBranch}'. Allowed branches: ${allowed.join(", ")}.`);
+      }
+    } else if (careerGoal === "higher_ed") {
+      const allowed = ["gate", "ms", "mba"];
+      if (!allowed.includes(cleanBranch)) {
+        errors.push(`Invalid specialization branch for Higher Studies: '${cleanBranch}'. Allowed branches: ${allowed.join(", ")}.`);
+      }
+    } else {
+      errors.push(`Specialization branch is not permitted for career goal '${careerGoal}'. It must be null.`);
+    }
+
+    if (errors.length > 0) {
+      return { valid: false, success: false, errors };
+    }
+
+    return {
+      valid: true,
+      success: true,
+      data: { specializationBranch: cleanBranch },
     };
   }
 }

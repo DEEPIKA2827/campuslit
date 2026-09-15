@@ -28,6 +28,12 @@ export class ProfileRepository {
       collegeId: input.collegeId,
       courseId: input.courseId,
       semester: input.semester || null,
+      careerGoal: input.careerGoal || null,
+      evaluationScheme: input.evaluationScheme || null,
+      targetSgpa: input.targetSgpa ?? null,
+      programmingLevel: input.programmingLevel || null,
+      technicalInterests: input.technicalInterests || null,
+      specializationBranch: input.specializationBranch || null,
     });
   }
 }

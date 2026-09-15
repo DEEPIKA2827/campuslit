@@ -13,13 +13,23 @@ import { Logger } from "@/lib/logger";
 
 /**
  * GET /api/roadmaps
- * Lists all career roadmaps with student completion percentage summaries.
+ * If query param ?personalized=true (or ?mode=personalized), returns the deterministic personalized roadmap.
+ * Otherwise, lists all career roadmaps with student completion percentage summaries.
  */
 export async function GET(request: NextRequest) {
   try {
     const session = getAuthenticatedUser(request);
     if (!session) {
       return ResponseBuilder.error("Unauthorized: Authentication required.", 401, "UNAUTHORIZED");
+    }
+
+    const { searchParams } = new URL(request.url);
+    const isPersonalized = searchParams.get("personalized") === "true" || searchParams.get("mode") === "personalized";
+
+    if (isPersonalized) {
+      Logger.info("GET /api/roadmaps?personalized=true requested", { userId: session.userId });
+      const personalized = await roadmapService.getPersonalizedRoadmapForStudent(session.userId);
+      return ResponseBuilder.success(personalized, "Personalized roadmap retrieved successfully.");
     }
 
     Logger.info("GET /api/roadmaps requested", { userId: session.userId });

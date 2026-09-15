@@ -23,6 +23,11 @@ export interface StudentProfile {
   collegeId?: number | null;
   courseId?: number | null;
   semester?: number | null;
+  careerGoal?: string | null;
+  evaluationScheme?: string | null;
+  targetSgpa?: number | null;
+  programmingLevel?: string | null;
+  technicalInterests?: string[] | null;
   createdAt?: string;
 }
 

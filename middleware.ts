@@ -27,7 +27,8 @@ export function middleware(request: NextRequest) {
     // 2. Identify Client for Rate Limiting
     const forwardedFor = request.headers.get("x-forwarded-for");
     const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
-    const testIdentifier = request.headers.get("x-test-identifier");
+    const testIdentifier =
+      process.env.NODE_ENV === "production" ? null : request.headers.get("x-test-identifier");
     const rateLimitKey = testIdentifier ? `test_${testIdentifier}` : `${clientIp}_${pathname.split("/")[2] || "root"}`;
 
     // 3. Determine Rate Limit Tier

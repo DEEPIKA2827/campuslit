@@ -12,6 +12,8 @@ import {
   CreateProfileInput,
   UpdateProfileInput,
   UpdateSettingsInput,
+  VALID_CORE_BRANCHES,
+  VALID_HIGHER_ED_BRANCHES,
 } from "@/validations/user.validation";
 import { ProfileValidation } from "@/validations/profile.validation";
 import {
@@ -106,6 +108,27 @@ export class ProfileService {
       throw new Error("Not Found Error: Student profile not found. Please setup profile first.");
     }
 
+    const effectiveCareerGoal = validation.data.careerGoal !== undefined ? validation.data.careerGoal : existingProfile.careerGoal;
+    let effectiveSpecializationBranch: string | null = null;
+    if (effectiveCareerGoal === "core" || effectiveCareerGoal === "higher_ed") {
+      effectiveSpecializationBranch = validation.data.specializationBranch !== undefined
+        ? validation.data.specializationBranch
+        : existingProfile.specializationBranch;
+    } else {
+      // For sde, ai_ml, founder, or unconfigured career goal: specializationBranch must be null
+      effectiveSpecializationBranch = null;
+    }
+
+    // Semantic validation against effectiveCareerGoal
+    if (effectiveSpecializationBranch !== null) {
+      if (effectiveCareerGoal === "core" && !VALID_CORE_BRANCHES.includes(effectiveSpecializationBranch as any)) {
+        throw new Error(`Validation Error: Invalid specialization branch '${effectiveSpecializationBranch}' for Core track.`);
+      }
+      if (effectiveCareerGoal === "higher_ed" && !VALID_HIGHER_ED_BRANCHES.includes(effectiveSpecializationBranch as any)) {
+        throw new Error(`Validation Error: Invalid specialization branch '${effectiveSpecializationBranch}' for Higher Ed track.`);
+      }
+    }
+
     // Step 4: Merge existing fields with valid updates
     const mergedInput: CreateProfileInput = {
       firstName: validation.data.firstName ?? existingProfile.firstName,
@@ -113,6 +136,12 @@ export class ProfileService {
       collegeId: validation.data.collegeId !== undefined ? (validation.data.collegeId ?? 0) : (existingProfile.collegeId ?? 0),
       courseId: validation.data.courseId !== undefined ? (validation.data.courseId ?? 0) : (existingProfile.courseId ?? 0),
       semester: validation.data.semester !== undefined ? validation.data.semester : existingProfile.semester,
+      careerGoal: effectiveCareerGoal,
+      evaluationScheme: validation.data.evaluationScheme !== undefined ? validation.data.evaluationScheme : existingProfile.evaluationScheme,
+      targetSgpa: validation.data.targetSgpa !== undefined ? validation.data.targetSgpa : existingProfile.targetSgpa,
+      programmingLevel: validation.data.programmingLevel !== undefined ? validation.data.programmingLevel : existingProfile.programmingLevel,
+      technicalInterests: validation.data.technicalInterests !== undefined ? validation.data.technicalInterests : existingProfile.technicalInterests,
+      specializationBranch: effectiveSpecializationBranch,
     };
 
     // Step 5: Persist via Data Access Layer

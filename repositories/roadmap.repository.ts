@@ -14,7 +14,37 @@ import {
   StudentRoadmapProgressDTO,
   RoadmapWithProgressSummaryDTO,
   RoadmapProgressStatus,
+  PersonalizedRoadmapDTO,
 } from "@/types/api.types";
+
+export interface CanonicalRoadmapNodeRecord {
+  nodeId: number;
+  roadmapId: number;
+  nodeKey: string;
+  branchKey: string;
+  branch: string | null;
+  sequenceNo: number;
+  title: string;
+  description: string | null;
+  category: string | null;
+  tier: string | null;
+  isElective: boolean;
+  isGateway: boolean;
+  isConvergence: boolean;
+  targetSemester: number | null;
+  difficulty: string | null;
+  skills: string[];
+  prerequisiteKeys: string[];
+  evidencePrompt: string | null;
+}
+
+export interface CanonicalRoadmapRecord {
+  roadmapId: number;
+  careerSlug: string;
+  title: string;
+  description: string | null;
+  career: string | null;
+}
 
 export interface CreateRoadmapInput {
   title: string;
@@ -80,6 +110,35 @@ export class RoadmapRepository {
 
     return {
       roadmapId: record.roadmapId,
+      title: record.title,
+      description: record.description,
+      career: record.career,
+      careerSlug: record.careerSlug,
+    };
+  }
+
+  /**
+   * Retrieves an active canonical roadmap by its unique career_slug.
+   */
+  async getRoadmapByCareerSlug(careerSlug: string): Promise<CanonicalRoadmapRecord | null> {
+    const client = this.getDb();
+    Logger.debug("RoadmapRepository.getRoadmapByCareerSlug", { careerSlug });
+
+    const [record] = await client
+      .select()
+      .from(schema.roadmaps)
+      .where(
+        and(
+          eq(schema.roadmaps.careerSlug, careerSlug),
+          eq(schema.roadmaps.isActive, true)
+        )
+      );
+
+    if (!record) return null;
+
+    return {
+      roadmapId: record.roadmapId,
+      careerSlug: record.careerSlug || "",
       title: record.title,
       description: record.description,
       career: record.career,
@@ -194,6 +253,43 @@ export class RoadmapRepository {
     };
   }
 
+  /**
+   * Retrieves a canonical node with all curriculum metadata by nodeId.
+   */
+  async getCanonicalNodeById(nodeId: number): Promise<CanonicalRoadmapNodeRecord | null> {
+    const client = this.getDb();
+    Logger.debug("RoadmapRepository.getCanonicalNodeById", { nodeId });
+
+    const [record] = await client
+      .select()
+      .from(schema.roadmapNodes)
+      .where(eq(schema.roadmapNodes.nodeId, nodeId));
+
+    if (!record) return null;
+
+    const isBranchNode = !!record.branchKey && record.branchKey !== "common";
+    return {
+      nodeId: record.nodeId,
+      roadmapId: record.roadmapId,
+      nodeKey: record.nodeKey || "",
+      branchKey: record.branchKey || "common",
+      branch: isBranchNode ? record.branchKey : null,
+      sequenceNo: record.sequenceNo,
+      title: record.title,
+      description: record.description,
+      category: record.difficulty || null,
+      tier: record.targetSemester ? `Semester ${record.targetSemester}` : null,
+      isElective: isBranchNode,
+      isGateway: record.nodeKey === "core_07" || record.nodeKey === "he_03",
+      isConvergence: record.nodeKey === "core_11" || record.nodeKey === "he_08",
+      targetSemester: record.targetSemester,
+      difficulty: record.difficulty,
+      skills: record.skills || [],
+      prerequisiteKeys: record.prerequisiteKeys || [],
+      evidencePrompt: record.evidencePrompt,
+    };
+  }
+
   async listNodesByRoadmap(roadmapId: number): Promise<RoadmapNodeDTO[]> {
     const client = this.getDb();
     Logger.debug("RoadmapRepository.listNodesByRoadmap", { roadmapId });
@@ -210,6 +306,130 @@ export class RoadmapRepository {
       title: n.title,
       description: n.description,
       sequenceNo: n.sequenceNo,
+    }));
+  }
+
+  /**
+   * Lists all canonical curriculum nodes for a roadmap with full curriculum metadata.
+   */
+  async listCanonicalNodesByRoadmap(roadmapId: number): Promise<CanonicalRoadmapNodeRecord[]> {
+    const client = this.getDb();
+    Logger.debug("RoadmapRepository.listCanonicalNodesByRoadmap", { roadmapId });
+
+    const records = await client
+      .select()
+      .from(schema.roadmapNodes)
+      .where(eq(schema.roadmapNodes.roadmapId, roadmapId))
+      .orderBy(asc(schema.roadmapNodes.sequenceNo));
+
+    return records.map((n) => {
+      const isBranchNode = !!n.branchKey && n.branchKey !== "common";
+      return {
+        nodeId: n.nodeId,
+        roadmapId: n.roadmapId,
+        nodeKey: n.nodeKey || "",
+        branchKey: n.branchKey || "common",
+        branch: isBranchNode ? n.branchKey : null,
+        sequenceNo: n.sequenceNo,
+        title: n.title,
+        description: n.description,
+        category: n.difficulty || null,
+        tier: n.targetSemester ? `Semester ${n.targetSemester}` : null,
+        isElective: isBranchNode,
+        isGateway: n.nodeKey === "core_08" || n.nodeKey === "he_03",
+        isConvergence: n.nodeKey === "core_11" || n.nodeKey === "he_08",
+        targetSemester: n.targetSemester,
+        difficulty: n.difficulty,
+        skills: n.skills || [],
+        prerequisiteKeys: n.prerequisiteKeys || [],
+        evidencePrompt: n.evidencePrompt,
+      };
+    });
+  }
+
+  /**
+   * Resolves a roadmap node by its domain identity (roadmapId + nodeKey).
+   */
+  async getNodeByRoadmapAndKey(roadmapId: number, nodeKey: string): Promise<CanonicalRoadmapNodeRecord | null> {
+    const client = this.getDb();
+    Logger.debug("RoadmapRepository.getNodeByRoadmapAndKey", { roadmapId, nodeKey });
+
+    const [record] = await client
+      .select()
+      .from(schema.roadmapNodes)
+      .where(
+        and(
+          eq(schema.roadmapNodes.roadmapId, roadmapId),
+          eq(schema.roadmapNodes.nodeKey, nodeKey)
+        )
+      );
+
+    if (!record) return null;
+
+    const isBranchNode = !!record.branchKey && record.branchKey !== "common";
+    return {
+      nodeId: record.nodeId,
+      roadmapId: record.roadmapId,
+      nodeKey: record.nodeKey || "",
+      branchKey: record.branchKey || "common",
+      branch: isBranchNode ? record.branchKey : null,
+      sequenceNo: record.sequenceNo,
+      title: record.title,
+      description: record.description,
+      category: record.difficulty || null,
+      tier: record.targetSemester ? `Semester ${record.targetSemester}` : null,
+      isElective: isBranchNode,
+      isGateway: record.nodeKey === "core_08" || record.nodeKey === "he_03",
+      isConvergence: record.nodeKey === "core_11" || record.nodeKey === "he_08",
+      targetSemester: record.targetSemester,
+      difficulty: record.difficulty,
+      skills: record.skills || [],
+      prerequisiteKeys: record.prerequisiteKeys || [],
+      evidencePrompt: record.evidencePrompt,
+    };
+  }
+
+  /**
+   * Retrieves raw student roadmap progress records strictly scoped to userId and roadmapId,
+   * joined with roadmapNodes to include nodeKey.
+   */
+  async getStudentProgressRecordsForRoadmap(
+    userId: number,
+    roadmapId: number
+  ): Promise<Array<StudentRoadmapProgressDTO & { nodeKey: string | null }>> {
+    const client = this.getDb();
+    Logger.debug("RoadmapRepository.getStudentProgressRecordsForRoadmap", { userId, roadmapId });
+
+    const records = await client
+      .select({
+        progressId: schema.studentRoadmapProgress.progressId,
+        userId: schema.studentRoadmapProgress.userId,
+        roadmapId: schema.studentRoadmapProgress.roadmapId,
+        nodeId: schema.studentRoadmapProgress.nodeId,
+        status: schema.studentRoadmapProgress.status,
+        completedAt: schema.studentRoadmapProgress.completedAt,
+        nodeKey: schema.roadmapNodes.nodeKey,
+      })
+      .from(schema.studentRoadmapProgress)
+      .innerJoin(
+        schema.roadmapNodes,
+        eq(schema.studentRoadmapProgress.nodeId, schema.roadmapNodes.nodeId)
+      )
+      .where(
+        and(
+          eq(schema.studentRoadmapProgress.userId, userId),
+          eq(schema.studentRoadmapProgress.roadmapId, roadmapId)
+        )
+      );
+
+    return records.map((p) => ({
+      progressId: p.progressId,
+      userId: p.userId,
+      roadmapId: p.roadmapId,
+      nodeId: p.nodeId,
+      status: p.status as RoadmapProgressStatus,
+      completedAt: p.completedAt,
+      nodeKey: p.nodeKey,
     }));
   }
 
