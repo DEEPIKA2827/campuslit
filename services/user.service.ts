@@ -149,7 +149,7 @@ export class UserService {
   /**
    * Authenticates user credentials and returns safe user identity.
    */
-  async login(input: Partial<LoginUserInput>): Promise<{ user: SafeUserDTO }> {
+  async login(input: Partial<LoginUserInput>): Promise<{ user: SafeUserDTO; profile: StudentProfileDTO | null }> {
     Logger.info("UserService.login invoked", { email: input.email });
 
     // Step 1: Syntactic Validation
@@ -170,8 +170,12 @@ export class UserService {
       throw new Error("Authentication Error: Invalid email or password.");
     }
 
+    // Step 4: Retrieve Associated Profile if exists
+    const profile = await this.userRepo.getProfile(user.userId);
+
     return {
       user: this.toSafeUser(user),
+      profile,
     };
   }
 

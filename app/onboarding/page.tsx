@@ -27,6 +27,14 @@ import {
   Search,
   Building2,
   X,
+  Database,
+  Shield,
+  Cloud,
+  Cpu,
+  Layers,
+  Palette,
+  Server,
+  Compass,
 } from "lucide-react";
 
 // Fallback academic data while API loads
@@ -41,14 +49,15 @@ const defaultColleges: { collegeId: number; collegeName: string; location: strin
   { collegeId: 8, collegeName: "Dayananda Sagar College of Engineering (DSCE)", location: "Bengaluru" },
 ];
 
-const defaultCourses: { courseId: number; courseName: string; courseCode: string | null; schemeId?: number }[] = [
-  { courseId: 1, courseName: "Computer Science & Engineering", courseCode: "CSE" },
-  { courseId: 2, courseName: "Information Science & Engineering", courseCode: "ISE" },
-  { courseId: 3, courseName: "Artificial Intelligence & Machine Learning", courseCode: "AIML" },
-  { courseId: 4, courseName: "Electronics & Communication Engineering", courseCode: "ECE" },
-  { courseId: 5, courseName: "Electrical & Electronics Engineering", courseCode: "EEE" },
-  { courseId: 6, courseName: "Mechanical Engineering", courseCode: "MECH" },
-  { courseId: 7, courseName: "Civil Engineering", courseCode: "CIVIL" },
+export const engineeringBranches = [
+  { id: "cse", name: "Computer Science & Engineering", code: "CSE", desc: "Core computing, systems, algorithms, AI & software engineering." },
+  { id: "ise", name: "Information Science & Engineering", code: "ISE", desc: "Software design, data engineering, networking & web technologies." },
+  { id: "aiml", name: "Artificial Intelligence & Machine Learning", code: "AIML", desc: "Machine learning, neural networks, data science & analytics." },
+  { id: "ece", name: "Electronics & Communication Engineering", code: "ECE", desc: "VLSI, embedded systems, microcontrollers, signal processing & IoT." },
+  { id: "eee", name: "Electrical & Electronics Engineering", code: "EEE", desc: "Power systems, smart grids, control engineering & electric vehicles." },
+  { id: "mech", name: "Mechanical Engineering", code: "MECH", desc: "Robotics, thermal systems, CAD/CAM, automotive & manufacturing." },
+  { id: "civil", name: "Civil Engineering", code: "CIVIL", desc: "Structural analysis, geotechnical systems & sustainable infrastructure." },
+  { id: "other", name: "Other / Specialized Engineering Branch", code: "OTHER", desc: "CSE (Cyber Security), CSE (IoT), Robotics, Biomedical, Aeronautical, etc." },
 ];
 
 const semesterList = [
@@ -77,7 +86,7 @@ const evaluationTypes = [
   },
 ];
 
-const careerGoals = [
+export const careerGoals = [
   {
     id: "sde",
     title: "Software Engineer (SDE)",
@@ -107,6 +116,54 @@ const careerGoals = [
     title: "Startup Founder / Product Builder",
     desc: "Build real-world web/mobile products and find hackathon teammates.",
     icon: Rocket,
+  },
+  {
+    id: "data_science",
+    title: "Data Science / Data Analytics",
+    desc: "Statistical modeling, big data manipulation, SQL, Pandas & BI analytics.",
+    icon: Database,
+  },
+  {
+    id: "cybersecurity",
+    title: "Cybersecurity & InfoSec",
+    desc: "Network defense, vulnerability assessments, ethical hacking & SIEM.",
+    icon: Shield,
+  },
+  {
+    id: "cloud_devops",
+    title: "Cloud & DevOps Engineer",
+    desc: "Docker, Kubernetes, CI/CD pipelines, AWS/GCP, infrastructure as code.",
+    icon: Cloud,
+  },
+  {
+    id: "iot_embedded",
+    title: "IoT & Embedded Systems",
+    desc: "Sensors, microcontrollers, RTOS, edge processing & firmware design.",
+    icon: Cpu,
+  },
+  {
+    id: "blockchain_web3",
+    title: "Blockchain & Web3 Developer",
+    desc: "Smart contracts, Solidity, decentralized protocols & cryptographic apps.",
+    icon: Layers,
+  },
+  {
+    id: "product_design",
+    title: "Product / UI-UX / Design",
+    desc: "User research, Figma design systems, interaction design & prototyping.",
+    icon: Palette,
+  },
+  {
+    id: "data_engineering",
+    title: "Data Engineering",
+    desc: "Large scale ETL pipelines, Apache Spark, Kafka & data warehouses.",
+    icon: Server,
+  },
+  {
+    id: "other",
+    title: "Other / Custom Career Goal",
+    desc: "Enter your custom career trajectory and targeted engineering discipline.",
+    icon: Compass,
   },
 ];
 
@@ -153,9 +210,14 @@ function OnboardingContent() {
   // Form States
   const [collegeId, setCollegeId] = useState<number>(1);
   const [courseId, setCourseId] = useState<number>(1);
+  const [specializationBranch, setSpecializationBranch] = useState<string>("Computer Science & Engineering");
+  const [customBranch, setCustomBranch] = useState<string>("");
+  const [isOtherBranch, setIsOtherBranch] = useState<boolean>(false);
   const [semester, setSemester] = useState<number>(1);
   const [evalType, setEvalType] = useState("vtu");
   const [careerGoal, setCareerGoal] = useState("sde");
+  const [customCareerGoal, setCustomCareerGoal] = useState<string>("");
+  const [isOtherCareerGoal, setIsOtherCareerGoal] = useState<boolean>(false);
   const [targetSgpa, setTargetSgpa] = useState<number>(8.5);
   const [progLevel, setProgLevel] = useState("beginner");
   const [prefLang, setPrefLang] = useState("english");
@@ -207,8 +269,28 @@ function OnboardingContent() {
     if (profile) {
       if (profile.collegeId) setCollegeId(profile.collegeId);
       if (profile.courseId) setCourseId(profile.courseId);
+      if (profile.specializationBranch) {
+        setSpecializationBranch(profile.specializationBranch);
+        const isCanonical = engineeringBranches.some(
+          (b) => b.id !== "other" && b.name.toLowerCase() === profile.specializationBranch?.toLowerCase()
+        );
+        if (!isCanonical) {
+          setIsOtherBranch(true);
+          setCustomBranch(profile.specializationBranch);
+        }
+      }
       if (profile.semester) setSemester(profile.semester);
-      if (profile.careerGoal) setCareerGoal(profile.careerGoal);
+      if (profile.careerGoal) {
+        setCareerGoal(profile.careerGoal);
+        const isKnown = careerGoals.some(
+          (cg) => cg.id !== "other" && cg.id.toLowerCase() === profile.careerGoal?.toLowerCase()
+        );
+        if (!isKnown) {
+          setIsOtherCareerGoal(true);
+          setCustomCareerGoal(profile.careerGoal);
+          setCareerGoal("other");
+        }
+      }
       if (profile.evaluationScheme) setEvalType(profile.evaluationScheme);
       if (profile.targetSgpa !== null && profile.targetSgpa !== undefined) {
         setTargetSgpa(Number(profile.targetSgpa));
@@ -225,12 +307,17 @@ function OnboardingContent() {
   }, [profile]);
 
   const displayColleges = colleges.length > 0 ? colleges : defaultColleges;
-  const displayCourses = courses.length > 0 ? courses : defaultCourses;
 
   const currentCollegeName =
     displayColleges.find((c) => c.collegeId === collegeId)?.collegeName || "Your College";
-  const currentCourseName =
-    displayCourses.find((c) => c.courseId === courseId)?.courseName || "Your Branch";
+  const currentBranchName =
+    isOtherBranch && customBranch.trim()
+      ? customBranch.trim()
+      : specializationBranch || "Computer Science & Engineering";
+  const currentGoalTitle =
+    isOtherCareerGoal && customCareerGoal.trim()
+      ? customCareerGoal.trim()
+      : careerGoals.find((c) => c.id === careerGoal)?.title || "Software Engineer (SDE)";
 
   // Filtered colleges for searchable combobox
   const filteredColleges = displayColleges.filter((c) => {
@@ -275,13 +362,17 @@ function OnboardingContent() {
       // Choose POST (if no profile exists) vs PATCH (if profile already exists)
       const method = profile ? "PATCH" : "POST";
 
+      const resolvedBranch = isOtherBranch && customBranch.trim() ? customBranch.trim() : specializationBranch;
+      const resolvedGoal = isOtherCareerGoal && customCareerGoal.trim() ? customCareerGoal.trim() : careerGoal;
+
       const profilePayload = {
         firstName: profile?.firstName || user?.email?.split("@")[0] || "Student",
         lastName: profile?.lastName || undefined,
         collegeId: Number(collegeId),
         courseId: Number(courseId),
+        specializationBranch: resolvedBranch || undefined,
         semester: Number(semester),
-        careerGoal,
+        careerGoal: resolvedGoal,
         evaluationScheme: evalType,
         targetSgpa: Number(targetSgpa),
         programmingLevel: progLevel,
@@ -427,7 +518,7 @@ function OnboardingContent() {
                 </div>
                 <div>
                   <span className="text-gray-500 block text-[10px]">Branch & Semester</span>
-                  <strong className="text-white block truncate">{currentCourseName} • Sem {semester}</strong>
+                  <strong className="text-white block truncate">{currentBranchName} • Sem {semester}</strong>
                 </div>
                 <div>
                   <span className="text-gray-500 block text-[10px]">Daily Study Goal</span>
@@ -591,36 +682,70 @@ function OnboardingContent() {
               </div>
             )}
 
-            {/* Q2: BRANCH / COURSE */}
+            {/* Q2: ENGINEERING BRANCH */}
             {step === 2 && (
               <div className="space-y-4">
                 <div className="space-y-1">
                   <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">Question 2 of 9</span>
                   <h1 className="text-xl sm:text-2xl font-extrabold text-white">What is your engineering branch?</h1>
-                  <p className="text-xs text-gray-400">Maps your exact subject modules and lab requirements.</p>
+                  <p className="text-xs text-gray-400">Maps your exact branch curriculum, career pathways, and academic context.</p>
                 </div>
-                <div className="grid grid-cols-1 gap-2 max-h-[320px] overflow-y-auto pr-1">
-                  {displayCourses.map((cour) => {
-                    const isSelected = courseId === cour.courseId;
+                <div className="grid grid-cols-1 gap-2 max-h-[340px] overflow-y-auto pr-1">
+                  {engineeringBranches.map((branch) => {
+                    const isSelected =
+                      branch.id === "other"
+                        ? isOtherBranch
+                        : !isOtherBranch && specializationBranch === branch.name;
                     return (
                       <div
-                        key={cour.courseId}
-                        onClick={() => setCourseId(cour.courseId)}
+                        key={branch.code}
+                        onClick={() => {
+                          if (branch.id === "other") {
+                            setIsOtherBranch(true);
+                            setSpecializationBranch("Other / Specialized Engineering Branch");
+                          } else {
+                            setIsOtherBranch(false);
+                            setSpecializationBranch(branch.name);
+                          }
+                        }}
                         className={`p-3 rounded-xl border transition cursor-pointer flex items-center justify-between ${
                           isSelected
-                            ? "bg-purple-600/20 border-purple-500 text-white font-bold"
+                            ? "bg-purple-600/20 border-purple-500 text-white font-bold shadow-sm shadow-purple-500/10"
                             : "bg-white/[0.03] border-white/10 text-gray-300 hover:bg-white/[0.06]"
                         }`}
                       >
                         <div className="space-y-0.5">
-                          <span className="text-xs sm:text-sm block">{cour.courseName}</span>
-                          <span className="text-[10px] text-gray-400 block">{cour.courseCode || "Engineering"}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs sm:text-sm font-semibold block">{branch.name}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                              {branch.code}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-gray-400 block">{branch.desc}</span>
                         </div>
                         {isSelected && <Check className="size-4 text-purple-400 shrink-0" />}
                       </div>
                     );
                   })}
                 </div>
+
+                {isOtherBranch && (
+                  <div className="p-3.5 rounded-xl border border-purple-500/40 bg-purple-950/20 space-y-1.5">
+                    <label className="text-xs font-semibold text-purple-300 block">
+                      Enter your exact branch or specialization:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. CSE (Cyber Security), AI & Data Science, Robotics..."
+                      value={customBranch}
+                      onChange={(e) => setCustomBranch(e.target.value)}
+                      className="w-full bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-400"
+                    />
+                    <p className="text-[11px] text-gray-400">
+                      Your custom branch will flow directly into curriculum matching, AI Mentor context, and learning resource recommendations.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -699,15 +824,26 @@ function OnboardingContent() {
                 </div>
                 <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
                   {careerGoals.map((cg) => {
-                    const isSelected = careerGoal === cg.id;
+                    const isSelected =
+                      cg.id === "other_goal"
+                        ? isOtherCareerGoal
+                        : !isOtherCareerGoal && careerGoal === cg.id;
                     const IconComponent = cg.icon;
                     return (
                       <div
                         key={cg.id}
-                        onClick={() => setCareerGoal(cg.id)}
+                        onClick={() => {
+                          if (cg.id === "other_goal") {
+                            setIsOtherCareerGoal(true);
+                            setCareerGoal("other_goal");
+                          } else {
+                            setIsOtherCareerGoal(false);
+                            setCareerGoal(cg.id);
+                          }
+                        }}
                         className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center gap-3.5 ${
                           isSelected
-                            ? "bg-purple-600/20 border-purple-500 text-white"
+                            ? "bg-purple-600/20 border-purple-500 text-white shadow-sm shadow-purple-500/10"
                             : "bg-white/[0.03] border-white/10 text-gray-300 hover:bg-white/[0.06]"
                         }`}
                       >
@@ -722,6 +858,24 @@ function OnboardingContent() {
                     );
                   })}
                 </div>
+
+                {isOtherCareerGoal && (
+                  <div className="p-3.5 rounded-xl border border-purple-500/40 bg-purple-950/20 space-y-1.5">
+                    <label className="text-xs font-semibold text-purple-300 block">
+                      Enter your custom career track / target role:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Game Development, Quantitative Finance, Security Architect..."
+                      value={customCareerGoal}
+                      onChange={(e) => setCustomCareerGoal(e.target.value)}
+                      className="w-full bg-black/40 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-400"
+                    />
+                    <p className="text-[11px] text-gray-400">
+                      We will synthesize a resource-first career roadmap and inform your AI Mentor of this target role.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

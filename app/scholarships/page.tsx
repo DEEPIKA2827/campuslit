@@ -286,6 +286,21 @@ export default function ScholarshipsPage() {
     return true;
   });
 
+  const clearFilters = () => {
+    setActiveCategory("all");
+    setTypeFilter("all");
+    setWomenOnlyFilter(false);
+    setUrgentOnly(false);
+    setSearchQuery("");
+  };
+
+  const hasActiveFilters =
+    activeCategory !== "all" ||
+    typeFilter !== "all" ||
+    womenOnlyFilter ||
+    urgentOnly ||
+    searchQuery !== "";
+
   return (
     <main className="min-h-screen bg-[#08090e] text-[#f3f4f6] selection:bg-purple-500/30 selection:text-purple-200">
       {/* Background glow mesh */}
@@ -424,11 +439,39 @@ export default function ScholarshipsPage() {
                 ⏱️ Closing This Month
               </button>
             </div>
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer underline underline-offset-4"
+              >
+                Reset All Filters
+              </button>
+            )}
           </div>
 
           {/* SCHOLARSHIP CARDS GRID */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredScholarships.map((sch) => {
+            {filteredScholarships.length === 0 ? (
+              <div className="col-span-full rounded-3xl border border-dashed border-white/15 bg-white/[0.02] p-12 text-center space-y-4 max-w-xl mx-auto">
+                <div className="size-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+                  <GraduationCap className="size-6" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-white">No Scholarships Match Your Filters</h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    No scholarships match your active filter criteria. Clear filters or adjust your search to view all state and corporate funding.
+                  </p>
+                </div>
+                <button
+                  onClick={clearFilters}
+                  className="rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-xs font-semibold text-white shadow-lg transition cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            ) : (
+              filteredScholarships.map((sch) => {
               const isSaved = trackedScholarships[sch.id] === "saved";
               const isReminderActive = reminders.includes(sch.id);
 
@@ -552,7 +595,7 @@ export default function ScholarshipsPage() {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </div>
         </div>
       </section>

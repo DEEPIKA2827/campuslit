@@ -13,6 +13,7 @@ export const RATE_LIMIT_TIERS = {
   AUTH: { limit: process.env.NODE_ENV === "production" ? 30 : 200, windowSeconds: 60 }, // Auth login/register
   MUTATION: { limit: process.env.NODE_ENV === "production" ? 120 : 500, windowSeconds: 60 }, // POST / PATCH / DELETE
   READ: { limit: process.env.NODE_ENV === "production" ? 300 : 1000, windowSeconds: 60 }, // General GET
+  AI_MENTOR: { limit: process.env.NODE_ENV === "production" ? 10 : 30, windowSeconds: 60 }, // Dedicated server-side AI Mentor request limit
   UNLIMITED: { limit: 10000, windowSeconds: 60 }, // Test/bypass
 } as const;
 

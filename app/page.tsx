@@ -43,8 +43,23 @@ import {
   Terminal,
   Users,
   Plus,
-  X
+  X,
+  ExternalLink,
+  FileText,
+  GraduationCap,
+  Award,
 } from "lucide-react";
+import { getAcademicResourcesForCourse } from "@/lib/academic-resources";
+import {
+  resolveSubjectResources,
+  VTU_GENERAL_OFFICIAL_RESOURCES,
+  sortResourcesByLanguage,
+  ROADMAP_NODE_RESOURCES,
+  DSA_PRACTICE_TOPICS,
+  PROOF_OF_WORK_PROJECTS,
+  INDUSTRY_CERTIFICATIONS,
+  VerifiedResource,
+} from "@/lib/resource-engine";
 
 // Workspace Navigation Tabs
 const workspaceTabs = [
@@ -220,8 +235,8 @@ const faqs = [
     a: "Instead of searching through 400+ forwarded WhatsApp messages, CampusOS aggregates verified notices, lab records, notes, and exam schedules into clean, searchable cards organized by subject and semester.",
   },
   {
-    q: "Is CampusOS free for first-year engineering students?",
-    a: "Yes, the core CampusOS workspace (Syllabus Engine, CIE Tracker, Attendance Radar, and Basic Senior Playbooks) is 100% free for students throughout their engineering journey.",
+    q: "Is CampusOS free for engineering students?",
+    a: "Yes, the core CampusOS workspace (Syllabus Engine, CIE Tracker, Attendance Radar, and Basic Senior Playbooks) is free for students across semesters 1–8 throughout their engineering journey.",
   },
   {
     q: "How do Senior Playbooks work?",
@@ -263,6 +278,10 @@ export default function Home() {
   // Simulator State
   const [simAttendance, setSimAttendance] = useState<number>(82);
   const [targetSGPA, setTargetSGPA] = useState<number>(8.5);
+
+  // Resource Intelligence & Language State
+  const [preferredLanguage, setPreferredLanguage] = useState<"kannada" | "english" | "hindi">("english");
+  const [expandedNodeKey, setExpandedNodeKey] = useState<string | null>("sde_01");
 
   // Waitlist Form State
   const [email, setEmail] = useState("");
@@ -322,6 +341,15 @@ export default function Home() {
           const radarJson = await radarRes.json();
           if (radarJson.success && radarJson.data) {
             setActionRadar(radarJson.data);
+          }
+        }
+
+        // 5. Fetch Settings for Preferred Language
+        const settingsRes = await fetch("/api/settings", { credentials: "include" });
+        if (settingsRes.ok) {
+          const settingsJson = await settingsRes.json();
+          if (settingsJson.data?.language) {
+            setPreferredLanguage(settingsJson.data.language);
           }
         }
       } catch {
@@ -528,8 +556,8 @@ export default function Home() {
             <Sparkles className="size-3.5 text-purple-400" />
             <span>
               {isAuthenticated && profile
-                ? `Logged in as ${profile.firstName} • Semester ${profile.semester || 1} Engineering Workspace`
-                : "Built for First-Year VTU & Autonomous Students in Karnataka"}
+                ? `Logged in as ${profile.firstName} • ${profile.semester ? `Semester ${profile.semester}` : "Engineering"} Workspace`
+                : "Built for Engineering Students — from First Semester to Placements"}
             </span>
             <ChevronRight className="size-3.5 opacity-70" />
           </div>
@@ -570,15 +598,14 @@ export default function Home() {
             )}
             <a
               href="#demo"
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-8 text-base font-semibold text-gray-200 backdrop-blur-md transition hover:bg-white/[0.08] hover:border-white/30 sm:w-auto"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-8 text-base font-semibold text-gray-300 transition hover:bg-white/[0.08] hover:text-white sm:w-auto"
             >
-              <Layout className="size-4 text-purple-400" />
-              Explore Interactive Demo
+              Explore Workspace
             </a>
           </div>
 
-          {/* Social Proof Stats */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 border-t border-white/10 pt-8 text-left text-xs sm:text-sm text-gray-400">
+          {/* Proof / Verification Metrics Strip (Truthful Non-Fabricated Claims) */}
+          <div className="mt-14 inline-flex flex-wrap items-center justify-center gap-6 rounded-2xl border border-white/10 bg-white/[0.02] px-6 py-3.5 text-xs text-gray-400 backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="flex -space-x-2 overflow-hidden">
                 <div className="inline-block size-7 rounded-full bg-purple-600 ring-2 ring-[#08090e] text-[10px] font-bold flex items-center justify-center text-white">RV</div>
@@ -587,7 +614,7 @@ export default function Home() {
                 <div className="inline-block size-7 rounded-full bg-emerald-600 ring-2 ring-[#08090e] text-[10px] font-bold flex items-center justify-center text-white">MSR</div>
               </div>
               <div>
-                <span className="font-semibold text-white">2,400+ Students</span> on waitlist
+                <span className="font-semibold text-white">Active Student Workspace</span> for Karnataka
               </div>
             </div>
 
@@ -595,14 +622,14 @@ export default function Home() {
 
             <div className="flex items-center gap-2">
               <Building2 className="size-4 text-purple-400" />
-              <span><strong className="text-white">48+ Karnataka Colleges</strong> covered</span>
+              <span><strong className="text-white">VTU & Autonomous Curriculum</strong> integrated</span>
             </div>
 
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
 
             <div className="flex items-center gap-2">
               <ShieldCheck className="size-4 text-emerald-400" />
-              <span><strong className="text-white">100% Free</strong> for First-Year Students</span>
+              <span><strong className="text-white">Full Sem 1–8 Coverage</strong> with AI Senior Mentor</span>
             </div>
           </div>
         </div>
@@ -832,113 +859,375 @@ export default function Home() {
               {/* Main Content View (9 Cols) */}
               <div className="lg:col-span-9 rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:p-6 space-y-6">
                 {/* TAB 1: ACADEMICS */}
-                {activeTab === "academics" && (
-                  <div className="space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-                      <div>
-                        <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Module Breakdown</span>
-                        <h3 className="text-xl font-bold text-white">
-                          {courses.find((c) => c.courseId === selectedCourseId)?.courseName || "Mathematics I (BMAT101)"} — 4 Credits
-                        </h3>
+                {activeTab === "academics" && (() => {
+                  const selectedCourseObj =
+                    courses.find((c) => c.courseId === selectedCourseId) ||
+                    courses[0] || {
+                      courseId: 1,
+                      courseName: "Mathematics for CSE Stream-I",
+                      courseCode: "BMATS101",
+                    };
+                  const academicData = getAcademicResourcesForCourse(selectedCourseObj);
+                  const subjectIntelligence = resolveSubjectResources(
+                    selectedCourseObj.courseCode,
+                    selectedCourseObj.courseName
+                  );
+
+                  // Extract verified resources and sort by language
+                  const allSubjectResources: VerifiedResource[] = subjectIntelligence?.resources || [];
+                  const languageSortedData = sortResourcesByLanguage(allSubjectResources, preferredLanguage);
+                  const effectiveResources = languageSortedData.sortedResources;
+
+                  // Extract Exam Prep resources (PYQ, Model Papers, CIE prep)
+                  const examPrepItems: VerifiedResource[] = (subjectIntelligence?.resources || []).filter(
+                    (r: VerifiedResource) =>
+                      r.category === "pyq" ||
+                      r.category === "model_papers" ||
+                      r.category === "question_banks" ||
+                      r.category === "syllabus"
+                  );
+
+                  return (
+                    <div className="space-y-6">
+                      {/* Course Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+                              Academic Playbook & Syllabus Hub
+                            </span>
+                            <span className="text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded font-mono">
+                              {selectedCourseObj.courseCode || academicData?.courseCode || "VTU"}
+                            </span>
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                            {selectedCourseObj.courseName}
+                          </h3>
+                          <p className="text-xs text-gray-400">
+                            {subjectIntelligence?.scheme || academicData?.scheme || "VTU 2022 Scheme"} • {subjectIntelligence?.branch || academicData?.branch || "Engineering Curriculum"} • {subjectIntelligence?.credits ? `${subjectIntelligence.credits} Credits` : "4 Credits"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          {hasCieRecords ? (
+                            <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-medium">
+                              IA Target: 36/40
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setShowMarkModal(true)}
+                              className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-purple-600/30 transition cursor-pointer"
+                            >
+                              <Plus className="size-3.5" />
+                              <span>Add CIE Marks</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        {hasCieRecords ? (
-                          <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-medium">
-                            IA Target: 36/40
-                          </span>
+
+                      {/* CIE Performance Section */}
+                      {hasCieRecords ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                            <span className="text-xs text-gray-400">Current CIE Marks</span>
+                            <p className="text-xl font-bold text-white mt-1">
+                              {`${cieMarks[0].marksObtained} / ${cieMarks[0].maxMarks}`}
+                            </p>
+                            <span className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1">
+                              <CheckCircle2 className="size-3" /> {cieMarks[0].assessmentName || "CIE Recorded"}
+                            </span>
+                          </div>
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                            <span className="text-xs text-gray-400">VTU Exam Weightage</span>
+                            <p className="text-xl font-bold text-purple-400 mt-1">50% CIE + 50% SEE</p>
+                            <span className="text-[11px] text-gray-400 mt-1 block">Pass Cutoff: 40%</span>
+                          </div>
+                          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                            <span className="text-xs text-gray-400">Projected SGPA</span>
+                            <p className="text-xl font-bold text-cyan-400 mt-1">{projectedSgpa} SGPA</p>
+                            <span className="text-[11px] text-cyan-300 mt-1 block">Based on recorded marks</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-6 text-center space-y-3">
+                          <div className="size-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mx-auto">
+                            <BookOpen className="size-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-bold text-white">CIE Performance</h4>
+                            <p className="text-xs text-purple-300 font-semibold mt-0.5">No marks recorded yet</p>
+                            <p className="text-xs text-gray-400 mt-1 max-w-md mx-auto leading-relaxed">
+                              Add your assessment marks to track CIE performance and projected academic outcomes.
+                            </p>
+                          </div>
+                          <div className="pt-1">
+                            <button
+                              onClick={() => setShowMarkModal(true)}
+                              className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-purple-600/30 transition cursor-pointer"
+                            >
+                              <Plus className="size-3.5" />
+                              <span>Add CIE Marks</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* SECTION 2: LANGUAGE-AWARE SUBJECT ACADEMIC RESOURCE HUB */}
+                      <div className="space-y-4 pt-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <BookOpen className="size-3.5 text-purple-400" />
+                              Subject Academic Resource Hub
+                            </h4>
+                            <p className="text-[11px] text-gray-500">
+                              Verified syllabus, notes, lectures, question banks, and reference materials
+                            </p>
+                          </div>
+
+                          {/* Language selector (P6) */}
+                          <div className="flex items-center gap-1 bg-white/[0.04] p-1 rounded-xl border border-white/10 text-xs self-start sm:self-auto">
+                            <span className="text-[10px] text-gray-400 px-2 font-medium">Language:</span>
+                            {(["english", "kannada", "hindi"] as const).map((lang) => (
+                              <button
+                                key={lang}
+                                onClick={() => setPreferredLanguage(lang)}
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer capitalize ${
+                                  preferredLanguage === lang
+                                    ? "bg-purple-600 text-white shadow-sm"
+                                    : "text-gray-400 hover:text-white"
+                                }`}
+                              >
+                                {lang}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Language Fallback Notice (P6) */}
+                        {languageSortedData.fallbackMessage && (
+                          <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-xs text-amber-300 flex items-center gap-2">
+                            <AlertTriangle className="size-4 shrink-0 text-amber-400" />
+                            <span>{languageSortedData.fallbackMessage}</span>
+                          </div>
+                        )}
+
+                        {/* Resource Grid (P3) */}
+                        {effectiveResources.length > 0 ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {effectiveResources.map((res) => (
+                              <div
+                                key={res.resourceId}
+                                className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 flex flex-col justify-between hover:border-purple-500/30 hover:bg-white/[0.05] transition-all"
+                              >
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">
+                                      {res.category.replace("_", " ")}
+                                    </span>
+                                    <div className="flex items-center gap-1.5">
+                                      {res.language && (
+                                        <span className="text-[10px] font-mono text-purple-300 bg-purple-500/10 border border-purple-500/20 px-1.5 py-0.5 rounded capitalize">
+                                          {res.language}
+                                        </span>
+                                      )}
+                                      <span className="text-[10px] font-mono text-gray-400 bg-white/5 px-2 py-0.5 rounded">
+                                        {res.free ? "Free" : "Subscription"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <h5 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors leading-snug">
+                                    {res.title}
+                                  </h5>
+                                  <p className="text-[11px] text-gray-400 leading-relaxed">
+                                    <span className="text-gray-500">Provider:</span> {res.provider}
+                                    {res.description ? ` • ${res.description}` : ""}
+                                  </p>
+                                </div>
+                                <div className="pt-3 mt-3 border-t border-white/5 flex items-center justify-between">
+                                  <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                                    <Check className="size-3" /> Verified {res.lastVerifiedAt}
+                                  </span>
+                                  <a
+                                    href={res.sourceUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs font-bold text-purple-400 hover:text-purple-300 transition cursor-pointer"
+                                  >
+                                    <span>Access Material</span>
+                                    <ExternalLink className="size-3" />
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         ) : (
-                          <button
-                            onClick={() => setShowMarkModal(true)}
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-3 py-1 text-xs font-bold text-white shadow-md shadow-purple-600/30 transition cursor-pointer"
-                          >
-                            <Plus className="size-3.5" />
-                            <span>Add CIE Marks</span>
-                          </button>
+                          <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-8 text-center space-y-2">
+                            <div className="size-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mx-auto">
+                              <BookOpen className="size-5" />
+                            </div>
+                            <h5 className="text-sm font-bold text-white">Verified resource not available yet.</h5>
+                            <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+                              Verified resources for {selectedCourseObj.courseName} are being actively curated by Karnataka senior scholars.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* SECTION 3: EXAM PREPARATION (P5) */}
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <GraduationCap className="size-3.5 text-purple-400" />
+                              Exam Preparation & PYQ Intelligence
+                            </h4>
+                            <p className="text-[11px] text-gray-500">
+                              Previous year questions, model papers, question banks, and make-up exam links
+                            </p>
+                          </div>
+                        </div>
+
+                        {examPrepItems.length > 0 ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {examPrepItems.map((ep: VerifiedResource, idx: number) => (
+                              <div
+                                key={idx}
+                                className="rounded-xl border border-white/10 bg-white/[0.03] p-4 flex flex-col justify-between hover:border-purple-500/30 transition"
+                              >
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">
+                                      {ep.category.replace("_", " ")}
+                                    </span>
+                                    <span className="text-[10px] font-mono text-gray-400">VTU Exam</span>
+                                  </div>
+                                  <h5 className="text-sm font-bold text-white leading-snug">{ep.title}</h5>
+                                  <p className="text-[11px] text-gray-400">{ep.provider}</p>
+                                </div>
+                                <div className="pt-3 mt-3 border-t border-white/5 flex items-center justify-between">
+                                  <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                                    <Check className="size-3" /> Verified {ep.lastVerifiedAt}
+                                  </span>
+                                  <a
+                                    href={ep.sourceUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs font-bold text-purple-400 hover:text-purple-300 transition cursor-pointer"
+                                  >
+                                    <span>Access Exam Paper</span>
+                                    <ExternalLink className="size-3" />
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center">
+                            <span className="text-xs text-gray-400">Verified resource not available yet.</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* SECTION 4: VTU ACADEMIC INTELLIGENCE (P4) */}
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <Building2 className="size-3.5 text-purple-400" />
+                              VTU Official Academic Portals & Circulars
+                            </h4>
+                            <p className="text-[11px] text-gray-500">
+                              Direct links to official Visvesvaraya Technological University examination & syllabus records
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {VTU_GENERAL_OFFICIAL_RESOURCES.map((vtuRes) => (
+                            <a
+                              key={vtuRes.resourceId}
+                              href={vtuRes.sourceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="rounded-xl border border-white/10 bg-white/[0.02] p-3.5 hover:border-purple-500/40 hover:bg-white/[0.05] transition flex flex-col justify-between space-y-2 group"
+                            >
+                              <div className="space-y-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block">
+                                  Official VTU
+                                </span>
+                                <h6 className="text-xs font-bold text-white group-hover:text-purple-300 transition">
+                                  {vtuRes.title}
+                                </h6>
+                                <p className="text-[10px] text-gray-400 line-clamp-2">{vtuRes.description}</p>
+                              </div>
+                              <span className="text-[11px] text-purple-400 font-semibold flex items-center gap-1 pt-1">
+                                Open Portal <ExternalLink className="size-3" />
+                              </span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* SECTION 3: MODULE SYLLABUS & HIGH-FREQUENCY EXAM PATTERNS */}
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                              Module Syllabus & High-Frequency Exam Patterns
+                            </h4>
+                            <p className="text-[11px] text-gray-500">Observed recurrent university exam questions mapped to modules</p>
+                          </div>
+                          {academicData?.highFrequencyQuestions && academicData.highFrequencyQuestions.length > 0 && (
+                            <span className="text-[10px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded-full font-medium">
+                              {academicData.highFrequencyQuestions.length} Analyzed Patterns
+                            </span>
+                          )}
+                        </div>
+
+                        {academicData?.highFrequencyQuestions && academicData.highFrequencyQuestions.length > 0 ? (
+                          <div className="space-y-2.5">
+                            {academicData.highFrequencyQuestions.map((q) => (
+                              <div
+                                key={q.questionId}
+                                className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-white/20 transition"
+                              >
+                                <div className="flex items-start sm:items-center gap-3">
+                                  <div className="size-8 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+                                    M{q.module}
+                                  </div>
+                                  <div className="space-y-1">
+                                    <p className="text-xs sm:text-sm font-semibold text-white leading-snug">
+                                      {q.question}
+                                    </p>
+                                    <div className="flex flex-wrap items-center gap-2 text-[10px] text-gray-400">
+                                      <span className="text-purple-300 font-medium">{q.classification}</span>
+                                      <span>•</span>
+                                      <span>{q.typicalMarks} Marks</span>
+                                      <span>•</span>
+                                      <span>Appeared in {q.occurrenceCount}/{q.papersAnalyzed} Papers</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-semibold shrink-0 self-start sm:self-auto">
+                                  High Probability
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="rounded-xl border border-white/10 bg-white/[0.02] p-6 text-center space-y-2">
+                            <p className="text-sm font-semibold text-gray-300">
+                              Module-level syllabus is not yet available for this subject.
+                            </p>
+                            <p className="text-xs text-gray-500 max-w-md mx-auto">
+                              Curriculum modules and high-frequency exam questions for {selectedCourseObj.courseName} are being compiled.
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
-
-                    {hasCieRecords ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                          <span className="text-xs text-gray-400">Current CIE Marks</span>
-                          <p className="text-xl font-bold text-white mt-1">
-                            {`${cieMarks[0].marksObtained} / ${cieMarks[0].maxMarks}`}
-                          </p>
-                          <span className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1">
-                            <CheckCircle2 className="size-3" /> {cieMarks[0].assessmentName || "CIE Recorded"}
-                          </span>
-                        </div>
-                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                          <span className="text-xs text-gray-400">VTU Exam Weightage</span>
-                          <p className="text-xl font-bold text-purple-400 mt-1">50% CIE + 50% SEE</p>
-                          <span className="text-[11px] text-gray-400 mt-1 block">Pass Cutoff: 40%</span>
-                        </div>
-                        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                          <span className="text-xs text-gray-400">Projected SGPA</span>
-                          <p className="text-xl font-bold text-cyan-400 mt-1">{projectedSgpa} SGPA</p>
-                          <span className="text-[11px] text-cyan-300 mt-1 block">Based on recorded marks</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.02] p-6 text-center space-y-3">
-                        <div className="size-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mx-auto">
-                          <BookOpen className="size-5" />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-bold text-white">CIE Performance</h4>
-                          <p className="text-xs text-purple-300 font-semibold mt-0.5">No marks recorded yet</p>
-                          <p className="text-xs text-gray-400 mt-1 max-w-md mx-auto leading-relaxed">
-                            Add your assessment marks to track CIE performance and projected academic outcomes.
-                          </p>
-                        </div>
-                        <div className="pt-1">
-                          <button
-                            onClick={() => setShowMarkModal(true)}
-                            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-md shadow-purple-600/30 transition cursor-pointer"
-                          >
-                            <Plus className="size-3.5" />
-                            <span>Add CIE Marks</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Syllabus modules */}
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Module Syllabus Reference</h4>
-                        <span className="text-[11px] text-gray-500">Progress not tracked yet</span>
-                      </div>
-                      
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="size-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">M1</div>
-                          <div>
-                            <p className="text-sm font-semibold text-white">Calculus & Differential Equations</p>
-                            <p className="text-xs text-gray-400">Rolle&apos;s Theorem, Taylor Series, Curvature</p>
-                          </div>
-                        </div>
-                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">
-                          Not tracked yet
-                        </span>
-                      </div>
-
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="size-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">M2</div>
-                          <div>
-                            <p className="text-sm font-semibold text-white">Linear Algebra & Matrices</p>
-                            <p className="text-xs text-gray-400">Rank of Matrix, Eigenvalues, Cayley-Hamilton Theorem</p>
-                          </div>
-                        </div>
-                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">
-                          Not tracked yet
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {/* TAB 2: ATTENDANCE */}
                 {activeTab === "attendance" && (
@@ -1107,38 +1396,226 @@ export default function Home() {
                       </Link>
                     </div>
 
+                    {/* MILESTONE CARDS WITH EXPANDABLE RESOURCE DRAWERS */}
                     <div className="space-y-3">
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="size-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">01</div>
-                          <div>
-                            <p className="text-sm font-semibold text-white">Git, GitHub & Linux Command Line</p>
-                            <p className="text-xs text-gray-400">Create GitHub profile, commit lab codes, learn basic bash</p>
+                      {[
+                        { key: "sde_01", num: "01", title: "Git, GitHub & Linux Command Line", desc: "Create GitHub profile, commit lab codes, learn basic bash", color: "emerald" },
+                        { key: "sde_02", num: "02", title: "Data Structures in C / C++ Starter", desc: "Arrays, Pointers, Linked Lists & 25 LeetCode Easy problems", color: "blue" },
+                        { key: "sde_03", num: "03", title: "First Hackathon & Full-Stack Basics", desc: "Build a mini-project for college tech fest (IEEE / GDSC)", color: "purple" },
+                      ].map((item) => {
+                        const drawer = ROADMAP_NODE_RESOURCES[item.key];
+                        const isExpanded = expandedNodeKey === item.key;
+                        return (
+                          <div
+                            key={item.key}
+                            className="rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden transition"
+                          >
+                            <div
+                              onClick={() => setExpandedNodeKey(isExpanded ? null : item.key)}
+                              className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className={`size-8 rounded-lg bg-${item.color}-500/20 text-${item.color}-400 flex items-center justify-center font-bold text-xs`}>
+                                  {item.num}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold text-white">{item.title}</p>
+                                  <p className="text-xs text-gray-400">{item.desc}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] font-semibold text-purple-400 hover:text-purple-300">
+                                  {isExpanded ? "Hide Resources" : "Where to Learn"}
+                                </span>
+                                <ChevronDown className={`size-4 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                              </div>
+                            </div>
+
+                            {/* EXPANDABLE RESOURCE DRAWER */}
+                            {isExpanded && drawer && (
+                              <div className="p-4 bg-black/40 border-t border-white/10 space-y-4 text-xs">
+                                <div>
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block mb-1">
+                                    Concept Overview
+                                  </span>
+                                  <p className="text-gray-300 leading-relaxed">{drawer.conceptOverview}</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {/* Official Docs & Free Courses */}
+                                  <div className="space-y-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                                      Official Docs & Free Courses
+                                    </span>
+                                    {[...(drawer.officialDocs || []), ...(drawer.freeCourses || [])].map((d) => (
+                                      <a
+                                        key={d.resourceId}
+                                        href={d.sourceUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-between p-2.5 rounded-xl border border-white/10 bg-white/[0.02] hover:border-purple-500/40 hover:bg-white/[0.05] transition text-gray-300"
+                                      >
+                                        <span className="truncate pr-2">{d.title}</span>
+                                        <ExternalLink className="size-3 text-purple-400 shrink-0" />
+                                      </a>
+                                    ))}
+                                  </div>
+
+                                  {/* Practice & YouTube */}
+                                  <div className="space-y-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                                      Practice Platform & YouTube
+                                    </span>
+                                    {drawer.practice?.map((pr) => (
+                                      <a
+                                        key={pr.resourceId}
+                                        href={pr.sourceUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-between p-2.5 rounded-xl border border-white/10 bg-white/[0.02] hover:border-purple-500/40 hover:bg-white/[0.05] transition text-gray-300"
+                                      >
+                                        <span className="truncate pr-2">{pr.title}</span>
+                                        <ExternalLink className="size-3 text-emerald-400 shrink-0" />
+                                      </a>
+                                    ))}
+                                    {drawer.youtube?.english?.map((yt) => (
+                                      <a
+                                        key={yt.resourceId}
+                                        href={yt.sourceUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-between p-2.5 rounded-xl border border-white/10 bg-white/[0.02] hover:border-purple-500/40 hover:bg-white/[0.05] transition text-gray-300"
+                                      >
+                                        <span className="truncate pr-2">{yt.title}</span>
+                                        <ExternalLink className="size-3 text-rose-400 shrink-0" />
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Proof-of-Work Checklist */}
+                                {drawer.proofOfWorkChecklist && drawer.proofOfWorkChecklist.length > 0 && (
+                                  <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-1.5">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 block">
+                                      Proof-of-Work Checklist
+                                    </span>
+                                    <ul className="space-y-1 text-gray-300">
+                                      {drawer.proofOfWorkChecklist.map((chk, cIdx) => (
+                                        <li key={cIdx} className="flex items-center gap-2">
+                                          <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />
+                                          <span>{chk}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">Available</span>
+                        );
+                      })}
+                    </div>
+
+                    {/* DSA PRACTICE PREVIEW (P8) */}
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <Code className="size-3.5 text-purple-400" />
+                          Actionable DSA Topic Practice
+                        </h4>
+                        <Link href="/roadmap" className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold">
+                          View All Topics →
+                        </Link>
                       </div>
 
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="size-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">02</div>
-                          <div>
-                            <p className="text-sm font-semibold text-white">Data Structures in C / C++ Starter</p>
-                            <p className="text-xs text-gray-400">Arrays, Pointers, Linked Lists & 25 LeetCode Easy problems</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {DSA_PRACTICE_TOPICS.map((topic) => (
+                          <div
+                            key={topic.topicKey}
+                            className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 space-y-3 flex flex-col justify-between"
+                          >
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-bold text-white">{topic.topicName}</span>
+                                <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-bold">
+                                  {topic.difficulty}
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-400">
+                                Learn: {topic.learn.conceptDoc.title} ({topic.learn.conceptDoc.provider})
+                              </p>
+                            </div>
+
+                            <div className="space-y-1.5 pt-2 border-t border-white/5">
+                              <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">
+                                Practice Problems:
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {topic.practice.map((p, pIdx) => (
+                                  <a
+                                    key={pIdx}
+                                    href={p.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-[11px] bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 px-2 py-1 rounded-lg transition"
+                                  >
+                                    <span>{p.title.split("(")[0]}</span>
+                                    <ExternalLink className="size-2.5 text-purple-400" />
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">Locked</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* INDUSTRY CERTIFICATIONS PREVIEW (P10) */}
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <Award className="size-3.5 text-purple-400" />
+                          Industry & Academic Certifications
+                        </h4>
+                        <Link href="/roadmap" className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold">
+                          View Catalog →
+                        </Link>
                       </div>
 
-                      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="size-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">03</div>
-                          <div>
-                            <p className="text-sm font-semibold text-white">First Hackathon & Full-Stack Basics</p>
-                            <p className="text-xs text-gray-400">Build a mini-project for college tech fest (IEEE / GDSC)</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {INDUSTRY_CERTIFICATIONS.slice(0, 4).map((c) => (
+                          <div
+                            key={c.certId}
+                            className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 flex flex-col justify-between space-y-2 hover:border-purple-500/30 transition"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">
+                                  {c.domain.replace("_", " ")}
+                                </span>
+                                <span className="text-[10px] text-gray-400 font-mono">
+                                  {c.examType === "free_certificate" ? "Free Cert" : "Exam Voucher"}
+                                </span>
+                              </div>
+                              <h5 className="text-xs sm:text-sm font-bold text-white">{c.title}</h5>
+                              <p className="text-[11px] text-gray-400">{c.provider} • {c.level}</p>
+                            </div>
+                            <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                              <span className="text-[10px] text-emerald-400 font-semibold">
+                                {c.studentDiscountAvailable ? "Student Eligibility Verified" : "Open Access"}
+                              </span>
+                              <a
+                                href={c.officialUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[11px] font-bold text-purple-400 hover:text-purple-300 transition cursor-pointer"
+                              >
+                                <span>Official Portal</span>
+                                <ExternalLink className="size-3" />
+                              </a>
+                            </div>
                           </div>
-                        </div>
-                        <span className="text-xs bg-white/10 text-gray-400 px-2.5 py-1 rounded-full font-medium">Locked</span>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -1708,14 +2185,14 @@ export default function Home() {
 
             <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3.5 py-1 text-xs font-semibold text-purple-300 border border-purple-500/30 mb-6">
               <Sparkles className="size-3.5" />
-              Limited First-Year Cohort
+              Engineering Student Access
             </span>
 
             <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl leading-tight">
               Get your CampusOS early access pass.
             </h2>
             <p className="mt-4 text-base text-gray-300 max-w-2xl mx-auto">
-              Join 2,400+ first-year engineering students across VTU and Autonomous colleges in Karnataka. Reserve your spot for the 2025/26 academic semester release.
+              Built for Engineering Students — from First Semester to Placements. Reserve your spot for your branch and college workspace release.
             </p>
 
             {submitted ? (

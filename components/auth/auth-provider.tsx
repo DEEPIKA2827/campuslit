@@ -28,6 +28,7 @@ export interface StudentProfile {
   targetSgpa?: number | null;
   programmingLevel?: string | null;
   technicalInterests?: string[] | null;
+  specializationBranch?: string | null;
   createdAt?: string;
 }
 
@@ -124,6 +125,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(json.data.user);
         if (json.data.profile) {
           setProfile(json.data.profile);
+        } else {
+          await refreshSession();
         }
         setIsAuthenticated(true);
       }

@@ -13,6 +13,7 @@ export interface EnvironmentVariables {
   AUTH_SESSION_SECRETS?: string;
   DB_MAX_CONNECTIONS?: string;
   GEMINI_API_KEY?: string;
+  GEMINI_MODEL?: string;
   XAI_API_KEY?: string;
   XAI_MODEL?: string;
 }

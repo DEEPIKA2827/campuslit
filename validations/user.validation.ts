@@ -67,13 +67,27 @@ export interface UpdateSettingsInput {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const VALID_ROLES: UserRole[] = ["student", "faculty", "admin"];
 const VALID_THEMES = ["light", "dark", "system"];
-export const VALID_CAREER_GOALS = ["sde", "ai_ml", "core", "higher_ed", "founder"] as const;
+export const CANONICAL_CAREER_GOALS = ["sde", "ai_ml", "core", "higher_ed", "founder"] as const;
+export const EXTENDED_CAREER_GOALS = [
+  "data_science",
+  "cybersecurity",
+  "cloud_devops",
+  "iot_embedded",
+  "blockchain_web3",
+  "product_design",
+  "data_engineering",
+  "other",
+] as const;
+export const VALID_CAREER_GOALS = [
+  ...CANONICAL_CAREER_GOALS,
+  ...EXTENDED_CAREER_GOALS,
+] as const;
 export const VALID_EVALUATION_SCHEMES = ["vtu", "autonomous"] as const;
 export const VALID_PROGRAMMING_LEVELS = ["beginner", "c_basic", "python_basic", "web_dev"] as const;
 export const VALID_CORE_BRANCHES = ["embedded", "iot", "robotics"] as const;
 export const VALID_HIGHER_ED_BRANCHES = ["gate", "ms", "mba"] as const;
 
-function validateOnboardingContextFields(
+export function validateOnboardingContextFields(
   data: Partial<CreateProfileInput | UpdateProfileInput>,
   errors: string[]
 ): {
@@ -91,14 +105,12 @@ function validateOnboardingContextFields(
   let technicalInterests: string[] | null | undefined = undefined;
   let specializationBranch: string | null | undefined = undefined;
 
-  // careerGoal validation
+  // careerGoal validation (supports canonical goals, extended domains, and custom career goals up to 50 chars)
   if (data.careerGoal !== undefined && data.careerGoal !== null) {
     if (typeof data.careerGoal !== "string" || data.careerGoal.trim().length === 0) {
       errors.push("Career goal must be a non-empty string.");
     } else if (data.careerGoal.trim().length > 50) {
       errors.push("Career goal must not exceed 50 characters.");
-    } else if (!VALID_CAREER_GOALS.includes(data.careerGoal.trim() as any)) {
-      errors.push(`Career goal must be one of: ${VALID_CAREER_GOALS.join(", ")}.`);
     } else {
       careerGoal = data.careerGoal.trim();
     }
@@ -106,38 +118,15 @@ function validateOnboardingContextFields(
     careerGoal = null;
   }
 
-  // specializationBranch validation
+  // specializationBranch validation (supports engineering branches as well as roadmap track specializations)
   if (data.specializationBranch !== undefined && data.specializationBranch !== null) {
     if (typeof data.specializationBranch !== "string" || data.specializationBranch.trim().length === 0) {
       errors.push("Specialization branch must be a non-empty string.");
+    } else if (data.specializationBranch.trim().length > 50) {
+      errors.push("Specialization branch must not exceed 50 characters.");
     } else {
       const branch = data.specializationBranch.trim();
-      if (careerGoal !== undefined) {
-        if (careerGoal === "core") {
-          if (!VALID_CORE_BRANCHES.includes(branch as any)) {
-            errors.push(`Invalid specialization branch for Core Engineering: '${branch}'. Allowed branches: ${VALID_CORE_BRANCHES.join(", ")}.`);
-          } else {
-            specializationBranch = branch;
-          }
-        } else if (careerGoal === "higher_ed") {
-          if (!VALID_HIGHER_ED_BRANCHES.includes(branch as any)) {
-            errors.push(`Invalid specialization branch for Higher Studies: '${branch}'. Allowed branches: ${VALID_HIGHER_ED_BRANCHES.join(", ")}.`);
-          } else {
-            specializationBranch = branch;
-          }
-        } else if (careerGoal === null) {
-          errors.push("Specialization branch cannot be configured when career goal is null.");
-        } else {
-          errors.push(`Specialization branch is not permitted for career goal '${careerGoal}'. It must be null.`);
-        }
-      } else {
-        const allBranches = [...VALID_CORE_BRANCHES, ...VALID_HIGHER_ED_BRANCHES];
-        if (!allBranches.includes(branch as any)) {
-          errors.push(`Invalid specialization branch: '${branch}'. Must be one of: ${allBranches.join(", ")}.`);
-        } else {
-          specializationBranch = branch;
-        }
-      }
+      specializationBranch = branch;
     }
   } else if (data.specializationBranch === null) {
     specializationBranch = null;

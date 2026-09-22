@@ -109,25 +109,9 @@ export class ProfileService {
     }
 
     const effectiveCareerGoal = validation.data.careerGoal !== undefined ? validation.data.careerGoal : existingProfile.careerGoal;
-    let effectiveSpecializationBranch: string | null = null;
-    if (effectiveCareerGoal === "core" || effectiveCareerGoal === "higher_ed") {
-      effectiveSpecializationBranch = validation.data.specializationBranch !== undefined
-        ? validation.data.specializationBranch
-        : existingProfile.specializationBranch;
-    } else {
-      // For sde, ai_ml, founder, or unconfigured career goal: specializationBranch must be null
-      effectiveSpecializationBranch = null;
-    }
-
-    // Semantic validation against effectiveCareerGoal
-    if (effectiveSpecializationBranch !== null) {
-      if (effectiveCareerGoal === "core" && !VALID_CORE_BRANCHES.includes(effectiveSpecializationBranch as any)) {
-        throw new Error(`Validation Error: Invalid specialization branch '${effectiveSpecializationBranch}' for Core track.`);
-      }
-      if (effectiveCareerGoal === "higher_ed" && !VALID_HIGHER_ED_BRANCHES.includes(effectiveSpecializationBranch as any)) {
-        throw new Error(`Validation Error: Invalid specialization branch '${effectiveSpecializationBranch}' for Higher Ed track.`);
-      }
-    }
+    const effectiveSpecializationBranch: string | null = validation.data.specializationBranch !== undefined
+      ? validation.data.specializationBranch
+      : (existingProfile.specializationBranch ?? null);
 
     // Step 4: Merge existing fields with valid updates
     const mergedInput: CreateProfileInput = {

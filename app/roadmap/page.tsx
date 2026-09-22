@@ -36,10 +36,17 @@ import {
   Bot,
   GraduationCap,
   Globe2,
-  Briefcase,
   Layers,
   ArrowRight,
+  ExternalLink,
+  Briefcase,
 } from "lucide-react";
+import {
+  PROOF_OF_WORK_PROJECTS,
+  DSA_PRACTICE_TOPICS,
+  INDUSTRY_CERTIFICATIONS,
+  getRoadmapNodeDrawer,
+} from "@/lib/resource-engine";
 
 // Canonical Career Display Mapping
 const CAREER_LABELS: Record<string, string> = {
@@ -732,64 +739,240 @@ export default function RoadmapPage() {
             </div>
           )}
 
-          {/* TAB 2: PROOF-OF-WORK PROJECTS */}
+          {/* TAB 2: PROOF-OF-WORK PROJECTS (P9) */}
           {activeTab === "projects" && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-white">Recommended Proof-of-Work Projects</h2>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-bold text-white">Recommended Proof-of-Work Projects</h2>
+                <p className="text-xs text-gray-400">
+                  Real engineering builds with objectives, prerequisites, build guides, and verification checklists.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {PROOF_OF_WORK_PROJECTS.map((p) => (
+                  <div key={p.id} className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 space-y-4 flex flex-col justify-between hover:border-purple-500/40 transition">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-purple-400">{p.level}</span>
+                        <div className="flex flex-wrap gap-1">
+                          {p.recommendedStack.map((t, idx) => (
+                            <span key={idx} className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-gray-300">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <h3 className="text-base font-bold text-white">{p.title}</h3>
+                      <p className="text-xs text-gray-300 leading-relaxed">{p.objective}</p>
+
+                      <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-1.5 text-xs">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                          Prerequisites & Skills
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {p.prerequisiteSkills.map((sk, sIdx) => (
+                            <span key={sIdx} className="text-[10px] bg-purple-500/10 text-purple-300 px-2 py-0.5 rounded">
+                              {sk}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-1.5 text-xs">
+                        <span className="text-[10px] font-bold text-purple-300 uppercase tracking-wider block">
+                          Proof-of-Work Checklist
+                        </span>
+                        <ul className="space-y-1 text-gray-300">
+                          {p.proofOfWorkChecklist.map((chk, cIdx) => (
+                            <li key={cIdx} className="flex items-start gap-2">
+                              <CheckCircle2 className="size-3 text-emerald-400 shrink-0 mt-0.5" />
+                              <span className="text-[11px] leading-tight">{chk}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                      <a
+                        href={p.documentationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-purple-400 hover:text-purple-300 transition"
+                      >
+                        <span>Documentation</span>
+                        <ExternalLink className="size-3" />
+                      </a>
+                      {p.deploymentReferenceUrl && (
+                        <a
+                          href={p.deploymentReferenceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-400 hover:text-white transition"
+                        >
+                          <span>Deploy Guide</span>
+                          <ExternalLink className="size-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: ACTIONABLE DSA TRACK (P8) */}
+          {activeTab === "dsa" && (
+            <div className="space-y-6 max-w-4xl">
+              <div>
+                <h2 className="text-lg font-bold text-white">Actionable 1st & 2nd Year DSA Progression</h2>
+                <p className="text-xs text-gray-400">
+                  Concept masterclasses with English and Hindi videos paired directly with external problem sets on LeetCode, Striver A2Z, and NeetCode.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {DSA_PRACTICE_TOPICS.map((topic) => (
+                  <div key={topic.topicKey} className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 space-y-4 hover:border-purple-500/30 transition">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base font-bold text-white">{topic.topicName}</h3>
+                          <span className="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded font-bold">
+                            {topic.difficulty}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Next Recommended: <span className="text-purple-300 font-semibold">{topic.recommendedNextTopic}</span>
+                        </p>
+                      </div>
+                      <span className="text-xs px-2.5 py-1 rounded-lg font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 self-start sm:self-auto">
+                        Curated Topic
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* LEARN COLUMN */}
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block">
+                          Learn: Concepts & Tutorials
+                        </span>
+                        <a
+                          href={topic.learn.conceptDoc.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.02] hover:border-purple-500/40 hover:bg-white/[0.05] transition text-xs text-gray-200"
+                        >
+                          <span className="truncate pr-2">{topic.learn.conceptDoc.title} ({topic.learn.conceptDoc.provider})</span>
+                          <ExternalLink className="size-3 text-purple-400 shrink-0" />
+                        </a>
+                        {topic.learn.youtubeEnglish && (
+                          <a
+                            href={topic.learn.youtubeEnglish.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.02] hover:border-rose-500/40 hover:bg-white/[0.05] transition text-xs text-gray-200"
+                          >
+                            <span className="truncate pr-2">English: {topic.learn.youtubeEnglish.title}</span>
+                            <ExternalLink className="size-3 text-rose-400 shrink-0" />
+                          </a>
+                        )}
+                        {topic.learn.youtubeHindi && (
+                          <a
+                            href={topic.learn.youtubeHindi.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.02] hover:border-rose-500/40 hover:bg-white/[0.05] transition text-xs text-gray-200"
+                          >
+                            <span className="truncate pr-2">Hindi: {topic.learn.youtubeHindi.title}</span>
+                            <ExternalLink className="size-3 text-rose-400 shrink-0" />
+                          </a>
+                        )}
+                      </div>
+
+                      {/* PRACTICE COLUMN */}
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">
+                          Practice: External Coding Platforms
+                        </span>
+                        <div className="space-y-2">
+                          {topic.practice.map((pr, prIdx) => (
+                            <a
+                              key={prIdx}
+                              href={pr.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/[0.02] hover:border-emerald-500/40 hover:bg-white/[0.05] transition text-xs text-gray-200"
+                            >
+                              <div>
+                                <span className="font-semibold block">{pr.title}</span>
+                                <span className="text-[10px] text-gray-400">{pr.platform} • {pr.sheetName}</span>
+                              </div>
+                              <ExternalLink className="size-3 text-emerald-400 shrink-0" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: INDUSTRY & ACADEMIC CERTIFICATIONS (P10) */}
+          {activeTab === "certs" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-bold text-white">Verified Industry & Academic Certification Catalog</h2>
+                <p className="text-xs text-gray-400">
+                  Curated credentials from AWS, Microsoft, Cisco, Google Cloud, NVIDIA, IBM, and Linux Foundation with verified student access.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {projectSpecs.map((p) => (
-                  <div key={p.id} className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-purple-400">{p.level}</span>
-                      <div className="flex gap-1">
-                        {p.techStack.map((t, idx) => (
-                          <span key={idx} className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-gray-300">
-                            {t}
+                {INDUSTRY_CERTIFICATIONS.map((c) => (
+                  <div key={c.certId} className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 space-y-3 flex flex-col justify-between hover:border-purple-500/40 transition">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-bold uppercase tracking-wider border border-purple-500/30">
+                          {c.domain.replace("_", " ")}
+                        </span>
+                        <span className="text-[10px] text-gray-400 font-mono">
+                          {c.examType === "free_certificate" ? "Free Certificate" : c.examType === "paid_exam" ? "Paid Exam" : "Free Prep / Paid Exam"}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-bold text-white">{c.title}</h3>
+                      <span className="text-xs text-gray-400 block">{c.provider} • {c.level}</span>
+                      <p className="text-xs text-gray-400 leading-relaxed">{c.description}</p>
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {c.skills.map((sk, sIdx) => (
+                          <span key={sIdx} className="text-[10px] bg-white/5 text-gray-300 px-1.5 py-0.5 rounded">
+                            {sk}
                           </span>
                         ))}
                       </div>
                     </div>
-                    <h3 className="text-base font-bold text-white">{p.title}</h3>
-                    <p className="text-xs text-gray-400">{p.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* TAB 3: DSA TRACK */}
-          {activeTab === "dsa" && (
-            <div className="space-y-4 max-w-2xl">
-              <h2 className="text-lg font-bold text-white">1st & 2nd Year DSA Progression</h2>
-              <div className="space-y-2">
-                {dsaTrack.map((t, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3.5 rounded-2xl border border-white/10 bg-white/[0.02]">
-                    <div className="space-y-0.5">
-                      <strong className="text-xs sm:text-sm text-white block">{t.topic}</strong>
-                      <span className="text-[11px] text-gray-400">{t.count} • {t.difficulty}</span>
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+                      <span className="text-[10px] text-emerald-400 font-semibold">
+                        {c.studentDiscountAvailable ? "Student Discount Verified" : "Open Access"}
+                      </span>
+                      <a
+                        href={c.officialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-purple-400 hover:text-purple-300 transition cursor-pointer"
+                      >
+                        <span>Official Portal</span>
+                        <ExternalLink className="size-3" />
+                      </a>
                     </div>
-                    <span className="text-xs px-2.5 py-1 rounded-lg font-semibold bg-white/5 text-gray-300">
-                      {t.status}
-                    </span>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* TAB 4: CERTIFICATIONS */}
-          {activeTab === "certs" && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {certifications.map((c, idx) => (
-                <div key={idx} className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 space-y-3">
-                  <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-bold uppercase">
-                    {c.badge}
-                  </span>
-                  <h3 className="text-sm font-bold text-white">{c.title}</h3>
-                  <span className="text-xs text-gray-400 block">{c.provider} • {c.duration}</span>
-                  <p className="text-xs text-gray-400 leading-relaxed">{c.desc}</p>
-                </div>
-              ))}
             </div>
           )}
 
@@ -878,6 +1061,78 @@ export default function RoadmapPage() {
                 </div>
               </div>
             )}
+
+            {/* WHERE DO I LEARN THIS? (P7) */}
+            {(() => {
+              const drawer = getRoadmapNodeDrawer(selectedNode.nodeKey, selectedNode.title, selectedNode.description || undefined);
+              return (
+                <div className="space-y-3 border-t border-white/10 pt-3 text-xs">
+                  <span className="text-purple-400 font-bold uppercase tracking-wider text-[10px] block">
+                    Where Do I Learn This?
+                  </span>
+
+                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                    {/* Documentation & Free Courses */}
+                    {[...(drawer.officialDocs || []), ...(drawer.freeCourses || [])].map((d) => (
+                      <a
+                        key={d.resourceId}
+                        href={d.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2 rounded-xl border border-white/10 bg-white/[0.02] hover:border-purple-500/40 hover:bg-white/[0.05] transition text-gray-300"
+                      >
+                        <span className="truncate pr-2 font-medium">{d.title}</span>
+                        <ExternalLink className="size-3 text-purple-400 shrink-0" />
+                      </a>
+                    ))}
+
+                    {/* YouTube Video Tutorials */}
+                    {drawer.youtube?.english?.map((yt) => (
+                      <a
+                        key={yt.resourceId}
+                        href={yt.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2 rounded-xl border border-white/10 bg-white/[0.02] hover:border-rose-500/40 hover:bg-white/[0.05] transition text-gray-300"
+                      >
+                        <span className="truncate pr-2 font-medium">Video: {yt.title}</span>
+                        <ExternalLink className="size-3 text-rose-400 shrink-0" />
+                      </a>
+                    ))}
+
+                    {/* Practice platform */}
+                    {drawer.practice?.map((pr) => (
+                      <a
+                        key={pr.resourceId}
+                        href={pr.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-2 rounded-xl border border-white/10 bg-white/[0.02] hover:border-emerald-500/40 hover:bg-white/[0.05] transition text-gray-300"
+                      >
+                        <span className="truncate pr-2 font-medium">Practice: {pr.title}</span>
+                        <ExternalLink className="size-3 text-emerald-400 shrink-0" />
+                      </a>
+                    ))}
+                  </div>
+
+                  {drawer.proofOfWorkChecklist && drawer.proofOfWorkChecklist.length > 0 && (
+                    <div className="p-2.5 rounded-xl bg-purple-950/20 border border-purple-500/20 space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300 block">
+                        Milestone Deliverables:
+                      </span>
+                      <ul className="space-y-0.5 text-gray-300 text-[11px]">
+                        {drawer.proofOfWorkChecklist.slice(0, 3).map((item, iIdx) => (
+                          <li key={iIdx} className="flex items-center gap-1.5">
+                            <CheckCircle2 className="size-3 text-emerald-400 shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* STATUS & PROGRESS UPDATE BUTTONS */}
             <div className="space-y-3 pt-2 border-t border-white/10">

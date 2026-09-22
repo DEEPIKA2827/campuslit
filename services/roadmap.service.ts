@@ -30,6 +30,7 @@ import {
   RoadmapNodeStatus,
 } from "@/types/api.types";
 import { Logger } from "@/lib/logger";
+import { getExtendedDomainRoadmap } from "@/lib/resource-engine";
 
 /**
  * Pure helper verifying direct prerequisites and explicit convergence rules for a milestone node.
@@ -139,9 +140,36 @@ export class RoadmapService {
     // 3. Resolve canonical roadmap by career slug
     const roadmap = await this.roadmapRepo.getRoadmapByCareerSlug(careerSlug);
     if (!roadmap) {
+      const syntheticTrack = getExtendedDomainRoadmap(careerSlug);
+      const syntheticNodes: PersonalizedRoadmapNodeDTO[] = syntheticTrack.nodes.map((n, idx) => ({
+        id: idx + 1,
+        nodeId: idx + 1,
+        roadmapId: 999,
+        nodeKey: n.nodeKey,
+        sequenceNo: n.sequenceNo,
+        title: n.title,
+        description: n.description,
+        category: "milestone",
+        tier: String(idx + 1),
+        branch: null,
+        branchKey: "common",
+        isElective: false,
+        isGateway: idx === 0,
+        isConvergence: idx === syntheticTrack.nodes.length - 1,
+        targetSemester: n.targetSemester,
+        difficulty: n.difficulty,
+        skills: n.skills,
+        prerequisiteKeys: idx > 0 ? [syntheticTrack.nodes[idx - 1].nodeKey] : [],
+        evidencePrompt: `Provide evidence or complete projects for ${n.title}`,
+        status: idx === 0 ? ("in_progress" as const) : ("locked" as const),
+        isUnlocked: idx === 0,
+        completedAt: null,
+        missingPrerequisites: idx > 0 ? [syntheticTrack.nodes[idx - 1].nodeKey] : [],
+      }));
+
       return {
-        configured: false,
-        message: `No active roadmap found for career track '${careerSlug}'.`,
+        configured: true,
+        message: "Personalized roadmap generated successfully.",
         studentContext: {
           userId,
           careerGoal: profile.careerGoal,
@@ -149,7 +177,21 @@ export class RoadmapService {
           semester: profile.semester ?? null,
           technicalInterests: profile.technicalInterests ?? null,
         },
-        roadmap: null,
+        roadmap: {
+          id: 999,
+          roadmapId: 999,
+          title: syntheticTrack.title,
+          description: syntheticTrack.description,
+          career: syntheticTrack.title,
+          careerSlug: syntheticTrack.careerSlug,
+          totalNodes: syntheticTrack.totalNodes,
+          completedNodes: 0,
+          inProgressNodes: 1,
+          progressPercentage: 0,
+          requiresSpecializationSelection: false,
+          specializationPrompt: null,
+          nodes: syntheticNodes,
+        },
       };
     }
 
