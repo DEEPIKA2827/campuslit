@@ -55,7 +55,7 @@ export function FloatingCopilot() {
         {
           id: "welcome_0",
           sender: "copilot",
-          text: `👋 Hey **${profile?.firstName || "Engineer"}**! I'm your **Senior AI Copilot**.\n\nI can explain any page you're currently viewing, highlight your attendance risks, or solve technical problems. Click **"Scan This Page"** below or ask me anything!`,
+          text: `👋 Hey **${profile?.firstName || "Engineer"}**! I'm your **Senior AI Companion**.\n\nI can scan any page you're looking at, explain complex VTU concepts, or recommend personalized resources. Click **"Scan This Page"** below or ask me anything!`,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
@@ -241,7 +241,7 @@ Please perform a 3-part structured Comet AI analysis for this student:
             className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#12141f]/90 border border-purple-500/30 text-xs text-purple-200 backdrop-blur-md shadow-lg shadow-purple-500/10 hover:border-purple-400 hover:scale-105 transition cursor-pointer"
           >
             <Sparkles className="size-3.5 text-purple-400 animate-spin-slow" />
-            <span className="font-semibold">Ask Copilot</span>
+            <span className="font-semibold">Ask Senior AI</span>
             <span className="bg-purple-500/20 text-[10px] px-1.5 py-0.5 rounded text-purple-300">
               Live
             </span>
@@ -255,7 +255,7 @@ Please perform a 3-part structured Comet AI analysis for this student:
               setIsMinimized(false);
             }}
             className="group relative flex size-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-purple-500 text-white shadow-xl shadow-purple-600/40 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/20"
-            title="Open CampusLit AI Copilot"
+            title="Open CampusLit Senior AI"
           >
             <Bot className="size-7 transition group-hover:rotate-6" />
             <span className="absolute -top-1 -right-1 flex size-3.5">
@@ -269,7 +269,7 @@ Please perform a 3-part structured Comet AI analysis for this student:
       {/* EXPANDED COPILOT DRAWER (Like Comet AI Assistant) */}
       {isOpen && (
         <aside
-          aria-label="CampusLit AI Senior Copilot"
+          aria-label="CampusLit Senior AI Assistant"
           className={`fixed z-50 transition-all duration-300 ease-out flex flex-col shadow-2xl ${
             isMinimized
               ? "bottom-6 right-6 w-80 h-14 rounded-2xl border border-white/15 bg-[#0f111a]/95 backdrop-blur-xl"
@@ -284,7 +284,7 @@ Please perform a 3-part structured Comet AI analysis for this student:
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  CampusLit Copilot
+                  Senior AI Companion
                   <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/20">
                     Dual AI
                   </span>

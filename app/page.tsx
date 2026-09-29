@@ -265,12 +265,34 @@ export default function Home() {
   // Semester Segregation State (Defaults to student's profile semester, or Sem 1)
   const [selectedSemester, setSelectedSemester] = useState<number>(profile?.semester || 1);
 
+  // Custom User-Added Subjects (Personalized on-the-fly)
+  const [customCourses, setCustomCourses] = useState<
+    { courseId: number; courseName: string; courseCode: string; semester: number; branch: string }[]
+  >([]);
+  const [showAddSubjectModal, setShowAddSubjectModal] = useState(false);
+  const [newSubjectName, setNewSubjectName] = useState("");
+  const [newSubjectCode, setNewSubjectCode] = useState("");
+  const [newSubjectSemester, setNewSubjectSemester] = useState<number>(profile?.semester || 1);
+
   // Sync selectedSemester when profile loads
   useEffect(() => {
     if (profile?.semester && typeof profile.semester === "number") {
       setSelectedSemester(profile.semester);
+      setNewSubjectSemester(profile.semester);
     }
   }, [profile?.semester]);
+
+  // Load any previously added custom subjects from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("campuslit_custom_subjects");
+      if (stored) {
+        setCustomCourses(JSON.parse(stored));
+      }
+    } catch {
+      // Ignored
+    }
+  }, []);
 
   // Quick Attendance Logger Modal
   const [showLogModal, setShowLogModal] = useState(false);
@@ -578,9 +600,9 @@ export default function Home() {
 
           {/* Main Headline */}
           <h1 className="mx-auto max-w-5xl text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.08]">
-            The Operating System for{" "}
+            Your Engineering Degree,{" "}
             <span className="bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">
-              Engineering Life.
+              Without the Chaos.
             </span>
           </h1>
 
@@ -863,15 +885,28 @@ export default function Home() {
                 {(() => {
                   const catalogForSem = getCatalogCoursesBySemester(selectedSemester);
                   // Match database courses or use the catalog for the selected semester
-                  const displaySubjects = catalogForSem.map((cat) => {
-                    const dbMatch = courses.find((c) => c.courseCode?.toUpperCase() === cat.courseCode.toUpperCase());
-                    return {
-                      courseId: dbMatch?.courseId || cat.courseId,
-                      courseName: cat.courseName,
-                      courseCode: cat.courseCode,
-                      branch: cat.branch,
-                    };
-                  });
+                  const displaySubjects = [
+                    ...catalogForSem.map((cat) => {
+                      const dbMatch = courses.find((c) => c.courseCode?.toUpperCase() === cat.courseCode.toUpperCase());
+                      return {
+                        courseId: dbMatch?.courseId || cat.courseId,
+                        courseName: cat.courseName,
+                        courseCode: cat.courseCode,
+                        branch: cat.branch,
+                        isCustom: false,
+                      };
+                    }),
+                    // Include any custom subjects entered by student for this semester
+                    ...customCourses
+                      .filter((cc) => cc.semester === selectedSemester)
+                      .map((cc) => ({
+                        courseId: cc.courseId,
+                        courseName: cc.courseName,
+                        courseCode: cc.courseCode,
+                        branch: cc.branch,
+                        isCustom: true,
+                      })),
+                  ];
 
                   return (
                     <div className="space-y-1 text-xs overflow-y-auto max-h-[360px] pr-1">
@@ -892,9 +927,16 @@ export default function Home() {
                                 <BookOpen className="size-3.5 text-purple-400 shrink-0" />
                                 <span className="truncate">{c.courseName}</span>
                               </span>
-                              <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded shrink-0 font-mono">
-                                {c.courseCode || "VTU"}
-                              </span>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                {c.isCustom && (
+                                  <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded font-mono">
+                                    Custom
+                                  </span>
+                                )}
+                                <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded font-mono">
+                                  {c.courseCode || "VTU"}
+                                </span>
+                              </div>
                             </div>
                           );
                         })
@@ -903,6 +945,19 @@ export default function Home() {
                           No subjects registered for Semester {selectedSemester}.
                         </div>
                       )}
+
+                      {/* Add Custom Subject Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewSubjectSemester(selectedSemester);
+                          setShowAddSubjectModal(true);
+                        }}
+                        className="w-full mt-2 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg border border-dashed border-purple-500/30 bg-purple-500/[0.04] text-purple-300 hover:bg-purple-500/10 hover:border-purple-500/60 transition text-xs font-semibold cursor-pointer"
+                      >
+                        <Plus className="size-3.5 text-purple-400" />
+                        <span>Add Subject / Elective</span>
+                      </button>
                     </div>
                   );
                 })()}
@@ -923,6 +978,8 @@ export default function Home() {
                   const selectedCourseObj =
                     courses.find((c) => c.courseId === selectedCourseId) ||
                     catalogForSem.find((c) => c.courseId === selectedCourseId) ||
+                    customCourses.find((c) => c.courseId === selectedCourseId) ||
+                    customCourses.filter((c) => c.semester === selectedSemester)[0] ||
                     catalogForSem[0] ||
                     courses[0] || {
                       courseId: 1,
@@ -2333,6 +2390,130 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ADD CUSTOM SUBJECT MODAL */}
+      {showAddSubjectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl border border-purple-500/30 bg-[#0d0f18] p-6 shadow-2xl relative text-left">
+            <button
+              onClick={() => setShowAddSubjectModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition cursor-pointer"
+            >
+              <X className="size-5" />
+            </button>
+
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-purple-600/20 text-purple-400">
+                <BookOpen className="size-4" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Add Custom Subject / Elective</h3>
+                <p className="text-xs text-gray-400">
+                  Instant notes, PYQs, and masterclasses will be synthesized automatically.
+                </p>
+              </div>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!newSubjectName.trim()) return;
+
+                const newId = Date.now();
+                const newCourse = {
+                  courseId: newId,
+                  courseName: newSubjectName.trim(),
+                  courseCode: (newSubjectCode.trim() || "VTU-SPEC").toUpperCase(),
+                  semester: newSubjectSemester,
+                  branch: profile?.specializationBranch || "Engineering Stream",
+                };
+
+                const updated = [...customCourses, newCourse];
+                setCustomCourses(updated);
+                try {
+                  localStorage.setItem("campuslit_custom_subjects", JSON.stringify(updated));
+                } catch {
+                  // Ignored
+                }
+
+                // Auto-switch to the new course and semester
+                setSelectedSemester(newSubjectSemester);
+                setSelectedCourseId(newId);
+                setShowAddSubjectModal(false);
+                setNewSubjectName("");
+                setNewSubjectCode("");
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                  Subject / Course Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Cloud Computing, Cyber Forensics, VLSI Design"
+                  value={newSubjectName}
+                  onChange={(e) => setNewSubjectName(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                    Course Code (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 21CS62 or BCS601"
+                    value={newSubjectCode}
+                    onChange={(e) => setNewSubjectCode(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none uppercase"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                    Semester
+                  </label>
+                  <select
+                    value={newSubjectSemester}
+                    onChange={(e) => setNewSubjectSemester(Number(e.target.value))}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-xs text-white focus:border-purple-500 focus:outline-none"
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                      <option key={s} value={s} className="bg-gray-900 text-white">
+                        Semester {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-[11px] text-purple-200">
+                ✨ <strong>Instant Intelligence</strong>: Once added, CampusLit will automatically synthesize curated VTU notes, PYQs, video masterclasses, and exam viva tips for this subject.
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddSubjectModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-400 hover:text-white transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-md shadow-purple-600/30 transition cursor-pointer"
+                >
+                  Add Subject & Fetch Resources
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* FOOTER */}
       <footer className="border-t border-white/10 bg-[#06070a] py-12 relative z-10 text-xs text-gray-400">
