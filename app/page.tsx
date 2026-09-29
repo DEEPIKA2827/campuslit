@@ -2339,7 +2339,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="flex size-7 items-center justify-center rounded-lg bg-purple-600 font-bold text-white text-xs">
-              CO
+              CL
             </div>
             <span className="font-bold text-white text-sm">CampusLit</span>
             <span className="text-gray-500">| The Student OS for Karnataka Engineering</span>
