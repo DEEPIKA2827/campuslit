@@ -1,6 +1,6 @@
 /**
  * @file lib/docx-extractor.ts
- * @description Zero-dependency server-side DOCX text extractor for CampusOS AI Mentor.
+ * @description Zero-dependency server-side DOCX text extractor for CampusLit AI Mentor.
  * @purpose Parses .docx (OpenXML ZIP archive) using Node's built-in zlib to extract raw document text
  * without external npm dependencies or native binaries.
  */

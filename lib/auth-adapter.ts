@@ -1,7 +1,7 @@
 /**
  * @file lib/auth-adapter.ts
  * @description Phase 6A.2.2a Clerk Identity Adapter and Internal User Resolution Engine.
- * @purpose Bridges authenticated Clerk external identities to internal CampusOS surrogate user records.
+ * @purpose Bridges authenticated Clerk external identities to internal CampusLit surrogate user records.
  * @architecture
  * Dependency direction: lib/auth-adapter.ts depends strictly on lib/auth-types.ts, db, logger, and Clerk SDK.
  * It NEVER imports from lib/auth.ts, preventing any circular dependencies.
@@ -31,7 +31,7 @@ export { CLERK_SESSION_COOKIE_NAME };
 export type { ClerkIdentity, ResolveAuthOptions };
 
 /**
- * Resolves an authenticated Clerk user ID to an internal CampusOS AuthSession.
+ * Resolves an authenticated Clerk user ID to an internal CampusLit AuthSession.
  *
  * Identity Resolution Pipeline:
  * 1. Validates clerkUserId format.

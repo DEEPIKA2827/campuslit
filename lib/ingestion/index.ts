@@ -1,6 +1,6 @@
 /**
  * @file lib/ingestion/index.ts
- * @description Catalog Ingestion Orchestrator for CampusOS.
+ * @description Catalog Ingestion Orchestrator for CampusLit.
  * @purpose Coordinates reading CSV/JSON master feeds, running validation, and populating PostgreSQL.
  */
 

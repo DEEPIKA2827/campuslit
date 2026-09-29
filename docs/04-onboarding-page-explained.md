@@ -2,7 +2,7 @@
 
 ## Purpose of this file
 
-`app/onboarding/page.tsx` is the interactive **Student Onboarding Flow** component for **CampusOS** at route `/onboarding`.
+`app/onboarding/page.tsx` is the interactive **Student Onboarding Flow** component for **CampusLit** at route `/onboarding`.
 
 It exists to:
 1. **Guide New Students Through Account Setup**: Walk first-year engineering students through a 4-step wizard collecting essential profile data.

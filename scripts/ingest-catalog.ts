@@ -1,6 +1,6 @@
 /**
  * @file scripts/ingest-catalog.ts
- * @description Standalone CLI utility to validate and ingest catalog feeds into CampusOS database.
+ * @description Standalone CLI utility to validate and ingest catalog feeds into CampusLit database.
  * @usage npx tsx scripts/ingest-catalog.ts
  */
 

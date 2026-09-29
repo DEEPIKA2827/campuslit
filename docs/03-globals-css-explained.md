@@ -2,7 +2,7 @@
 
 ## Purpose of this file
 
-`app/globals.css` is the core global stylesheet for the **CampusOS** application built with Next.js App Router and Tailwind CSS v4.
+`app/globals.css` is the core global stylesheet for the **CampusLit** application built with Next.js App Router and Tailwind CSS v4.
 
 It exists to:
 1. **Initialize Tailwind CSS v4**: Inject the Tailwind engine and default utility classes into the global scope.
@@ -57,7 +57,7 @@ import "./globals.css";
 
 ### Line 4: `  --background: #08090e;`
 * **What it does**: Declares `--background` with deep obsidian dark hex code `#08090e`.
-* **Why it exists**: Sets the signature dark canvas color for CampusOS.
+* **Why it exists**: Sets the signature dark canvas color for CampusLit.
 * **How it works**: Stores `#08090e` in the variable `--background`.
 * **Alternative approaches**: Using Tailwind class `bg-[#08090e]` directly in HTML templates.
 

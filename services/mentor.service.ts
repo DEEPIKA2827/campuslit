@@ -1,6 +1,6 @@
 /**
  * @file services/mentor.service.ts
- * @description Business orchestration layer for CampusOS AI Senior Mentor.
+ * @description Business orchestration layer for CampusLit AI Senior Mentor.
  * @purpose Gathers verified student context, builds strict system instructions, manages bounded history, and orchestrates LLM completion.
  */
 
@@ -36,7 +36,7 @@ export const MENTOR_CONVERSATION_HISTORY_LIMIT = 10;
 
 export type MentorIntent =
   | "GENERAL_KNOWLEDGE"
-  | "PERSONALIZED_CAMPUSOS"
+  | "PERSONALIZED_CAMPUSLIT"
   | "DOCUMENT_GROUNDED"
   | "RESOURCE_RETRIEVAL"
   | "MULTIMODAL"
@@ -57,7 +57,7 @@ export interface MinimalStudentContextData {
 /**
  * Classifies incoming request into one of 6 operational intents:
  * A. GENERAL_KNOWLEDGE: Foundational engineering/CS questions (binary tree, normalization, TCP, pointers)
- * B. PERSONALIZED_CAMPUSOS: Queries strictly needing student state (attendance, CIE, radar, study plan)
+ * B. PERSONALIZED_CAMPUSLIT: Queries strictly needing student state (attendance, CIE, radar, study plan)
  * C. DOCUMENT_GROUNDED: Q&A or comparisons over uploaded files (PDF, DOCX, PPTX)
  * D. RESOURCE_RETRIEVAL: Inquiries seeking verified learning materials, roadmaps, or links
  * E. MULTIMODAL: Visual queries analyzing uploaded code screenshots, circuit diagrams, or math images
@@ -110,7 +110,7 @@ export function classifyRequestIntent(
     return "RESOURCE_RETRIEVAL";
   }
 
-  // Check for Personalized CampusOS queries
+  // Check for Personalized CampusLit queries
   const isPersonalized =
     /\b(attendance|cie|cie\s+marks|internal\s+marks|bunk|safe\s+bunks?|action\s+radar|primary\s+mission|what\s+should\s+i\s+study\s+this\s+week|what\s+should\s+i\s+work\s+on|my\s+roadmap|my\s+progress|am\s+i\s+academically\s+at\s+risk|what\s+should\s+i\s+prioritize|how\s+should\s+i\s+prepare\s+for\s+placements|scholarships?|opportunities|my\s+semester|my\s+branch|my\s+cgpa|my\s+sgpa)\b/i.test(
       cleanMsg
@@ -125,7 +125,7 @@ export function classifyRequestIntent(
     ) {
       return "MIXED";
     }
-    return "PERSONALIZED_CAMPUSOS";
+    return "PERSONALIZED_CAMPUSLIT";
   }
 
   // Default for normal engineering and academic questions
@@ -217,7 +217,7 @@ export class MentorService {
   }
 
   /**
-   * Assembles verified CampusOS context for the authenticated student.
+   * Assembles verified CampusLit context for the authenticated student.
    * Never fabricates missing data; reports factual state as-is.
    * Applies privacy boundary: direct PII (email, tokens, passwords) is never included.
    */
@@ -456,9 +456,9 @@ export class MentorService {
     const branchDisplay = s.specializationBranch || s.courseName || "Engineering";
     const progLevelDisplay = s.programmingLevel ? s.programmingLevel : "Not recorded";
 
-    return `You are the CampusOS AI Senior Mentor, an expert engineering mentor tailored specifically for students in Karnataka engineering colleges (VTU & Autonomous institutions).
+    return `You are the CampusLit AI Senior Mentor, an expert engineering mentor tailored specifically for students in Karnataka engineering colleges (VTU & Autonomous institutions).
 
-=== AUTHORITATIVE CAMPUSOS STUDENT STATE (CANONICAL SOURCE OF TRUTH) ===
+=== AUTHORITATIVE CAMPUSLIT STUDENT STATE (CANONICAL SOURCE OF TRUTH) ===
 STUDENT PROFILE:
 - Name: ${s.name || "Student"}
 - Current Semester: ${semesterDisplay}
@@ -470,7 +470,7 @@ STUDENT PROFILE:
 - Evaluation Scheme: ${s.evaluationScheme || "VTU / Autonomous"}
 - Effective Guidance Language: ${effectiveLanguage.toUpperCase()}
 
-VERIFIED CAMPUSOS LEARNING RESOURCES & LINKS:
+VERIFIED CAMPUSLIT LEARNING RESOURCES & LINKS:
 ${
   context.learningResources.length > 0
     ? context.learningResources
@@ -481,7 +481,7 @@ ${
             }`
         )
         .join("\n")
-    : "- Explore the Subject Academic Resource Hub on CampusOS for verified syllabus materials."
+    : "- Explore the Subject Academic Resource Hub on CampusLit for verified syllabus materials."
 }
 
 ROADMAP ENGINE STATUS:
@@ -543,7 +543,7 @@ You operate across 4 distinct modes based on user intent:
 - For general engineering/computer science concepts (e.g. "What is a stack?", "Explain normalization", "How does TCP handshake work?", "Explain deadlock", "Teach me binary search"):
   * Answer directly, concisely, and accurately as a senior engineering mentor.
   * Structure technical answers: 1. Direct definition/answer, 2. Clear explanation (from first principles for beginners), 3. Concrete code or architectural example, 4. Common student mistake to avoid, 5. Real-world industry use-case, 6. Suggested next learning step.
-  * You may naturally personalize using the student's verified profile (${branchDisplay}, ${semesterDisplay}, ${progLevelDisplay}), but NEVER fabricate personal academic records. If a personal academic record is not in the authoritative data above, explicitly state that it is not recorded in their CampusOS account.
+  * You may naturally personalize using the student's verified profile (${branchDisplay}, ${semesterDisplay}, ${progLevelDisplay}), but NEVER fabricate personal academic records. If a personal academic record is not in the authoritative data above, explicitly state that it is not recorded in their CampusLit account.
   * Do NOT force a rigid 8-section template onto simple conceptual questions. Answer concisely.
 
 [MODE B: DOCUMENT & ATTACHMENT Q&A]
@@ -578,9 +578,9 @@ You operate across 4 distinct modes based on user intent:
     5. Important observations
   * If only one document was successfully parsed, inform the student immediately instead of pretending to compare.
 
-[MODE D: VERIFIED CAMPUSOS DATA & PLANNING]
+[MODE D: VERIFIED CAMPUSLIT DATA & PLANNING]
 - For questions regarding authoritative student state ("What is my attendance?", "How many classes do I need to attend?", "What should I work on today?", "Action radar mission"):
-  * Rely strictly on the AUTHORITATIVE CAMPUSOS STUDENT STATE provided above.
+  * Rely strictly on the AUTHORITATIVE CAMPUSLIT STUDENT STATE provided above.
   * Never guess, recalculate, or invent attendance numbers. Use the exact numbers provided: Overall Attendance: ${ac.overallAttendancePercentage ?? 100}%, courses, safe bunks, and recovery classes.
   * When the student specifically asks for their immediate priority or "What should I work on next?", summarize their current situation, Action Radar primary mission ("${ar.primaryMission}"), immediate next action today, academic impact, and verified resource link.
 
@@ -601,7 +601,7 @@ You operate across 4 distinct modes based on user intent:
 
 === VERIFIED RESOURCE CITATIONS ===
 - Recommend verified URLs provided in the learning resources or retrieved knowledge above.
-- NEVER hallucinate external links. If no verified link exists for a specific topic, state: "I couldn't find a verified CampusOS resource for that query."
+- NEVER hallucinate external links. If no verified link exists for a specific topic, state: "I couldn't find a verified CampusLit resource for that query."
 
 === LANGUAGE CONTRACT ===
 - Effective guidance language: ${effectiveLanguage.toUpperCase()}.
@@ -643,7 +643,7 @@ You operate across 4 distinct modes based on user intent:
         : "Engineering Student";
     const branchDisplay = student.specializationBranch || "Computer Science / Engineering";
 
-    return `You are the CampusOS AI Senior Mentor, an experienced engineering mentor tailored for students in Karnataka engineering colleges (VTU & Autonomous institutions).
+    return `You are the CampusLit AI Senior Mentor, an experienced engineering mentor tailored for students in Karnataka engineering colleges (VTU & Autonomous institutions).
 
 STUDENT CONTEXT:
 - Student Level: ${semesterDisplay}, ${branchDisplay} (${student.programmingLevel || "Intermediate"} programming level)
@@ -694,7 +694,7 @@ SAFETY & OFF-TOPIC CONTRACT:
   Respond ONLY with this exact brief refusal:
   "I can help with engineering, academics, careers, projects, and student learning, but I can't assist with that."
 - Refuse requests for malware creation, credential theft, or attacking college portals.
-- NEVER hallucinate external URLs. Only cite well-known official documentation or state that verified materials are in the CampusOS Resource Catalog.`;
+- NEVER hallucinate external URLs. Only cite well-known official documentation or state that verified materials are in the CampusLit Resource Catalog.`;
   }
 
   /**
@@ -713,7 +713,7 @@ SAFETY & OFF-TOPIC CONTRACT:
       )
       .join("\n");
 
-    return `You are the CampusOS AI Senior Mentor operating in STRICT DOCUMENT GROUNDING MODE.
+    return `You are the CampusLit AI Senior Mentor operating in STRICT DOCUMENT GROUNDING MODE.
 
 ATTACHED DOCUMENTS:
 ${docListStr || "- Uploaded Document"}
@@ -771,9 +771,9 @@ When comparing multiple documents:
     student: MinimalStudentContextData["student"],
     effectiveLanguage = "english"
   ): string {
-    return `You are the CampusOS AI Senior Mentor, an expert engineering mentor.
+    return `You are the CampusLit AI Senior Mentor, an expert engineering mentor.
 
-VERIFIED CAMPUSOS CATALOG RESOURCES:
+VERIFIED CAMPUSLIT CATALOG RESOURCES:
 ${
   resources.length > 0
     ? resources
@@ -788,7 +788,7 @@ ${
 GUIDANCE LANGUAGE: ${effectiveLanguage.toUpperCase()}
 
 VERIFIED RESOURCE PRESENTATION CONTRACT:
-1. When recommending resources, use ONLY verified URLs from the CampusOS catalog above.
+1. When recommending resources, use ONLY verified URLs from the CampusLit catalog above.
 2. NEVER invent URLs. NEVER fabricate YouTube links or playlists.
 3. For each recommended resource, format as:
 - Resource Name: <title>
@@ -797,7 +797,7 @@ VERIFIED RESOURCE PRESENTATION CONTRACT:
 - Purpose: <why it helps>
 - Verified URL: <url>
 4. If no verified resource exists for the requested topic, state honestly:
-"I couldn't find a verified CampusOS resource for that query."
+"I couldn't find a verified CampusLit resource for that query."
 
 AMBIGUITY DETECTION & CLARIFICATION:
 - If the student request is ambiguous (e.g. "Give me the best DSA resource" without specifying the target goal):
@@ -915,12 +915,12 @@ SAFETY & UNTRUSTED DATA:
         .map((c) => ({
           title: c.title,
           category: c.sourceType.toUpperCase(),
-          provider: c.title.split(":")[0] || "CampusOS",
+          provider: c.title.split(":")[0] || "CampusLit",
           url: c.url!,
         }));
       systemPrompt = this.buildResourcePrompt(verifiedResources, minimal.student, effectiveLanguage);
     } else {
-      // PERSONALIZED_CAMPUSOS or MIXED
+      // PERSONALIZED_CAMPUSLIT or MIXED
       const fullContext = await this.buildStudentContext(userId);
       const effectiveLanguage = isExplicitEnglish
         ? "english"

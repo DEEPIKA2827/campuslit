@@ -81,7 +81,7 @@ Next.js Route Handler (/api/chat/message/route.ts)
 Mentor Service Layer (services/mentor.service.ts)
         │
         ├── 1. 6-Mode Intent Classifier (services/mentor.service.ts)
-        │      Modes: GENERAL_KNOWLEDGE, PERSONALIZED_CAMPUSOS,
+        │      Modes: GENERAL_KNOWLEDGE, PERSONALIZED_CAMPUSLIT,
         │             DOCUMENT_GROUNDED, DOCUMENT_COMPARISON,
         │             RESOURCE_RETRIEVAL, MULTIMODAL
         │
@@ -131,7 +131,7 @@ PostgreSQL Transactional Save (chat_messages) + Streaming to Client UI
 ### Supported Formats & Extraction
 - **Image Formats**: JPEG, PNG, WebP (passed directly to Gemini Vision API).
 - **Documents**: PDF (Base64 encoded to Gemini document loader).
-- **Office Files (`.docx` / `.pptx`)**: CampusOS includes a **zero-dependency OpenXML extractor** (`lib/docx-extractor.ts`) that reads the file structure in Node.js using `zlib.inflateRawSync` in `< 2ms`, extracting raw XML text without heavy native dependencies.
+- **Office Files (`.docx` / `.pptx`)**: CampusLit includes a **zero-dependency OpenXML extractor** (`lib/docx-extractor.ts`) that reads the file structure in Node.js using `zlib.inflateRawSync` in `< 2ms`, extracting raw XML text without heavy native dependencies.
 
 ### Capabilities & Strict Contracts:
 - **Lecture Slide Summarization**: Extracts key definitions, exam formulas, and revision bullet points.
@@ -161,7 +161,7 @@ PostgreSQL Transactional Save (chat_messages) + Streaming to Client UI
 ## 📂 Project Architecture
 
 ```
-campusos/
+campuslit/
 ├── app/                              # Next.js 16 App Router
 │   ├── ai-mentor/                    # AI Senior Mentor streaming chat UI
 │   │   └── page.tsx
@@ -245,12 +245,12 @@ campusos/
 
 ## 🔗 Resource Integrity & Verification
 
-CampusOS includes an automated link health auditor (`scripts/validate-resources.ts`) that runs HTTP `HEAD` and `GET` requests against all external academic links.
+CampusLit includes an automated link health auditor (`scripts/validate-resources.ts`) that runs HTTP `HEAD` and `GET` requests against all external academic links.
 
 **Latest Verification Results:**
 ```
 ==================================================
-CAMPUSOS RESOURCE LINK INTEGRITY AUDIT
+CAMPUSLIT RESOURCE LINK INTEGRITY AUDIT
 ==================================================
 TOTAL CHECKED:     28
 HEALTHY:           24
@@ -314,7 +314,7 @@ During your interview, use these concrete architectural choices to showcase stro
 4. **Why 6-Mode Intent Routing?**  
    *Latency & Cost Optimization*: Injecting full database schemas and student records into every single chat turn wastes tokens and increases latency. Routing conceptual queries (`GENERAL_KNOWLEDGE`) directly to the LLM reduces prompt size by over 80%.
 5. **Zero-Dependency DOCX / PPTX Extraction**:  
-   *Lightweight Serverless Footprint*: Instead of installing massive native binary dependencies or headless LibreOffice instances, CampusOS extracts OpenXML text streams using Node.js's native `zlib.inflateRawSync` in under 2 milliseconds.
+   *Lightweight Serverless Footprint*: Instead of installing massive native binary dependencies or headless LibreOffice instances, CampusLit extracts OpenXML text streams using Node.js's native `zlib.inflateRawSync` in under 2 milliseconds.
 
 ---
 
@@ -328,8 +328,8 @@ During your interview, use these concrete architectural choices to showcase stro
 ### 2. Setup
 ```bash
 # Clone repository
-git clone https://github.com/DEEPIKA2827/campusos.git
-cd campusos
+git clone https://github.com/DEEPIKA2827/campuslit.git
+cd campuslit
 
 # Install dependencies
 npm install

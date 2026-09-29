@@ -23,7 +23,7 @@ export const AUTH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
 export const CLERK_SESSION_COOKIE_NAME = "__session";
 
 /**
- * Canonical valid roles recognized across CampusOS.
+ * Canonical valid roles recognized across CampusLit.
  */
 export const VALID_ROLES: readonly UserRole[] = ["student", "admin", "faculty"] as const;
 

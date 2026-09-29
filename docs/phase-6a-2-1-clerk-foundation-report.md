@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-Phase 6A.2.1 establishes the technical foundation for the future **Clerk Hybrid Identity Bridge** in CampusOS. The implementation scope was strictly confined to:
+Phase 6A.2.1 establishes the technical foundation for the future **Clerk Hybrid Identity Bridge** in CampusLit. The implementation scope was strictly confined to:
 1. Installing the approved foundational dependencies: `@clerk/nextjs` (^7.9.1) and `svix` (^2.3.0).
 2. Extending the `users` table in `db/schema.ts` with the nullable unique `clerkId` column.
 3. Analyzing `passwordHash` nullability and maintaining stability across existing repository contracts.
@@ -28,7 +28,7 @@ Zero authentication routes, login/register UI components, middleware, webhooks, 
 | **Primary Key Type** | `userId` is `bigint("user_id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity()`. | **Surrogate Key Invariant Preserved** |
 | **`passwordHash` Nullability** | Initially defined as `NOT NULL`. Analyzed for Phase 6A.2.1. Retained as `.notNull()` in `db/schema.ts` for Phase 6A.2.1 because `UserRecord` in `types/api.types.ts` and `user.repository.ts` requires `string`, preventing type regression in untouched repository files. Will transition to nullable in Phase 6A.2.2 alongside adapter and repository updates. | **Safe & Documented** |
 | **Child Foreign Keys** | Exactly 9 tables reference `users.userId` with `onDelete: "cascade"`. | **100% Intact & Untouched** |
-| **Migration Tooling** | `drizzle-kit` (`^0.31.10`) with SQL migration baseline in `migrations/001_campusos_schema.sql`. | **Verified** |
+| **Migration Tooling** | `drizzle-kit` (`^0.31.10`) with SQL migration baseline in `migrations/001_campuslit_schema.sql`. | **Verified** |
 | **Database Migration Safety** | `ALTER TABLE users ADD COLUMN IF NOT EXISTS clerk_id VARCHAR(128) UNIQUE;` is 100% additive, non-destructive, with zero DROP TABLE or ALTER COLUMN statements. | **Safe** |
 
 ---

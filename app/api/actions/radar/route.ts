@@ -1,6 +1,6 @@
 /**
  * @file app/api/actions/radar/route.ts
- * @description Next.js Route Handler for CampusOS Proactive Student Action Radar.
+ * @description Next.js Route Handler for CampusLit Proactive Student Action Radar.
  * @purpose Evaluates multi-domain signals (attendance risk, exam priorities, deadlines, roadmaps) to emit Rule-of-One daily missions.
  * @security Strictly enforces getAuthenticatedUser() session verification.
  */

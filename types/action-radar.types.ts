@@ -1,6 +1,6 @@
 /**
  * @file types/action-radar.types.ts
- * @description Data contracts and DTOs for the CampusOS Proactive Student Action Layer.
+ * @description Data contracts and DTOs for the CampusLit Proactive Student Action Layer.
  * @purpose Defines types for multi-domain signal aggregation, Rule-of-One primary missions, urgency alerts, and radar metrics.
  */
 

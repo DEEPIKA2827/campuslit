@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-This document performs the final, adversarial architectural consistency review of the proposed Phase 6A Clerk Identity Migration for CampusOS. It explicitly resolves schema governance contradictions, rejects unsafe automatic email linking, replaces destructive account cascade deletion with institutional soft-delinking, and establishes the strict boundary separating identity management from application authorization.
+This document performs the final, adversarial architectural consistency review of the proposed Phase 6A Clerk Identity Migration for CampusLit. It explicitly resolves schema governance contradictions, rejects unsafe automatic email linking, replaces destructive account cascade deletion with institutional soft-delinking, and establishes the strict boundary separating identity management from application authorization.
 
 ---
 
@@ -70,13 +70,13 @@ graph TD
     CheckClerkBound -->|No (Legacy Account)| LinkFlow{Was legacy account verified?}
 
     LinkFlow -->|Yes (Verified)| AutoLink[Attach clerk_id to existing users row -> Preserve all history]
-    LinkFlow -->|No / Password Exists| PasswordChallenge[Prompt Student for Legacy CampusOS Password ONCE to authorize link]
+    LinkFlow -->|No / Password Exists| PasswordChallenge[Prompt Student for Legacy CampusLit Password ONCE to authorize link]
     PasswordChallenge --> AutoLink
 ```
 
 ### Security Rules:
 1. **No Unverified Linking**: Unverified emails from social providers or unconfirmed OTPs are strictly forbidden from linking to existing database records.
-2. **Explicit Multi-Email Linking**: If a student signed up with `usn@college.edu.in` and logs into Clerk with Google `personal@gmail.com`, the system prompts: *"Do you have an existing CampusOS account? Enter your college email and password to link your data."*
+2. **Explicit Multi-Email Linking**: If a student signed up with `usn@college.edu.in` and logs into Clerk with Google `personal@gmail.com`, the system prompts: *"Do you have an existing CampusLit account? Enter your college email and password to link your data."*
 
 ---
 

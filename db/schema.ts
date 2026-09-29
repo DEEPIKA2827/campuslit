@@ -1,7 +1,7 @@
 /**
  * @file db/schema.ts
- * @description Canonical Drizzle ORM PostgreSQL Schema for CampusOS.
- * @specification Strictly matches senior-approved docs/CampusOS_Corrected_Database_Schema.pdf (21 tables).
+ * @description Canonical Drizzle ORM PostgreSQL Schema for CampusLit.
+ * @specification Strictly matches senior-approved docs/CampusLit_Corrected_Database_Schema.pdf (21 tables).
  */
 
 import {

@@ -1,6 +1,6 @@
 /**
  * @file lib/ingestion/catalog-validator.ts
- * @description Zod validation schemas and sanitization logic for CampusOS ingestion.
+ * @description Zod validation schemas and sanitization logic for CampusLit ingestion.
  * @purpose Enforces non-null required fields, valid canonical URLs, sane date ranges, and duplicate detection.
  */
 

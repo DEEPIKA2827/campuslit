@@ -1,6 +1,6 @@
 /**
  * @file lib/academic-resources.ts
- * @description Academic Resource Hub provider for CampusOS.
+ * @description Academic Resource Hub provider for CampusLit.
  * Matches courses deterministically by stable course_code or normalized identity to curated VTU academic resources.
  * Prevents unrelated resource leakage across subjects.
  */

@@ -1,6 +1,6 @@
 /**
  * @file services/index.ts
- * @description Central barrel export for all CampusOS Domain Services (Business Logic Layer).
+ * @description Central barrel export for all CampusLit Domain Services (Business Logic Layer).
  * @purpose Provides unified, typed access to business orchestration services.
  */
 

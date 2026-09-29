@@ -1,6 +1,6 @@
-# CampusOS AI Mentor — Architectural Decisions & Technical Rationale
+# CampusLit AI Mentor — Architectural Decisions & Technical Rationale
 
-This document outlines the core architectural and technical decisions made for the CampusOS AI Senior Mentor, providing engineering defense for system design, security, and trade-offs.
+This document outlines the core architectural and technical decisions made for the CampusLit AI Senior Mentor, providing engineering defense for system design, security, and trade-offs.
 
 ---
 

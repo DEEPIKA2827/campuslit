@@ -1,6 +1,6 @@
 /**
  * @file services/action-radar.service.ts
- * @description Proactive Action Layer & Multi-Domain Prioritization Engine for CampusOS.
+ * @description Proactive Action Layer & Multi-Domain Prioritization Engine for CampusLit.
  * @purpose Connects Attendance, Academics/Exams, Deadlines, and Roadmaps into a deterministic Rule-of-One mission control.
  */
 
@@ -428,7 +428,7 @@ export class ActionRadarService {
           compositeScore: 400,
           timeProximitySeconds: 86400 * 3,
           severityMagnitude: 20,
-          title: "Complete your CampusOS profile",
+          title: "Complete your CampusLit profile",
           subtitle: "Set your career goals to unlock personalized engineering roadmaps and milestones.",
           description:
             personalizedRoadmapResp.message ||

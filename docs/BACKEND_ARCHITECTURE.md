@@ -1,8 +1,8 @@
-# CampusOS Backend Architecture & Foundation Specification
+# CampusLit Backend Architecture & Foundation Specification
 
 ## 1. Executive Summary & Stack Alignment
 
-This document details the production backend architecture for **CampusOS**, built inside the **Next.js 16 App Router** ecosystem using **TypeScript**.
+This document details the production backend architecture for **CampusLit**, built inside the **Next.js 16 App Router** ecosystem using **TypeScript**.
 
 ### Industry Standard Backend Stack:
 * **Framework**: Next.js 16 App Router (Node.js / Edge Runtime Route Handlers)
@@ -16,7 +16,7 @@ This document details the production backend architecture for **CampusOS**, buil
 
 ## 2. Request Flow Architecture
 
-When a client sends an HTTP request to the CampusOS API, it traverses a strict 4-layer architecture:
+When a client sends an HTTP request to the CampusLit API, it traverses a strict 4-layer architecture:
 
 ```
 [ Frontend Client (React) ]

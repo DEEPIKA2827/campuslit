@@ -1,7 +1,7 @@
 /**
  * scripts/validate-resources.ts
  *
- * CampusOS Resource Health Validator
+ * CampusLit Resource Health Validator
  * Deep-scans resource links from the resource engine catalog.
  * Handles HTTP status, redirects, SSL errors, and YouTube HTML inspection
  * (detects "The playlist does not exist" and "undefined - YouTube").
@@ -108,7 +108,7 @@ async function validateUrl(url: string): Promise<{
 
 async function main() {
   console.log("==================================================");
-  console.log("CAMPUSOS RESOURCE LINK INTEGRITY AUDIT");
+  console.log("CAMPUSLIT RESOURCE LINK INTEGRITY AUDIT");
   console.log("==================================================");
 
   // Extract unique resources

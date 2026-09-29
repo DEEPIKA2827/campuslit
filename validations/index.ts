@@ -1,6 +1,6 @@
 /**
  * @file validations/index.ts
- * @description Central barrel export for all CampusOS Domain Validation Suites.
+ * @description Central barrel export for all CampusLit Domain Validation Suites.
  * @purpose Provides unified, typed access to request sanitizers and boundary validators.
  */
 

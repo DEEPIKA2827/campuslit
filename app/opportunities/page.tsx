@@ -1,6 +1,6 @@
 /**
  * @file app/opportunities/page.tsx
- * @description Opportunities & Hackathons Radar for CampusOS.
+ * @description Opportunities & Hackathons Radar for CampusLit.
  * @purpose Discovers internships, hackathons, and placement drives; connects to /api/opportunities and application tracking.
  */
 
@@ -601,7 +601,7 @@ export default function OpportunitiesPage() {
                   <span className="text-[10px] text-gray-400 block">Skills: React, Tailwind, Python Backend</span>
                 </div>
                 <button
-                  onClick={() => alert("Invite sent to Aditya via CampusOS Network!")}
+                  onClick={() => alert("Invite sent to Aditya via CampusLit Network!")}
                   className="px-3 py-1 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-bold text-white transition cursor-pointer"
                 >
                   Invite
@@ -614,7 +614,7 @@ export default function OpportunitiesPage() {
                   <span className="text-[10px] text-gray-400 block">Skills: PyTorch, OpenCV, Flask</span>
                 </div>
                 <button
-                  onClick={() => alert("Invite sent to Shreya via CampusOS Network!")}
+                  onClick={() => alert("Invite sent to Shreya via CampusLit Network!")}
                   className="px-3 py-1 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-bold text-white transition cursor-pointer"
                 >
                   Invite

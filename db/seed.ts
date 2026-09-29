@@ -1,6 +1,6 @@
 /**
  * @file db/seed.ts
- * @description Master Seed Script for CampusOS.
+ * @description Master Seed Script for CampusLit.
  * @purpose Populates the database with realistic, authentic catalog data across all 21 tables using the Ingestion Engine.
  * @order Strictly respects topological dependency order (Level 0 through Level 4).
  */
@@ -18,7 +18,7 @@ export async function runSeed(): Promise<void> {
     );
   }
 
-  Logger.info("Starting CampusOS Master Seed Pipeline across 21 tables via CatalogIngestionEngine...");
+  Logger.info("Starting CampusLit Master Seed Pipeline across 21 tables via CatalogIngestionEngine...");
 
   try {
     // =========================================================================
@@ -31,27 +31,27 @@ export async function runSeed(): Promise<void> {
       .insert(schema.users)
       .values([
         {
-          email: "admin@campusos.demo",
+          email: "admin@campuslit.demo",
           passwordHash: "$2a$12$demo_admin_hash_for_testing_purposes_only",
           role: "admin",
         },
         {
-          email: "faculty.sharma@campusos.demo",
+          email: "faculty.sharma@campuslit.demo",
           passwordHash: "$2a$12$demo_faculty_hash_for_testing_purposes_only",
           role: "faculty",
         },
         {
-          email: "test.primary@campusos.internal",
+          email: "test.primary@campuslit.internal",
           passwordHash: "$2a$12$demo_student_hash_for_testing_purposes_only",
           role: "student",
         },
         {
-          email: "student.ananya@campusos.demo",
+          email: "student.ananya@campuslit.demo",
           passwordHash: "$2a$12$demo_student_hash_for_testing_purposes_only",
           role: "student",
         },
         {
-          email: "student.vikram@campusos.demo",
+          email: "student.vikram@campuslit.demo",
           passwordHash: "$2a$12$demo_student_hash_for_testing_purposes_only",
           role: "student",
         },
@@ -510,7 +510,7 @@ export async function runSeed(): Promise<void> {
         .onConflictDoNothing();
     }
 
-    Logger.info("✅ CampusOS Master Seed Pipeline completed successfully across all 21 tables!");
+    Logger.info("✅ CampusLit Master Seed Pipeline completed successfully across all 21 tables!");
   } catch (error) {
     Logger.error("Failed during Master Seed Pipeline execution", error);
     throw error;

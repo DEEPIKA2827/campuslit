@@ -1,5 +1,5 @@
 1️⃣ Vision
-CampusOS
+CampusLit
 
 The Operating System for Karnataka Engineering Students.
 
@@ -15,7 +15,7 @@ Reddit,
 LinkedIn,
 and seniors.
 
-CampusOS gives one personalized roadmap.
+CampusLit gives one personalized roadmap.
 
 2️⃣ User Journey
 

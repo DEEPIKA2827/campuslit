@@ -1,6 +1,6 @@
 /**
  * @file repositories/index.ts
- * @description Central Barrel Export for all 8 CampusOS Domain Repositories.
+ * @description Central Barrel Export for all 8 CampusLit Domain Repositories.
  * @purpose Provides unified access point for the Data Access Layer (DAL).
  */
 

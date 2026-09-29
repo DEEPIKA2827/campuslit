@@ -1,7 +1,7 @@
-# 🧭 CampusOS — OS Brand Nomenclature & Product Architecture
+# 🧭 CampusLit — OS Brand Nomenclature & Product Architecture
 
 **Role:** Senior Product Manager  
-**Product:** CampusOS — *The Operating System for Karnataka Engineering Students*  
+**Product:** CampusLit — *The Operating System for Karnataka Engineering Students*  
 **Brand Philosophy:** **Operating System Nomenclature** (Mission-Oriented, High-Signal, Zero SaaS Generic Terms)  
 
 ---
@@ -27,7 +27,7 @@ We replace generic SaaS page titles (`"Dashboard"`, `"Resources"`, `"Profile"`) 
 ## 2. Navigation Architecture Map
 
 ```
-CampusOS Operating Layer
+CampusLit Operating Layer
 │
 ├── 🏠 1. Mission Control (Today's Focus & Velocity)
 ├── 🧭 2. Navigator (Semester Milestone Tree)

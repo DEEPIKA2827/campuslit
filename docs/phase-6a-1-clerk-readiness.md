@@ -9,10 +9,10 @@
 
 ## 1. Executive Summary
 
-This design review establishes the **formal identity-linking contract, security threat model, database compatibility bounds, and zero-data-loss migration strategy** for transitioning CampusOS from its interim custom cryptographic authentication engine to **Clerk Managed Identity**.
+This design review establishes the **formal identity-linking contract, security threat model, database compatibility bounds, and zero-data-loss migration strategy** for transitioning CampusLit from its interim custom cryptographic authentication engine to **Clerk Managed Identity**.
 
 ### Core Architecture Invariant
-> **The CampusOS internal identity `users.userId` (`bigint` mode: `number`) MUST remain the stable, immutable surrogate primary key across all 9 relational application domains.** Under no circumstances will `users.userId` be converted to a string or replaced by Clerk's `user_id`. Clerk's external user identifier (`user_...`) will act strictly as an authentication handle mapped to the internal `userId`.
+> **The CampusLit internal identity `users.userId` (`bigint` mode: `number`) MUST remain the stable, immutable surrogate primary key across all 9 relational application domains.** Under no circumstances will `users.userId` be converted to a string or replaced by Clerk's `user_id`. Clerk's external user identifier (`user_...`) will act strictly as an authentication handle mapped to the internal `userId`.
 
 ---
 
@@ -33,7 +33,7 @@ This design review establishes the **formal identity-linking contract, security 
 
 ## 3. Internal Identity Dependency Map (`users.userId`)
 
-Every user-dependent entity in CampusOS references `users.userId` as a **PostgreSQL integer auto-increment identity (`bigint`, mode: `number`)**:
+Every user-dependent entity in CampusLit references `users.userId` as a **PostgreSQL integer auto-increment identity (`bigint`, mode: `number`)**:
 
 ```
 users (PK: user_id [bigint identity / number])
@@ -59,23 +59,23 @@ users (PK: user_id [bigint identity / number])
 
 ## 4. Clerk Identity-Linking Threat Model
 
-The following decision matrix governs every edge case when resolving a Clerk external user ID (`clerk_...`) to a CampusOS internal `userId`:
+The following decision matrix governs every edge case when resolving a Clerk external user ID (`clerk_...`) to a CampusLit internal `userId`:
 
 | Case | Scenario Description | Action | Security Rationale & Enforcement |
 | :--- | :--- | :---: | :--- |
 | **A** | **Brand-New Clerk User** (No matching `clerk_id` or `email` in PostgreSQL) | **ALLOW** | Create row in `users` (`clerk_id: sub`, `email: primaryEmail`, `role: 'student'`) + default `student_settings`. Assigns new `user_id`. |
-| **B** | **Existing CampusOS User Signing In via Clerk** (Matches unlinked `email` in DB) | **ALLOW (CONDITIONAL)** | **Allow ONLY if Clerk email status is `verified`.** Atomically updates `users.clerk_id = sub` where `users.email = normalized(email)`. |
-| **C** | **Existing CampusOS User with Different Clerk Email** | **DENY** | Prevents arbitrary account hijacking. New user record is created under the new email; legacy account remains separate. |
-| **D** | **Existing CampusOS User with Matching Verified Clerk Email** | **ALLOW** | Normal identity linking path. Existing attendance, marks, bookmarks, and profile remain completely attached to existing `user_id`. |
+| **B** | **Existing CampusLit User Signing In via Clerk** (Matches unlinked `email` in DB) | **ALLOW (CONDITIONAL)** | **Allow ONLY if Clerk email status is `verified`.** Atomically updates `users.clerk_id = sub` where `users.email = normalized(email)`. |
+| **C** | **Existing CampusLit User with Different Clerk Email** | **DENY** | Prevents arbitrary account hijacking. New user record is created under the new email; legacy account remains separate. |
+| **D** | **Existing CampusLit User with Matching Verified Clerk Email** | **ALLOW** | Normal identity linking path. Existing attendance, marks, bookmarks, and profile remain completely attached to existing `user_id`. |
 | **E** | **Conflicting Identity Information** (Clerk email matches User A, but metadata claims User B) | **DENY** | Primary verified email in Clerk is the sole canonical identity link. Metadata is ignored for security. |
-| **F** | **Clerk Account Already Linked to Another CampusOS User** | **DENY** | Unique constraint on `users.clerk_id` prevents duplicate links. Returns `409 Conflict`. |
-| **G** | **CampusOS User Attempts to Claim Another User's Account** | **DENY** | Rejected. Linking requires authenticated Clerk ownership of the exact verified primary email. |
+| **F** | **Clerk Account Already Linked to Another CampusLit User** | **DENY** | Unique constraint on `users.clerk_id` prevents duplicate links. Returns `409 Conflict`. |
+| **G** | **CampusLit User Attempts to Claim Another User's Account** | **DENY** | Rejected. Linking requires authenticated Clerk ownership of the exact verified primary email. |
 | **H** | **Concurrent First-Login Requests** | **ALLOW (IDEMPOTENT)** | Handled via PostgreSQL `ON CONFLICT (email) DO UPDATE SET clerk_id = EXCLUDED.clerk_id WHERE users.clerk_id IS NULL`. |
 | **I** | **Webhook Arrives Before/After First Request** | **ALLOW (IDEMPOTENT)** | Both webhook (`user.created`) and request-time JIT provisioning use idempotent upsert logic. |
 | **J** | **Clerk Account Deleted** | **ALLOW** | Webhook (`user.deleted`) cascades deletion of PostgreSQL user and all 9 child tables via `onDelete: "cascade"`. |
-| **K** | **CampusOS Account Deleted Locally** | **ALLOW** | Cascades child records in DB. Session token immediately returns `401 Unauthorized`. |
+| **K** | **CampusLit Account Deleted Locally** | **ALLOW** | Cascades child records in DB. Session token immediately returns `401 Unauthorized`. |
 | **L** | **Email Address Changed in Clerk** | **ALLOW (VERIFIED)** | Webhook (`user.updated`) updates `users.email` only after Clerk marks the new email as `verified`. |
-| **M** | **Suspended/Banned Clerk Account** | **DENY** | Clerk authentication fails at the edge before reaching CampusOS API handlers. |
+| **M** | **Suspended/Banned Clerk Account** | **DENY** | Clerk authentication fails at the edge before reaching CampusLit API handlers. |
 | **N** | **Clerk API Outage** | **DENY** | Fails closed for security. Returns HTTP `503 Service Unavailable` or gracefully displays cached public data. |
 | **O** | **Legacy Session Remains Active During Migration** | **ALLOW** | Auth adapter validates legacy HMAC token during dual-auth window; prompts user to link Clerk on next interactive visit. |
 
@@ -84,7 +84,7 @@ The following decision matrix governs every edge case when resolving a Clerk ext
 ## 5. Email Matching Security Review
 
 ### Account Takeover Prevention
-Matching `Clerk.email == CampusOS.email` presents a critical account takeover vector if an unverified email is accepted.
+Matching `Clerk.email == CampusLit.email` presents a critical account takeover vector if an unverified email is accepted.
 
 ### Mandatory Verification Rules:
 1. **Strict Verification Check**: Account linking is **STRICTLY PROHIBITED** if `email_addresses[0].verification.status !== "verified"`.

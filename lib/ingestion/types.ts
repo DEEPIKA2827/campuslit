@@ -1,6 +1,6 @@
 /**
  * @file lib/ingestion/types.ts
- * @description Data contracts and types for CampusOS Catalog Ingestion Engine.
+ * @description Data contracts and types for CampusLit Catalog Ingestion Engine.
  * @purpose Defines strict provenance, verification tiers, and normalized entity shapes for discovery datasets.
  */
 

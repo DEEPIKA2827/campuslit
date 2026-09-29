@@ -1,7 +1,7 @@
 -- ============================================================================
--- Migration: 001_campusos_schema.sql
--- Description: Canonical 21-Table Relational Schema for CampusOS
--- Specification: Strictly matches docs/CampusOS_Corrected_Database_Schema.pdf
+-- Migration: 001_campuslit_schema.sql
+-- Description: Canonical 21-Table Relational Schema for CampusLit
+-- Specification: Strictly matches docs/CampusLit_Corrected_Database_Schema.pdf
 -- Engine: PostgreSQL 15+ / Supabase
 -- Dependency Order: Sequential (Level 0 through Level 4)
 -- ============================================================================

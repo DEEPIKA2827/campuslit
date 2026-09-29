@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the **CampusOS** project will be documented in this file.
+All notable changes to the **CampusLit** project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Hero section featuring gradient typography, responsive badges, and social proof counters (`2,400+ Students`, `48+ Colleges`).
   - Interactive OS Window Mockup simulating a Mac window container with live tab switching (`Academic Command`, `CIE & Attendance Radar`, `Senior Playbooks`, `Skill Path`).
   - Live CIE & Attendance Risk Simulator widget with real-time sliders computing safe bunk allowances and required IA test scores.
-  - Student Journey Arc and WhatsApp Chaos vs. CampusOS comparison matrix.
+  - Student Journey Arc and WhatsApp Chaos vs. CampusLit comparison matrix.
   - Collapsible FAQ accordion widget.
   - Student Early Access Waitlist registration form with college and branch selection.
   - Sticky glassmorphic navigation header and responsive footer.

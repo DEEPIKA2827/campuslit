@@ -32,7 +32,7 @@ It exists to:
 * **What happens if it is removed**: The `metadata` object declaration will throw a TypeScript compilation error (`Cannot find name 'Metadata'`).
 
 ### `import "./globals.css";` (Line 2)
-* **What it is**: Side-effect CSS import loading the primary stylesheet ([`app/globals.css`](file:///C:/Projects/campusos/app/globals.css)).
+* **What it is**: Side-effect CSS import loading the primary stylesheet ([`app/globals.css`](file:///C:/Projects/campuslit/app/globals.css)).
 * **Why it is used**: Injects Tailwind CSS v4, custom glassmorphism utilities, CSS design tokens (`:root`), and global element resets into every page.
 * **What happens if it is removed**: All styling across the application breaks, reverting all pages to unstyled browser-default HTML text and layout.
 
@@ -61,10 +61,10 @@ It exists to:
 * **How it works**: Next.js evaluates this object on the server and generates HTML `<head>` tags.
 * **Alternative approaches**: Legacy Next.js `pages/_app.tsx` used `<Head>` components from `next/head`.
 
-### Line 5: `  title: "CampusOS | Student operating system for engineering",`
-* **What it does**: Sets the browser tab title to `"CampusOS | Student operating system for engineering"`.
+### Line 5: `  title: "CampusLit | Student operating system for engineering",`
+* **What it does**: Sets the browser tab title to `"CampusLit | Student operating system for engineering"`.
 * **Why it exists**: Identifies the site in browser tabs and search engine result titles (SERPs).
-* **How it works**: Rendered as `<title>CampusOS | Student operating system for engineering</title>`.
+* **How it works**: Rendered as `<title>CampusLit | Student operating system for engineering</title>`.
 
 ### Line 6: `  description:`
 * **What it does**: Begins multi-line string property key for metadata description.

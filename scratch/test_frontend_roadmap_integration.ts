@@ -39,7 +39,7 @@ async function createTestStudent(
 ) {
   const timestamp = Date.now();
   const randomSuffix = Math.floor(Math.random() * 10000);
-  const email = `fe_test_${emailPrefix}_${timestamp}_${randomSuffix}@campusos.test`;
+  const email = `fe_test_${emailPrefix}_${timestamp}_${randomSuffix}@campuslit.test`;
 
   const [user] = await database
     .insert(schema.users)
@@ -69,7 +69,7 @@ async function createTestStudent(
 
 async function runIntegrationTests() {
   console.log("===============================================================================");
-  console.log("       CAMPUSOS FRONTEND ROADMAP INTEGRATION CONTRACT VERIFICATION           ");
+  console.log("       CAMPUSLIT FRONTEND ROADMAP INTEGRATION CONTRACT VERIFICATION           ");
   console.log("===============================================================================\n");
 
   try {

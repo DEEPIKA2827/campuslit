@@ -1,7 +1,7 @@
-# 📊 CampusOS — Senior Product Manager Review & Product Critique
+# 📊 CampusLit — Senior Product Manager Review & Product Critique
 
 **Reviewer:** Senior Product Manager (Startup & Growth Lead)  
-**Product:** CampusOS — *The Operating System for Karnataka Engineering Students*  
+**Product:** CampusLit — *The Operating System for Karnataka Engineering Students*  
 **Evaluation Scope:** User Journey, Feature Pruning, Page Merges, Startup Review Objections, 12-Week Solo MVP Feasibility  
 
 ---
@@ -63,8 +63,8 @@ BEFORE (10 Pages — Fragmented)               AFTER (5 Core OS Hubs — High Si
 If you presented this 10-page product architecture to a YC or Senior Startup Design Panel, here is what we would criticize:
 
 1. **"The Cold Start Data Trap"**: Who generates 100+ verified notes, PYQs, and senior viva playbooks across 48 Karnataka colleges before launch? If a student from NIE Mysore logs in and sees empty notes for BMAT101, they churn forever.
-2. **"Feature Creep over Product Sharpness"**: Notion succeeded with 1 page type (Blocks). Linear succeeded with 1 object (Issues). Duolingo succeeded with 1 interaction (Lessons). CampusOS is trying to be Notion + GitHub + Duolingo + LinkedIn + Coursera all at once.
-3. **"Lack of Clear Daily Habit Retention Engine"**: Outside of checking attendance, why would a student open CampusOS on a random Tuesday in Week 4? You need automated push notifications linked to college IA exam schedules.
+2. **"Feature Creep over Product Sharpness"**: Notion succeeded with 1 page type (Blocks). Linear succeeded with 1 object (Issues). Duolingo succeeded with 1 interaction (Lessons). CampusLit is trying to be Notion + GitHub + Duolingo + LinkedIn + Coursera all at once.
+3. **"Lack of Clear Daily Habit Retention Engine"**: Outside of checking attendance, why would a student open CampusLit on a random Tuesday in Week 4? You need automated push notifications linked to college IA exam schedules.
 
 ---
 

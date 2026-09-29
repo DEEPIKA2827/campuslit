@@ -1,8 +1,8 @@
-# 🚀 CampusOS — Mission Control UX Specification
+# 🚀 CampusLit — Mission Control UX Specification
 
 **Designed by:** Head of Product  
 **Target Screen:** Mission Control (`/dashboard` → **Mission Control**)  
-**Target Persona:** Engineering Student opening CampusOS at any time of day  
+**Target Persona:** Engineering Student opening CampusLit at any time of day  
 **Product Philosophy:** **Dopamine-Driven Single Action** (Duolingo / Gaming Quest) + **Notion** (Calm Slate) + **Linear** (Precision Focus)  
 
 ---
@@ -11,7 +11,7 @@
 
 > *"A dashboard shows data. Mission Control commands action."*
 
-When Deepika opens CampusOS at 8:00 AM or 8:00 PM, she shouldn't see a clutter of analytical cards. She should see **one singular, high-dopamine mission** that makes starting impossible to resist.
+When Deepika opens CampusLit at 8:00 AM or 8:00 PM, she shouldn't see a clutter of analytical cards. She should see **one singular, high-dopamine mission** that makes starting impossible to resist.
 
 ```
 ┌────────────────────────────────────────────────────────┐

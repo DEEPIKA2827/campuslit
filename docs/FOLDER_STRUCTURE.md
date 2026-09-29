@@ -1,15 +1,15 @@
-# Recommended Folder Structure: CampusOS
+# Recommended Folder Structure: CampusLit
 
 ## Current vs. Production Target Structure
 
-To ensure CampusOS scales smoothly as backend integration and team size grow, the codebase follows a modular, feature-oriented production structure.
+To ensure CampusLit scales smoothly as backend integration and team size grow, the codebase follows a modular, feature-oriented production structure.
 
 ---
 
 ## Directory Organization
 
 ```
-campusos/
+campuslit/
 │
 ├── app/                          # Next.js App Router Pages & Layouts
 │   ├── ai-mentor/                # AI Academic Mentor Module

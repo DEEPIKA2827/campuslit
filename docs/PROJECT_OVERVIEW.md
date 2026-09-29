@@ -1,10 +1,10 @@
-# Project Overview: CampusOS
+# Project Overview: CampusLit
 
 ## Executive Summary
 
-**CampusOS** is a dedicated student operating system and digital workspace built for first-year engineering students across VTU-affiliated and autonomous colleges in Karnataka.
+**CampusLit** is a dedicated student operating system and digital workspace built for first-year engineering students across VTU-affiliated and autonomous colleges in Karnataka.
 
-Modern engineering education in Karnataka suffers from extreme information fragmentation. Students rely on over 40 unorganized WhatsApp and Telegram chat groups, lost PDFs, and word-of-mouth senior advice. CampusOS replaces this chaos with a unified, zero-noise dashboard that aggregates syllabus modules, predictive CIE and attendance calculators, verified senior playbooks, and day-one career skill roadmaps.
+Modern engineering education in Karnataka suffers from extreme information fragmentation. Students rely on over 40 unorganized WhatsApp and Telegram chat groups, lost PDFs, and word-of-mouth senior advice. CampusLit replaces this chaos with a unified, zero-noise dashboard that aggregates syllabus modules, predictive CIE and attendance calculators, verified senior playbooks, and day-one career skill roadmaps.
 
 ---
 

@@ -12,7 +12,7 @@ import { roadmapService } from "../services/roadmap.service";
 
 async function runMilestone7Tests() {
   console.log("===============================================================================");
-  console.log("       CAMPUSOS MILESTONE #7: ACTION RADAR PERSONALIZATION TEST SUITE          ");
+  console.log("       CAMPUSLIT MILESTONE #7: ACTION RADAR PERSONALIZATION TEST SUITE          ");
   console.log("===============================================================================\n");
 
   const database = db!;

@@ -1,6 +1,6 @@
 /**
  * @file scripts/migrate_and_seed_canonical_roadmaps.js
- * @description Transactional data migration & 69-node curriculum seeding for CampusOS.
+ * @description Transactional data migration & 69-node curriculum seeding for CampusLit.
  * Performs:
  *  1. Verification of pre-migration state.
  *  2. Explicit mapping of duplicate roadmaps and nodes based on content.
@@ -15,7 +15,7 @@
  * 11. Comprehensive post-migration integrity assertions (rolls back on any mismatch).
  */
 
-const postgres = require('c:/Projects/campusos/node_modules/postgres');
+const postgres = require('c:/Projects/campuslit/node_modules/postgres');
 const fs = require('fs');
 
 const envContent = fs.readFileSync('.env.local', 'utf-8');
@@ -813,7 +813,7 @@ const CURRICULUM = {
 // ============================================================================
 
 async function migrateAndSeed() {
-  console.log('Starting CampusOS Canonical Roadmap Data Migration & Seeding...\n');
+  console.log('Starting CampusLit Canonical Roadmap Data Migration & Seeding...\n');
 
   try {
     await sql.begin(async (tx) => {

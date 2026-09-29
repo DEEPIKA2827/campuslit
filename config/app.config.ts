@@ -6,7 +6,7 @@
  */
 
 export const APP_CONFIG = {
-  name: "CampusOS API",
+  name: "CampusLit API",
   version: "1.0.0",
   environment: process.env.NODE_ENV || "development",
   apiPrefix: "/api",

@@ -1,6 +1,6 @@
 /**
  * @file app/api/academics/resources/route.ts
- * @description Academic Resource Vault API for CampusOS.
+ * @description Academic Resource Vault API for CampusLit.
  * @purpose Serves hierarchical subject notes, model papers, lab manuals, and video resources with canonical source attribution.
  * @security Public / Authenticated guest resilience.
  */

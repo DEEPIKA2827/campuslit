@@ -1,6 +1,6 @@
 /**
  * @file app/page.tsx
- * @description CampusOS Mission Control & Interactive Student Operating System.
+ * @description CampusLit Mission Control & Interactive Student Operating System.
  * @purpose Serves as both the landing page for prospective students and interactive Mission Control for authenticated users.
  * @features Live attendance radar, 75% Bunk Defense calculator, CIE marks, syllabus tracker, senior playbooks, and quick attendance logging.
  */
@@ -231,16 +231,16 @@ const journeySteps = [
 
 const faqs = [
   {
-    q: "Is CampusOS tailored for both VTU affiliated and Autonomous colleges?",
-    a: "Yes! CampusOS supports VTU 2022 and 2025 schemes as well as autonomous college credit structures (e.g. RVCE, PES, BMSCE, MSRIT). You can customize your syllabus, CIE rules, and grading scale during setup.",
+    q: "Is CampusLit tailored for both VTU affiliated and Autonomous colleges?",
+    a: "Yes! CampusLit supports VTU 2022 and 2025 schemes as well as autonomous college credit structures (e.g. RVCE, PES, BMSCE, MSRIT). You can customize your syllabus, CIE rules, and grading scale during setup.",
   },
   {
-    q: "How does CampusOS solve the WhatsApp & Telegram information clutter?",
-    a: "Instead of searching through 400+ forwarded WhatsApp messages, CampusOS aggregates verified notices, lab records, notes, and exam schedules into clean, searchable cards organized by subject and semester.",
+    q: "How does CampusLit solve the WhatsApp & Telegram information clutter?",
+    a: "Instead of searching through 400+ forwarded WhatsApp messages, CampusLit aggregates verified notices, lab records, notes, and exam schedules into clean, searchable cards organized by subject and semester.",
   },
   {
-    q: "Is CampusOS free for engineering students?",
-    a: "Yes, the core CampusOS workspace (Syllabus Engine, CIE Tracker, Attendance Radar, and Basic Senior Playbooks) is free for students across semesters 1–8 throughout their engineering journey.",
+    q: "Is CampusLit free for engineering students?",
+    a: "Yes, the core CampusLit workspace (Syllabus Engine, CIE Tracker, Attendance Radar, and Basic Senior Playbooks) is free for students across semesters 1–8 throughout their engineering journey.",
   },
   {
     q: "How do Senior Playbooks work?",
@@ -661,7 +661,7 @@ export default function Home() {
               Designed like Linear. Focused like Notion.
             </h2>
             <p className="mt-2 text-sm text-gray-400 max-w-xl mx-auto">
-              Click through the tabs below to test how CampusOS organizes academics, attendance, viva playbooks, and tech skills.
+              Click through the tabs below to test how CampusLit organizes academics, attendance, viva playbooks, and tech skills.
             </p>
 
             {/* Interactive Tab Controls */}
@@ -795,12 +795,12 @@ export default function Home() {
                 <span className="size-3 rounded-full bg-emerald-500/80 inline-block" />
                 <span className="ml-3 text-xs font-mono text-gray-400 flex items-center gap-2">
                   <Terminal className="size-3 text-purple-400" />
-                  CampusOS v1.0.4 — [{profile?.semester ? `Semester ${profile.semester} Engineering Workspace` : "Engineering Workspace"}]
+                  CampusLit v1.0.4 — [{profile?.semester ? `Semester ${profile.semester} Engineering Workspace` : "Engineering Workspace"}]
                 </span>
               </div>
               <div className="hidden sm:flex items-center gap-3 text-xs text-gray-400">
                 <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2.5 py-1 rounded-full font-medium">
-                  Start your CampusOS journey 🔥
+                  Start your CampusLit journey 🔥
                 </span>
                 {hasAttendanceRecords ? (
                   <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/20 font-medium">
@@ -1933,7 +1933,7 @@ export default function Home() {
                 Try the VTU CIE & Attendance Risk Simulator.
               </h2>
               <p className="text-base text-gray-300 leading-relaxed">
-                Test how CampusOS predicts your exam eligibility and calculates exact bunk allowances before your college posts detention notices.
+                Test how CampusLit predicts your exam eligibility and calculates exact bunk allowances before your college posts detention notices.
               </p>
 
               <div className="space-y-4 pt-2">
@@ -2050,7 +2050,7 @@ export default function Home() {
               From confused fresher to intentional engineer.
             </h2>
             <p className="mt-4 text-base text-gray-400">
-              CampusOS guides you through every milestone from day one of college until placement season.
+              CampusLit guides you through every milestone from day one of college until placement season.
             </p>
           </div>
 
@@ -2103,7 +2103,7 @@ export default function Home() {
               </p>
 
               <div className="space-y-3 pt-2">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Key CampusOS Deliverables</h4>
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Key CampusLit Deliverables</h4>
                 {journeySteps[activeJourney].details.map((detail, dIdx) => (
                   <div key={dIdx} className="flex items-center gap-3 rounded-xl border border-white/5 bg-black/30 p-3 text-sm text-gray-200">
                     <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
@@ -2114,10 +2114,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* CHAOS VS CAMPUSOS MATRIX */}
+          {/* CHAOS VS CAMPUSLIT MATRIX */}
           <div className="mt-20 rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8 backdrop-blur-xl">
             <h3 className="text-xl font-bold text-white text-center mb-8">
-              Why Students Switch from WhatsApp Groups to CampusOS
+              Why Students Switch from WhatsApp Groups to CampusLit
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2147,11 +2147,11 @@ export default function Home() {
                 </ul>
               </div>
 
-              {/* CampusOS Way Box */}
+              {/* CampusLit Way Box */}
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5 space-y-4">
                 <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
                   <CheckCircle2 className="size-5" />
-                  <span>The CampusOS Way</span>
+                  <span>The CampusLit Way</span>
                 </div>
                 <ul className="space-y-2.5 text-xs sm:text-sm text-gray-300">
                   <li className="flex items-start gap-2">
@@ -2177,19 +2177,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* WHY CAMPUSOS SECTION */}
+      {/* WHY CAMPUSLIT SECTION */}
       <section id="why" className="py-24 relative z-10 border-t border-white/10 bg-gradient-to-b from-[#08090e] to-[#0f111d]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-6">
               <span className="text-xs font-bold uppercase tracking-widest text-purple-400">
-                Why CampusOS Exists
+                Why CampusLit Exists
               </span>
               <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl leading-tight">
                 Students do not need more information. They need a system.
               </h2>
               <p className="text-base text-gray-300 leading-relaxed">
-                Engineering in Karnataka is fast-paced. Between IA tests, lab submissions, attendance cutoffs, and skill building, students waste hundreds of hours filtering noise. CampusOS brings clarity so you can focus on building your future.
+                Engineering in Karnataka is fast-paced. Between IA tests, lab submissions, attendance cutoffs, and skill building, students waste hundreds of hours filtering noise. CampusLit brings clarity so you can focus on building your future.
               </p>
 
               <div className="grid grid-cols-2 gap-4 pt-2">
@@ -2251,7 +2251,7 @@ export default function Home() {
             </span>
 
             <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl leading-tight">
-              Get your CampusOS early access pass.
+              Get your CampusLit early access pass.
             </h2>
             <p className="mt-4 text-base text-gray-300 max-w-2xl mx-auto">
               Built for Engineering Students — from First Semester to Placements. Reserve your spot for your branch and college workspace release.
@@ -2341,7 +2341,7 @@ export default function Home() {
             <div className="flex size-7 items-center justify-center rounded-lg bg-purple-600 font-bold text-white text-xs">
               CO
             </div>
-            <span className="font-bold text-white text-sm">CampusOS</span>
+            <span className="font-bold text-white text-sm">CampusLit</span>
             <span className="text-gray-500">| The Student OS for Karnataka Engineering</span>
           </div>
 
@@ -2359,7 +2359,7 @@ export default function Home() {
         </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8 border-t border-white/5 pt-6 text-center text-gray-500">
-          © {new Date().getFullYear()} CampusOS Technologies. Built specifically for VTU & Autonomous engineering students across Karnataka.
+          © {new Date().getFullYear()} CampusLit Technologies. Built specifically for VTU & Autonomous engineering students across Karnataka.
         </div>
       </footer>
     </main>

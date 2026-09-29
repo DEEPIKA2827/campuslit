@@ -1,7 +1,7 @@
-# 📄 CampusOS — Executive Product Draft & Review Guide
+# 📄 CampusLit — Executive Product Draft & Review Guide
 
 **Document Target:** Senior Mentor / Investor / Advisory Review  
-**Project Name:** CampusOS — *The Operating System for Engineering Students*  
+**Project Name:** CampusLit — *The Operating System for Engineering Students*  
 **Target Audience:** First-Year Engineering Students in Karnataka (VTU & Autonomous Colleges)  
 **Live Prototype URL:** [http://localhost:3000](http://localhost:3000)  
 
@@ -11,7 +11,7 @@
 
 Every year, over 100,000 students join engineering colleges across Karnataka (RVCE, BMSCE, PES, MSRIT, KLS GIT, NIE, VTU main campus, etc.). From Day 1, they face immense information chaos: essential notes, exam dates, and lab record formats are buried across **40+ unorganized WhatsApp groups**, Telegram channels, and confusing college portals.
 
-**CampusOS** replaces this chaos with a single, calm operating system. It gives every student a personalized, semester-by-semester roadmap, an automated **75% VTU attendance & exam risk calculator**, verified senior lab viva playbooks, and an opportunity radar for hackathons and scholarships.
+**CampusLit** replaces this chaos with a single, calm operating system. It gives every student a personalized, semester-by-semester roadmap, an automated **75% VTU attendance & exam risk calculator**, verified senior lab viva playbooks, and an opportunity radar for hackathons and scholarships.
 
 ---
 
@@ -23,7 +23,7 @@ Every year, over 100,000 students join engineering colleges across Karnataka (RV
 3. **CIE Exam Uncertainty:** Internal Assessment (IA) marks are calculated on loose sheets without clear targets for distinction or pass scores.
 4. **Senior Guidance Vacuum:** First-year freshers struggle to get reliable advice on lab viva questions and coding roadmaps.
 
-### ✅ The CampusOS Solution
+### ✅ The CampusLit Solution
 1. **Single Operating Command Center:** Replaces 40+ chat groups with 1 calm workspace.
 2. **Predictive 75% Attendance Radar:** Tells students exactly how many safe class bunks they have left before hitting detention risk.
 3. **Verified Senior Playbooks:** Provides 100% vetted lab record cheat sheets and viva Q&As from top 3rd/4th-year students.
@@ -31,11 +31,11 @@ Every year, over 100,000 students join engineering colleges across Karnataka (RV
 
 ---
 
-## 3. The Complete User Journey (How a Student Uses CampusOS)
+## 3. The Complete User Journey (How a Student Uses CampusLit)
 
 ```
 [1. Landing Page] ────────► [2. 60s Freshers Onboarding] ────────► [3. Mission Control]
-Discovers CampusOS &        Answers 9 quick setup questions        Receives Today's Mission
+Discovers CampusLit &        Answers 9 quick setup questions        Receives Today's Mission
 tries live VTU calculator   (College, Branch, Sem, Goal)            & 75% Attendance Radar
                                                                            │
                                                                            ▼
@@ -51,7 +51,7 @@ derivations & C debugging   & finds college teammates              milestone roa
 Here is the complete walkthrough of the live prototype built so far:
 
 ### 🏠 Screen 1: The Landing Page (`http://localhost:3000/`)
-* **Purpose:** Introduces CampusOS with modern dark SaaS aesthetics (inspired by Linear & Vercel).
+* **Purpose:** Introduces CampusLit with modern dark SaaS aesthetics (inspired by Linear & Vercel).
 * **Key Features:**
   - **Hero Section:** High-contrast headline *"Stop Chasing Notes. Start Owning Your Engineering Degree."*
   - **Interactive Workspace Preview:** 4 clickable tabs showcasing Academics, Attendance, Seniors, and Skill Roadmaps.
@@ -119,7 +119,7 @@ Here is the complete walkthrough of the live prototype built so far:
 To demonstrate this live to your mentor:
 
 1. **Ensure the Dev Server is Running:**
-   Open a terminal in `c:\Projects\campusos` and run:
+   Open a terminal in `c:\Projects\campuslit` and run:
    ```bash
    npm run dev
    ```

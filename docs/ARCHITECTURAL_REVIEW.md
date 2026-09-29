@@ -1,7 +1,7 @@
-# CampusOS — Principal Software Architect Review & Scalability Assessment
+# CampusLit — Principal Software Architect Review & Scalability Assessment
 
 **Reviewer Role:** Principal Software Architect (Ex-Google / Microsoft Infrastructure Team)  
-**Target System:** CampusOS (Karnataka Student Operating System)  
+**Target System:** CampusLit (Karnataka Student Operating System)  
 **Target Scale:** 500,000+ Active Karnataka Engineering Students | 100M+ Monthly Attendance Writes  
 **Document Purpose:** Pre-Review Architectural Hardening & Scalability Audit  
 
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-The CampusOS v2.0 database architecture demonstrates **exceptional domain modeling and clean separation of concerns**. Separating identity (`users`), profile (`student_profiles`), and preferences (`student_settings`), alongside dedicated modules for Attendance, CIE, AI Mentor, and Scholarships, reflects a modern 3NF relational design.
+The CampusLit v2.0 database architecture demonstrates **exceptional domain modeling and clean separation of concerns**. Separating identity (`users`), profile (`student_profiles`), and preferences (`student_settings`), alongside dedicated modules for Attendance, CIE, AI Mentor, and Scholarships, reflects a modern 3NF relational design.
 
 However, to transition from a **well-designed prototype schema** to a **production-ready, Tier-1 Big Tech distributed SaaS architecture**, 5 critical architectural enhancements must be addressed before final senior engineering sign-off:
 
@@ -55,7 +55,7 @@ To support real-world student workflows across Karnataka, the schema requires 4 
 
 ## 3. High-Performance Indexing Strategy
 
-In a high-concurrency database, query performance depends entirely on indexing strategies. Below is the mandatory index matrix required for CampusOS:
+In a high-concurrency database, query performance depends entirely on indexing strategies. Below is the mandatory index matrix required for CampusLit:
 
 ### A. Composite B-Tree Indexes (Frequent Read Paths)
 1. **Attendance Log Lookup**:

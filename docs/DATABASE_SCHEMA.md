@@ -1,4 +1,4 @@
-# CampusOS — Production PostgreSQL Database Schema Specification (v3.0 — Senior Corrected)
+# CampusLit — Production PostgreSQL Database Schema Specification (v3.0 — Senior Corrected)
 
 ## Implementation Order (for PostgreSQL)
 1. USERS

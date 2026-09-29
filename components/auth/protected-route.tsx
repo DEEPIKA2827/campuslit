@@ -26,7 +26,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col items-center gap-3">
           <div className="size-10 rounded-full border-2 border-purple-500/30 border-t-purple-500 animate-spin" />
           <span className="text-xs font-semibold text-gray-400 tracking-wider uppercase">
-            Loading CampusOS...
+            Loading CampusLit...
           </span>
         </div>
       </div>

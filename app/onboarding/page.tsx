@@ -1,6 +1,6 @@
 /**
  * @file app/onboarding/page.tsx
- * @description 60-Second Freshers Onboarding Flow for CampusOS.
+ * @description 60-Second Freshers Onboarding Flow for CampusLit.
  * @purpose Collects student college, branch, semester, goals & preferences, and persists profile via /api/profile and /api/settings.
  */
 
@@ -554,7 +554,7 @@ function OnboardingContent() {
               {isSaving ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  <span>Saving Profile to CampusOS...</span>
+                  <span>Saving Profile to CampusLit...</span>
                 </>
               ) : (
                 <>
@@ -1026,7 +1026,7 @@ function OnboardingContent() {
 
       {/* FOOTER */}
       <footer className="relative z-10 border-t border-white/10 bg-[#06070a] py-3 text-center text-xs text-gray-500 px-4">
-        CampusOS 60s Freshers Onboarding • Duolingo Momentum + Notion Calm
+        CampusLit 60s Freshers Onboarding • Duolingo Momentum + Notion Calm
       </footer>
     </main>
   );

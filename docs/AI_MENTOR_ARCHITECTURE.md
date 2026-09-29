@@ -1,8 +1,8 @@
-# CampusOS AI Mentor — Architecture & Reliability Specification
+# CampusLit AI Mentor — Architecture & Reliability Specification
 
 ## 1. System Architecture Overview
 
-The CampusOS AI Mentor is an AI Senior Engineering Mentor designed to guide engineering students through curriculum challenges, viva preparation, study plans, placement preparation, and verified academic resource discovery. It maintains strict data isolation and authoritative data boundaries.
+The CampusLit AI Mentor is an AI Senior Engineering Mentor designed to guide engineering students through curriculum challenges, viva preparation, study plans, placement preparation, and verified academic resource discovery. It maintains strict data isolation and authoritative data boundaries.
 
 ```
                                   STUDENT CLIENT
@@ -65,7 +65,7 @@ The CampusOS AI Mentor is an AI Senior Engineering Mentor designed to guide engi
 
 ### Clean Provider Abstraction (`ILLMProvider`)
 
-CampusOS decouples all business mentoring logic from the concrete inference engine via the `ILLMProvider` interface in `services/llm-provider.service.ts`:
+CampusLit decouples all business mentoring logic from the concrete inference engine via the `ILLMProvider` interface in `services/llm-provider.service.ts`:
 
 ```typescript
 export interface ILLMProvider {
@@ -82,11 +82,11 @@ export interface ILLMProvider {
 - **Honest System Status**: The application truthfully communicates that the current AI Senior Mentor requires internet access to reach Gemini. No false "offline mode" is simulated.
 
 ### Future Provider Boundary: Local Ollama (`OllamaProviderAdapter`)
-CampusOS is designed so that local, privacy-first, offline inference can be introduced seamlessly in the future without modifying `MentorService`, database schemas, or chat UI components:
+CampusLit is designed so that local, privacy-first, offline inference can be introduced seamlessly in the future without modifying `MentorService`, database schemas, or chat UI components:
 
 ```
 [FUTURE OFFLINE PIPELINE]
-CampusOS Client
+CampusLit Client
     └── /api/chat/message
           └── MentorService
                 └── OllamaProviderAdapter (implements ILLMProvider)
@@ -113,9 +113,9 @@ To eliminate unnecessary database overhead, reduce prompt size by up to 80%, and
 | **A. GENERAL_KNOWLEDGE** | Free-form technical questions (*"What is a binary tree?"*, *"Explain normalization"*, *"What is TCP?"*, *"Explain pointers"*) | Minimal student context (Semester, Specialization, Programming Level) | Fast direct response. **No queries to attendance, CIE, Action Radar, roadmap, or RAG**. Standard 5-part structure (Answer, Explanation, Example, Key Points, Practice). |
 | **B. DOCUMENT_GROUNDED** | Uploaded document with Q&A query (*"Answer only from this PDF"*, *"Summarize this doc"*, *"Explain question 4"*) | Uploaded document text / multimodal inlineData | **Exclusive Source of Truth**. Strict missing-fact refusal: *"I couldn't find that information in the uploaded document."* Zero hallucination. |
 | **C. DOCUMENT_COMPARISON** | Multiple uploaded documents with comparison intent (*"Compare these"*, *"What's different?"*) | Both documents parsed and labeled as Source A and Source B | Structured comparison table (`\| Aspect \| Document A \| Document B \|`) followed by granular differences in topics, modules, requirements, and dates. |
-| **D. RESOURCE_RETRIEVAL** | Material/link inquiries (*"Give me DSA resources"*, *"Best DBMS resources"*, *"Where can I learn OS?"*) | Verified catalog items matching query scope | **Verified URLs Only**. Never invent URLs or YouTube links. Format: Name, Provider, Topic, Purpose, URL. Fallback: *"I couldn't find a verified CampusOS resource for that request."* |
+| **D. RESOURCE_RETRIEVAL** | Material/link inquiries (*"Give me DSA resources"*, *"Best DBMS resources"*, *"Where can I learn OS?"*) | Verified catalog items matching query scope | **Verified URLs Only**. Never invent URLs or YouTube links. Format: Name, Provider, Topic, Purpose, URL. Fallback: *"I couldn't find a verified CampusLit resource for that request."* |
 | **E. MULTIMODAL** | Image attachment (code screenshot, circuit diagram, math problem, syllabus photo) | Image base64 encoded as Gemini `inlineData` | Visual inspection and technical analysis. Truthful error if parsing fails. |
-| **F. PERSONALIZED_CAMPUSOS** / **MIXED** | Student-specific questions (*"What should I study this week?"*, *"Am I academically at risk?"*, *"My attendance"*, *"How to prepare for placements?"*) | Full authoritative student state: Profile, Course, Roadmap, Action Radar, Attendance (via `AttendanceService`), CIE marks | Authoritative domain data is canonical. Gemini explains the data; it **never invents or overwrites** attendance, marks, or mission goals. Study plan structure: Priority, Reason, Timeline, Action items. |
+| **F. PERSONALIZED_CAMPUSLIT** / **MIXED** | Student-specific questions (*"What should I study this week?"*, *"Am I academically at risk?"*, *"My attendance"*, *"How to prepare for placements?"*) | Full authoritative student state: Profile, Course, Roadmap, Action Radar, Attendance (via `AttendanceService`), CIE marks | Authoritative domain data is canonical. Gemini explains the data; it **never invents or overwrites** attendance, marks, or mission goals. Study plan structure: Priority, Reason, Timeline, Action items. |
 
 ---
 
@@ -138,7 +138,7 @@ Inspired by ambiguity detection in enterprise systems, the AI Senior Mentor iden
 
 ## 5. Document & Office Processing Engine
 
-CampusOS supports student-relevant academic files reliably without heavy native binaries:
+CampusLit supports student-relevant academic files reliably without heavy native binaries:
 
 | File Format | Processing Pipeline | Output & Feature Support |
 |---|---|---|

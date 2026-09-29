@@ -1,8 +1,8 @@
-# UI Design System Specification: CampusOS
+# UI Design System Specification: CampusLit
 
 ## Design Philosophy
 
-The **CampusOS Design System** is built on three core pillars:
+The **CampusLit Design System** is built on three core pillars:
 
 1. **Obsidian Dark-Canvas Foundation**: A deep `#08090e` background minimizing eye strain during late-night study sessions.
 2. **Glassmorphic Surface Hierarchy**: Layered translucent slate panels (`rgba(15, 17, 26, 0.75)` with `backdrop-filter: blur(16px)`) creating a modern, high-tech interface.

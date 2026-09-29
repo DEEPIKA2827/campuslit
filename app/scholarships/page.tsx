@@ -1,6 +1,6 @@
 /**
  * @file app/scholarships/page.tsx
- * @description Scholarships & Government Grants Portal for CampusOS.
+ * @description Scholarships & Government Grants Portal for CampusLit.
  * @purpose Connects to /api/scholarships, manages bookmarking via /api/scholarships/bookmark, and loads document requirements.
  */
 

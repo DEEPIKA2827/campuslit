@@ -1,6 +1,6 @@
 /**
  * @file components/layout/navbar.tsx
- * @description Dynamic Top Navigation Bar Component for CampusOS.
+ * @description Dynamic Top Navigation Bar Component for CampusLit.
  * @purpose Renders navigation links, branding, and live authentication actions (Sign In / Register or User Avatar / Logout).
  */
 

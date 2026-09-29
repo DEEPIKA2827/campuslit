@@ -1,8 +1,8 @@
-# System Architecture: CampusOS
+# System Architecture: CampusLit
 
 ## Architectural Principles
 
-CampusOS is engineered using modern web application principles with Next.js App Router, React 19, TypeScript, and Tailwind CSS v4:
+CampusLit is engineered using modern web application principles with Next.js App Router, React 19, TypeScript, and Tailwind CSS v4:
 
 1. **Server-First Component Default**: Routes render static markup on the server to maximize SEO performance and eliminate layout shift (CLS).
 2. **Client Boundaries at Interactivity Nodes**: Interactive elements (sliders, tab selectors, forms) are isolated into client components marked with `"use client"`.
@@ -54,7 +54,7 @@ graph TD
 
 ## Data Flow & Hydration Lifecycle
 
-1. **Initial Request**: The user navigates to a CampusOS route (`/` or `/onboarding`).
+1. **Initial Request**: The user navigates to a CampusLit route (`/` or `/onboarding`).
 2. **Server Execution**: Next.js evaluates the route component on the server, producing static HTML and CSS link headers.
 3. **Browser Paint**: The browser displays static HTML immediately (FCP < 0.5s), avoiding blank screens or FOUC.
 4. **Hydration**: React loads JavaScript bundles and attaches event handlers (`onClick`, `onChange`, `onSubmit`).

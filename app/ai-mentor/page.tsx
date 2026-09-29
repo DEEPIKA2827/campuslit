@@ -32,7 +32,7 @@ const promptCategories = [
     id: "roadmap",
     icon: Compass,
     title: "Roadmap Guidance",
-    prompt: "What is my next priority milestone in my CampusOS roadmap and how should I approach it?",
+    prompt: "What is my next priority milestone in my CampusLit roadmap and how should I approach it?",
     color: "from-purple-500/20 to-indigo-500/20",
     textColor: "text-purple-300",
   },
@@ -85,7 +85,7 @@ export default function AIMentorPage() {
     (name: string): UIMessage => ({
       id: "greeting",
       sender: "ai",
-      text: `Hello ${name} 👋 I'm your CampusOS AI Senior Mentor, connected to your verified academic record, personalized roadmap, and Action Radar mission control. How can I help you conquer your engineering semester today?`,
+      text: `Hello ${name} 👋 I'm your CampusLit AI Senior Mentor, connected to your verified academic record, personalized roadmap, and Action Radar mission control. How can I help you conquer your engineering semester today?`,
       timestamp: getFormattedTime(),
       verified: true,
     }),
@@ -466,7 +466,7 @@ export default function AIMentorPage() {
               CO
             </Link>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-white">CampusOS AI Mentor</span>
+              <span className="text-sm font-bold text-white">CampusLit AI Mentor</span>
               <span className="inline-flex items-center rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-400 border border-purple-500/20">
                 <Sparkles className="size-3 mr-1" /> Real Gemini LLM
               </span>
@@ -475,7 +475,7 @@ export default function AIMentorPage() {
 
           <div className="flex items-center gap-3 text-xs">
             <span className="hidden sm:inline-flex items-center gap-1.5 text-gray-400 bg-white/[0.04] px-2.5 py-1 rounded-lg border border-white/10">
-              <ShieldCheck className="size-3.5 text-emerald-400" /> CampusOS Context Active
+              <ShieldCheck className="size-3.5 text-emerald-400" /> CampusLit Context Active
             </span>
             <Link
               href="/"
@@ -631,7 +631,7 @@ export default function AIMentorPage() {
                 >
                   <div className="flex items-center justify-between gap-4 text-[10px] text-gray-400 border-b border-white/10 pb-1">
                     <span className="font-semibold flex items-center gap-1">
-                      {msg.sender === "user" ? "Student" : "CampusOS Senior Mentor"}
+                      {msg.sender === "user" ? "Student" : "CampusLit Senior Mentor"}
                       {msg.verified && <UserCheck className="size-3 text-emerald-400 inline" />}
                       {msg.isError && <AlertCircle className="size-3 text-amber-400 inline" />}
                     </span>
@@ -767,7 +767,7 @@ export default function AIMentorPage() {
 
       {/* FOOTER */}
       <footer className="border-t border-white/10 bg-[#06070a] py-3 text-center text-xs text-gray-500">
-        CampusOS AI Senior Mentor • Context Locked for Karnataka VTU & Autonomous Schemes
+        CampusLit AI Senior Mentor • Context Locked for Karnataka VTU & Autonomous Schemes
       </footer>
     </main>
   );

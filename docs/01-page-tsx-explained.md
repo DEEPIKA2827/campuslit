@@ -2,11 +2,11 @@
 
 ## Purpose of this file
 
-`app/page.tsx` is the primary entrypoint page component for the **CampusOS** platform under the Next.js App Router root path (`/`).
+`app/page.tsx` is the primary entrypoint page component for the **CampusLit** platform under the Next.js App Router root path (`/`).
 
 It exists to:
-1. **Render the CampusOS Landing & Product Overview**: Serve an immersive, high-conversion landing page presenting the core value proposition of CampusOS for Karnataka engineering students.
-2. **Provide Interactive Product Demos**: Feature interactive state-driven tab switchers (`Academics`, `CIE & Attendance Radar`, `Senior Playbooks`, `Skill & Career Path`) that demonstrate the CampusOS student dashboard experience in real-time.
+1. **Render the CampusLit Landing & Product Overview**: Serve an immersive, high-conversion landing page presenting the core value proposition of CampusLit for Karnataka engineering students.
+2. **Provide Interactive Product Demos**: Feature interactive state-driven tab switchers (`Academics`, `CIE & Attendance Radar`, `Senior Playbooks`, `Skill & Career Path`) that demonstrate the CampusLit student dashboard experience in real-time.
 3. **Execute Live Calculators**: Run interactive client-side calculators for predicting VTU 75% attendance risk and calculating target Continuous Internal Evaluation (CIE) exam scores needed to hit specific SGPA targets.
 4. **Capture Early Access Registrations**: Host the student waitlist form collecting college names, engineering branches, and email addresses.
 
@@ -71,7 +71,7 @@ As a Client Component (`"use client"`), `app/page.tsx` undergoes a two-phase lif
 ### Lines 250 border-1215: JSX Layout Structure
 
 #### 1. Header & Navigation (Lines 257-310)
-* Sticky backdrop-blurred navigation header featuring the CampusOS logo, badge, navigation links, quick search shortcut (`⌘K`), and waitlist CTA button.
+* Sticky backdrop-blurred navigation header featuring the CampusLit logo, badge, navigation links, quick search shortcut (`⌘K`), and waitlist CTA button.
 
 #### 2. Hero Section (Lines 312-383)
 * Headline section with glowing badge, gradient typography (`The Operating System for Engineering Life`), subtitle, primary onboarding CTA button, and social proof stats.
@@ -86,7 +86,7 @@ As a Client Component (`"use client"`), `app/page.tsx` undergoes a two-phase lif
 * Interactive sliders allowing users to adjust attendance (50-100%) and target SGPA (6.0-10.0), updating calculated bunk allowance and required IA scores in real-time.
 
 #### 6. Student Journey & WhatsApp Chaos Matrix (Lines 889-1025)
-* Timeline stepper contrasting the chaotic WhatsApp group experience against the organized CampusOS platform.
+* Timeline stepper contrasting the chaotic WhatsApp group experience against the organized CampusLit platform.
 
 #### 7. FAQ Accordion & Why Us Section (Lines 1027-1086)
 * Collapsible accordion resolving common student questions.
@@ -108,7 +108,7 @@ graph TD
     B --> D["Hero Section & Onboarding Link"]
     B --> E["Interactive OS Mockup (activeTab State)"]
     B --> F["CIE & Attendance Simulator (attendance, targetSGPA State)"]
-    B --> G["WhatsApp vs CampusOS Matrix"]
+    B --> G["WhatsApp vs CampusLit Matrix"]
     B --> H["FAQ Accordion (openFaq State)"]
     B --> I["Waitlist Registration Form (email, college, branch State)"]
     I -->|"Submit Form"| J["Success Feedback Message"]

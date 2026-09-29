@@ -1,6 +1,6 @@
 /**
  * @file app/register/page.tsx
- * @description Student Registration Page for CampusOS.
+ * @description Student Registration Page for CampusLit.
  * @purpose Registers a new student account, connects to useAuth().register(), and redirects to /onboarding questionnaire.
  */
 
@@ -94,7 +94,7 @@ export default function RegisterPage() {
             <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/30 group-hover:scale-105 transition-transform">
               CO
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">CampusOS</span>
+            <span className="text-xl font-bold tracking-tight text-white">CampusLit</span>
           </Link>
 
           <div className="space-y-1">

@@ -1,7 +1,7 @@
-# CampusOS — Corrected Database Schema & Codebase Audit Report (v2.1)
+# CampusLit — Corrected Database Schema & Codebase Audit Report (v2.1)
 
 **Document Status:** Fully Verified Technical Audit (Topologically Exact)  
-**Source of Truth:** [`docs/CampusOS_Corrected_Database_Schema.pdf`](file:///C:/Projects/campusos/docs/CampusOS_Corrected_Database_Schema.pdf)  
+**Source of Truth:** [`docs/CampusLit_Corrected_Database_Schema.pdf`](file:///C:/Projects/campuslit/docs/CampusLit_Corrected_Database_Schema.pdf)  
 **Target Database Stack:** PostgreSQL on Supabase + Drizzle ORM  
 **Audit Scope:** Relational Verification, Strict Topological Dependency Levels, Git Status, and Codebase Architecture  
 
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Verification Scope
 
-This document provides a verified technical audit of the CampusOS codebase against the senior-approved 21-table normalized relational database schema in `docs/CampusOS_Corrected_Database_Schema.pdf`.
+This document provides a verified technical audit of the CampusLit codebase against the senior-approved 21-table normalized relational database schema in `docs/CampusLit_Corrected_Database_Schema.pdf`.
 
 ### Critical Distinction: TypeScript/Documentation vs. Physical Database
 - **TypeScript DTOs & Documentation (Aligned):** All 21 DTO interfaces in `types/api.types.ts`, the database documentation in `docs/DATABASE_SCHEMA.md`, and the Mermaid diagram in `docs/ER_DIAGRAM.md` match the senior-approved 21-table schema.
@@ -19,7 +19,7 @@ This document provides a verified technical audit of the CampusOS codebase again
 
 ## 2. Table-by-Table Verification Against Senior PDF
 
-Every entity, column, data type, key constraint, unique index, and check constraint below has been cross-referenced directly with Section 3, Section 5, and Section 6 of `CampusOS_Corrected_Database_Schema.pdf`:
+Every entity, column, data type, key constraint, unique index, and check constraint below has been cross-referenced directly with Section 3, Section 5, and Section 6 of `CampusLit_Corrected_Database_Schema.pdf`:
 
 | # | Table Name | Columns & Types | Primary Key | Foreign Keys | Constraints / Rules |
 | :---: | :--- | :--- | :--- | :--- | :--- |
@@ -182,13 +182,13 @@ Based on project architecture documentation (`docs/BACKEND_ARCHITECTURE.md`, `do
 
 ### B. Services (Business Logic Layer)
 - **Total Domain Services Required:** 9 services.
-- **Existing Services:** 1 partially implemented stub ([`services/profile.service.ts`](file:///C:/Projects/campusos/services/profile.service.ts)).
+- **Existing Services:** 1 partially implemented stub ([`services/profile.service.ts`](file:///C:/Projects/campuslit/services/profile.service.ts)).
 - **Missing Services:** 8 services missing:
   `user.service.ts`, `college.service.ts`, `course.service.ts`, `attendance.service.ts`, `cie.service.ts`, `chat.service.ts`, `scholarship.service.ts`, `roadmap.service.ts`, `opportunity.service.ts`.
 
 ### C. Validation Schemas (Input Validation Layer)
 - **Total Domain Validation Suites Required:** 8 validation suites.
-- **Existing Validators:** 1 implemented ([`validations/profile.validation.ts`](file:///C:/Projects/campusos/validations/profile.validation.ts) covering `CreateProfileInput` and `CreateSettingsInput`).
+- **Existing Validators:** 1 implemented ([`validations/profile.validation.ts`](file:///C:/Projects/campuslit/validations/profile.validation.ts) covering `CreateProfileInput` and `CreateSettingsInput`).
 - **Missing Validators:** 7 validation suites missing:
   `user.validation.ts`, `attendance.validation.ts`, `cie.validation.ts`, `chat.validation.ts`, `scholarship.validation.ts`, `roadmap.validation.ts`, `opportunity.validation.ts`.
 
@@ -209,13 +209,13 @@ Exact inspection via `git status --porcelain`:
  M validations/profile.validation.ts
 ?? .vscode/
 ?? docs/ARCHITECTURAL_REVIEW.md
-?? docs/CampusOS_Corrected_Database_Schema.pdf
-?? docs/CampusOS_Corrected_ER_Diagram.png
+?? docs/CampusLit_Corrected_Database_Schema.pdf
+?? docs/CampusLit_Corrected_ER_Diagram.png
 ?? docs/DATABASE_CORRECTION_AUDIT.md
 ?? docs/DATABASE_SCHEMA.md
 ?? docs/ER_DIAGRAM.md
-?? docs/campusos_er_diagram.html
-?? docs/campusos_er_diagram.png
+?? docs/campuslit_er_diagram.html
+?? docs/campuslit_er_diagram.png
 ```
 
 ### Breakdown:
@@ -238,7 +238,7 @@ Exact inspection via `git status --porcelain`:
 | **Profile Service** | Partial | Mock / Stub Data | `services/profile.service.ts` coordinates profile logic with stub repo. |
 | **Profile Route** | Partial | Mock / Stub Data | `app/api/profile/route.ts` wired to `profileService` with `demoUserId = 1`. |
 | **Roadmaps Route** | Incorrect | Must Be Refactored | `app/api/roadmaps/route.ts` creates inline mock data instead of calling service/repo. |
-| **Database Migration DDL** | 0% | Completely Missing | No `migrations/001_campusos_schema.sql` exists. |
+| **Database Migration DDL** | 0% | Completely Missing | No `migrations/001_campuslit_schema.sql` exists. |
 | **Database Seed Data** | 0% | Completely Missing | No `migrations/002_seed_data.sql` exists. |
 | **Drizzle ORM Schemas** | 0% | Completely Missing | No Drizzle table schemas exist in `db/schema/`. |
 | **Database Driver Client** | 0% | Completely Missing | `lib/db.ts` has no database connection pool or query client. |
@@ -251,4 +251,4 @@ Exact inspection via `git status --porcelain`:
 ## 9. Implementation Safety & Sign-Off
 
 - **Codebase Safety:** Safe to proceed to implementation. There are no breaking syntax errors, no live data loss risks, and existing uncommitted changes are verified.
-- **Verification Sign-Off:** All 21 tables, foreign key constraints, topological dependencies, stack decisions, and counts are cross-verified with `docs/CampusOS_Corrected_Database_Schema.pdf`.
+- **Verification Sign-Off:** All 21 tables, foreign key constraints, topological dependencies, stack decisions, and counts are cross-verified with `docs/CampusLit_Corrected_Database_Schema.pdf`.

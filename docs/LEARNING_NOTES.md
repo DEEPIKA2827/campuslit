@@ -1,8 +1,8 @@
 # Senior Engineering Learning Notes & Best Practices
 
-## Architectural Lessons from CampusOS
+## Architectural Lessons from CampusLit
 
-This document captures key technical insights, senior engineering architectural decisions, and interview preparation notes derived from building **CampusOS v0.1.0**.
+This document captures key technical insights, senior engineering architectural decisions, and interview preparation notes derived from building **CampusLit v0.1.0**.
 
 ---
 

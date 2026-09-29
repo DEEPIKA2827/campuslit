@@ -1,6 +1,6 @@
 /**
  * @file services/llm-provider.service.ts
- * @description Provider abstraction and Google Gemini API adapter for CampusOS AI Mentor.
+ * @description Provider abstraction and Google Gemini API adapter for CampusLit AI Mentor.
  * @purpose Enables server-side LLM completion using Google's free-tier Gemini API with strict timeouts, error normalization, and safe defaults.
  */
 

@@ -1,6 +1,6 @@
 /**
  * @file app/api/chat/message/route.ts
- * @description Next.js Route Handler for CampusOS AI Mentor Conversational Messages.
+ * @description Next.js Route Handler for CampusLit AI Mentor Conversational Messages.
  * @purpose Handles real server-side LLM completion, user context injection, and message persistence.
  * @security Strictly enforces getAuthenticatedUser() session verification and thread isolation.
  */

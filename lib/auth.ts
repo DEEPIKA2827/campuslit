@@ -2,7 +2,7 @@
  * @file lib/auth.ts
  * @description Authentication and Session Token Management Facade.
  * @purpose Cryptographic HMAC-SHA256 session token signer/verifier, legacy cookie manager,
- * and unified session resolver bridging Clerk external identities to CampusOS internal identities.
+ * and unified session resolver bridging Clerk external identities to CampusLit internal identities.
  * @security
  * - Uses Node.js crypto primitives with constant-time signature comparison.
  * - Supports multi-key secret rotation via AUTH_SESSION_SECRETS (Phase 5F).

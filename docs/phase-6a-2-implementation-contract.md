@@ -9,10 +9,10 @@
 
 ## 1. Executive Summary & Purpose
 
-This contract establishes the **exact, immutable specifications** for implementing **Phase 6A.2: Clerk Authentication & Hybrid Identity Bridge** in CampusOS. 
+This contract establishes the **exact, immutable specifications** for implementing **Phase 6A.2: Clerk Authentication & Hybrid Identity Bridge** in CampusLit. 
 
 ### Core Architectural Invariant
-> **The CampusOS internal identity `users.userId` (`bigint` mode: `number`) MUST remain the immutable surrogate primary key across all 9 relational application domains.** Under no circumstances will `users.userId` be replaced by Clerk's `user_id` string. Clerk acts strictly as an external identity provider mapped to the internal `userId`.
+> **The CampusLit internal identity `users.userId` (`bigint` mode: `number`) MUST remain the immutable surrogate primary key across all 9 relational application domains.** Under no circumstances will `users.userId` be replaced by Clerk's `user_id` string. Clerk acts strictly as an external identity provider mapped to the internal `userId`.
 
 ---
 
@@ -55,7 +55,7 @@ CLERK MANAGED IDENTITY (EXTERNAL)
            │
            │ Mapped via users.clerkId
            ▼
-CAMPUSOS APPLICATION STATE (INTERNAL)
+CAMPUSLIT APPLICATION STATE (INTERNAL)
   └── users table:
        ├── user_id: 101 (bigint integer) <── [IMMUTABLE INTERNAL SURROGATE PK]
        ├── clerk_id: "user_2N9x..."       <── [UNIQUE NULLABLE IDENTITY LINK]
@@ -99,11 +99,11 @@ CAMPUSOS APPLICATION STATE (INTERNAL)
    - Student enters dashboard with **100% of historical attendance, CIE marks, bookmarks, and roadmaps intact**.
 3. **Path B (Differing Email / Google Personal Account)**:
    - If the student signs in via a personal Google account (`student@gmail.com`) that differs from their registered college email (`usn@college.edu.in`):
-   - System presents an **Explicit Account Linking Challenge**: *"Link existing CampusOS account by entering your college email and password."*
+   - System presents an **Explicit Account Linking Challenge**: *"Link existing CampusLit account by entering your college email and password."*
    - Upon verifying legacy password via `PasswordUtil.verify()`, system links `users.clerk_id = :sub`.
 
 ### 4.3 Login & Session Verification Flow
-1. Student accesses CampusOS with Clerk session token (cookie / Bearer header).
+1. Student accesses CampusLit with Clerk session token (cookie / Bearer header).
 2. `getAuthenticatedUser(request)` in `lib/auth.ts`:
    - Validates Clerk JWT claims (`sub`, `exp`).
    - Queries PostgreSQL: `SELECT user_id, role FROM users WHERE clerk_id = :sub`.
@@ -216,7 +216,7 @@ Endpoint: `POST /api/webhooks/clerk` (Protected by `svix` signature verification
 ## 11. Database Backup & Rollback Procedure
 
 ### Backup Procedure (Prior to Migration):
-1. Create PostgreSQL dump: `pg_dump -Fc -v "$DATABASE_URL" -f "campusos_pre_phase6a_backup.dump"`.
+1. Create PostgreSQL dump: `pg_dump -Fc -v "$DATABASE_URL" -f "campuslit_pre_phase6a_backup.dump"`.
 2. Verify table row counts on all 21 tables.
 
 ### Rollback Procedure (If Clerk Integration Encounters Blocker):

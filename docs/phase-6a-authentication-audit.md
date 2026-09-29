@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-CampusOS is currently an **advanced MVP / pre-pilot engineering student platform** built inside the Next.js 16 App Router ecosystem with TypeScript and PostgreSQL. The application domain layer—including the 192 Karnataka Engineering College catalogue, 64 Scholarships, 65 Opportunities, 22-Course Academic Vault, 75% Bunk Defense calculator, and Proactive Action Radar—is fully implemented and protected by 427 verified automated tests.
+CampusLit is currently an **advanced MVP / pre-pilot engineering student platform** built inside the Next.js 16 App Router ecosystem with TypeScript and PostgreSQL. The application domain layer—including the 192 Karnataka Engineering College catalogue, 64 Scholarships, 65 Opportunities, 22-Course Academic Vault, 75% Bunk Defense calculator, and Proactive Action Radar—is fully implemented and protected by 427 verified automated tests.
 
 This audit evaluates the **current in-house authentication system**, examines its **security boundaries and authorization invariants**, and designs an **enterprise-grade, zero-data-loss migration strategy to Clerk / Managed Authentication**.
 
@@ -136,7 +136,7 @@ CLERK AUTHENTICATION (IDENTITY LAYER)
            │
            │ Webhook / Session Token / On-Demand Sync
            ▼
-CAMPUSOS POSTGRESQL (APPLICATION STATE LAYER)
+CAMPUSLIT POSTGRESQL (APPLICATION STATE LAYER)
   └── users table:
        ├── user_id (bigint integer: 101)  <── [INTERNAL SURROGATE PK]
        ├── clerk_id (varchar(128) unique) <── [EXTERNAL IDENTITY LINK]
@@ -151,7 +151,7 @@ CAMPUSOS POSTGRESQL (APPLICATION STATE LAYER)
 
 ### Identity Synchronization Strategy:
 1. When a student signs in via Clerk, Clerk emits a session JWT containing `sub` (e.g. `user_2N9x...`) and `email`.
-2. The CampusOS Auth Adapter looks up the student in PostgreSQL by `clerk_id` (or by `email` for existing accounts).
+2. The CampusLit Auth Adapter looks up the student in PostgreSQL by `clerk_id` (or by `email` for existing accounts).
 3. If no record exists, an atomic insertion creates the row in `users` (`clerk_id: sub`, `email`, `role: "student"`) and `student_settings`.
 4. Downstream Route Handlers and Repositories continue to receive `session.userId: 101` (`number`), ensuring **100% backward compatibility** with all 21 tables and existing domain logic.
 

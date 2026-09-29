@@ -1,4 +1,4 @@
-# 🎨 CampusOS Mission Control — UI Design System Specification
+# 🎨 CampusLit Mission Control — UI Design System Specification
 
 **Role:** Senior UI Designer  
 **Target Viewport:** Mobile-First Responsive (Breakpoints: `sm: 640px`, `md: 768px`, `lg: 1024px`, `xl: 1280px`)  

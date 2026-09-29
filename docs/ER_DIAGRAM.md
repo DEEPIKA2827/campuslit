@@ -1,4 +1,4 @@
-# CampusOS ER Diagram
+# CampusLit ER Diagram
 
 ```mermaid
 erDiagram

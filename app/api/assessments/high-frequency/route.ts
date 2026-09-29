@@ -1,6 +1,6 @@
 /**
  * @file app/api/assessments/high-frequency/route.ts
- * @description High-Frequency Question Analysis API for CampusOS.
+ * @description High-Frequency Question Analysis API for CampusLit.
  * @purpose Serves exam questions derived from historical VTU/Autonomous question paper analysis with transparent frequency ratios.
  * @security Public / Authenticated guest resilience.
  */

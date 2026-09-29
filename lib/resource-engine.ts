@@ -1,6 +1,6 @@
 /**
  * @file lib/resource-engine.ts
- * @description Centralized Resource Intelligence Engine for CampusOS.
+ * @description Centralized Resource Intelligence Engine for CampusLit.
  * Provides verified academic resources, VTU official intelligence, language-aware sorting,
  * industry certifications, extended domain catalogs, actionable roadmap node drawers, and DSA practice mapping.
  */
@@ -797,7 +797,7 @@ export const ROADMAP_NODE_RESOURCES: Record<string, RoadmapNodeResourceDrawer> =
       resourceId: "proj_cli_tool",
       title: "Build a Bash Automation Script for VTU Study Notes",
       category: "practice",
-      provider: "CampusOS Lab Guide",
+      provider: "CampusLit Lab Guide",
       sourceUrl: "https://vtu.ac.in",
       free: true,
       lastVerifiedAt: "2026-09-01",
@@ -922,7 +922,7 @@ export function getRoadmapNodeDrawer(
         resourceId: `${nodeKey}_doc`,
         title: `${fallbackTitle || "Technical"} Documentation & Standard Specifications`,
         category: "notes",
-        provider: "CampusOS Verified Engine",
+        provider: "CampusLit Verified Engine",
         sourceUrl: "https://vtu.ac.in",
         free: true,
         lastVerifiedAt: "2026-09-01",
@@ -1730,7 +1730,7 @@ export function getExtendedDomainRoadmap(careerGoal: string): SyntheticRoadmapTr
             resourceId: `${slug}_res_01`,
             title: `${displayTitle} Official Documentation & Guidelines`,
             category: "notes",
-            provider: "CampusOS Verified Knowledge Engine",
+            provider: "CampusLit Verified Knowledge Engine",
             sourceUrl: "https://vtu.ac.in",
             free: true,
             lastVerifiedAt: "2026-09-01",
@@ -1751,7 +1751,7 @@ export function getExtendedDomainRoadmap(careerGoal: string): SyntheticRoadmapTr
             resourceId: `${slug}_res_02`,
             title: `${displayTitle} Hands-on Guide & Architecture Reference`,
             category: "practice",
-            provider: "CampusOS Lab Guide",
+            provider: "CampusLit Lab Guide",
             sourceUrl: "https://vtu.ac.in",
             free: true,
             lastVerifiedAt: "2026-09-01",
@@ -1772,7 +1772,7 @@ export function getExtendedDomainRoadmap(careerGoal: string): SyntheticRoadmapTr
             resourceId: `${slug}_res_03`,
             title: `${displayTitle} Industry Standard Practices`,
             category: "notes",
-            provider: "CampusOS Engine",
+            provider: "CampusLit Engine",
             sourceUrl: "https://vtu.ac.in",
             free: true,
             lastVerifiedAt: "2026-09-01",
@@ -2050,7 +2050,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "Time Series Analysis & Forecasting", provider: "OTexts", url: "https://otexts.com/fpp3/", free: true, type: "doc" },
     ],
     projects: [
-      { title: "Student Retention & Academic Outcome Predictive Model", provider: "CampusOS Data Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Student Retention & Academic Outcome Predictive Model", provider: "CampusLit Data Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "StrataScratch SQL & Pandas Practice", provider: "StrataScratch", url: "https://www.stratascratch.com", free: true, type: "practice" },
@@ -2083,7 +2083,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "The Data Warehouse Toolkit (Kimball)", provider: "Kimball Group", url: "https://www.kimballgroup.com/", free: true, type: "doc" },
     ],
     projects: [
-      { title: "University Placement & Salary Analytics Dashboard", provider: "CampusOS Analytics Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "University Placement & Salary Analytics Dashboard", provider: "CampusLit Analytics Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "LeetCode SQL 50 Study Plan", provider: "LeetCode", url: "https://leetcode.com/studyplan/top-sql-50/", free: true, type: "practice" },
@@ -2117,7 +2117,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "MITRE ATT&CK Enterprise Matrix", provider: "MITRE", url: "https://attack.mitre.org/", free: true, type: "doc" },
     ],
     projects: [
-      { title: "Vulnerability Scanner for College Intranet", provider: "CampusOS Security Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Vulnerability Scanner for College Intranet", provider: "CampusLit Security Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "TryHackMe Pre-Security Room", provider: "TryHackMe", url: "https://tryhackme.com", free: true, type: "practice" },
@@ -2153,7 +2153,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "FreeRTOS Real-Time Kernel on ESP32", provider: "FreeRTOS / Amazon", url: "https://www.freertos.org/Documentation/RTOS_book.html", free: true, type: "doc" },
     ],
     projects: [
-      { title: "Smart Classroom Air Quality & Attendance Node", provider: "CampusOS IoT Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Smart Classroom Air Quality & Attendance Node", provider: "CampusLit IoT Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "Wokwi Interactive Online ESP32 Simulator", provider: "Wokwi", url: "https://wokwi.com", free: true, type: "practice" },
@@ -2186,7 +2186,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "Device Driver Development for Linux", provider: "Bootlin", url: "https://bootlin.com/training/kernel/", free: true, type: "doc" },
     ],
     projects: [
-      { title: "Digital Logic Simulator & Waveform Visualizer", provider: "CampusOS Embedded Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Digital Logic Simulator & Waveform Visualizer", provider: "CampusLit Embedded Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "ARM Keil MDK Microcontroller Simulations", provider: "Keil ARM", url: "https://www.keil.com", free: true, type: "practice" },
@@ -2220,7 +2220,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "Smart Contract Security & Reentrancy Audit Guide", provider: "OpenZeppelin Docs", url: "https://docs.openzeppelin.com/", free: true, type: "doc" },
     ],
     projects: [
-      { title: "Decentralized Degree Verification Contract", provider: "CampusOS Web3 Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Decentralized Degree Verification Contract", provider: "CampusLit Web3 Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "Ethernaut Smart Contract CTF", provider: "OpenZeppelin", url: "https://ethernaut.openzeppelin.com/", free: true, type: "practice" },
@@ -2254,7 +2254,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "Terraform Infrastructure as Code Tutorials", provider: "HashiCorp Learn", url: "https://developer.hashicorp.com/terraform/tutorials", free: true, type: "practice" },
     ],
     projects: [
-      { title: "Automated Zero-Downtime Microservice Pipeline", provider: "CampusOS Cloud Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Automated Zero-Downtime Microservice Pipeline", provider: "CampusLit Cloud Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "Killercoda Interactive Cloud & K8s Sandboxes", provider: "Killercoda", url: "https://killercoda.com", free: true, type: "practice" },
@@ -2289,7 +2289,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "Apache Kafka Event Streaming Architecture", provider: "Confluent Developer", url: "https://developer.confluent.io/", free: true, type: "doc" },
     ],
     projects: [
-      { title: "Real-Time Campus Sensor Ingestion Lakehouse", provider: "CampusOS BigData Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Real-Time Campus Sensor Ingestion Lakehouse", provider: "CampusLit BigData Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "DataTalks.Club Data Engineering Zoomcamp", provider: "DataTalks.Club", url: "https://github.com/DataTalksClub/data-engineering-zoomcamp", free: true, type: "course" },
@@ -2323,7 +2323,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "Shape Up: Stop Running in Circles", provider: "Basecamp", url: "https://basecamp.com/shapeup", free: true, type: "doc" },
     ],
     projects: [
-      { title: "Redesigning College Exam Revaluation Flow", provider: "CampusOS Design Guild", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Redesigning College Exam Revaluation Flow", provider: "CampusLit Design Guild", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "Daily UI 100-Day Challenge", provider: "Daily UI", url: "https://www.dailyui.co", free: true, type: "practice" },
@@ -2356,7 +2356,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "VLSI Digital Circuit Design (Westhe & Harris)", provider: "Pearson Education", url: "https://vtu.ac.in", free: false, type: "doc" },
     ],
     projects: [
-      { title: "Verilog ALU & Pipelined Processor Core", provider: "CampusOS VLSI Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Verilog ALU & Pipelined Processor Core", provider: "CampusLit VLSI Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "Falstad Circuit Simulator Online", provider: "Falstad", url: "https://www.falstad.com/circuit/", free: true, type: "practice" },
@@ -2389,7 +2389,7 @@ export const EXTENDED_DOMAINS_CATALOG: Record<string, DomainCatalog> = {
       { title: "Probabilistic Robotics (Thrun, Burgard, Fox)", provider: "MIT Press", url: "http://www.probabilistic-robotics.org/", free: false, type: "doc" },
     ],
     projects: [
-      { title: "Autonomous Indoor Line & Obstacle Navigation Rover", provider: "CampusOS Robotics Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
+      { title: "Autonomous Indoor Line & Obstacle Navigation Rover", provider: "CampusLit Robotics Lab", url: "https://vtu.ac.in", free: true, type: "practice" },
     ],
     practice: [
       { title: "Webots Open Source Robot Simulator", provider: "Cyberbotics", url: "https://cyberbotics.com", free: true, type: "practice" },

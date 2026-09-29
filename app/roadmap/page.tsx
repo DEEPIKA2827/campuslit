@@ -1,6 +1,6 @@
 /**
  * @file app/roadmap/page.tsx
- * @description Interactive Personalized Milestone Roadmap Hub for CampusOS.
+ * @description Interactive Personalized Milestone Roadmap Hub for CampusLit.
  * @purpose Renders student's personalized curriculum tree from GET /api/roadmaps/personalized.
  *          Provides interactive specialization branch selection and authoritative progress tracking.
  */
@@ -519,7 +519,7 @@ export default function RoadmapPage() {
               <div className="space-y-2">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-white">Career Track Not Selected Yet</h2>
                 <p className="text-sm text-gray-400 max-w-lg mx-auto leading-relaxed">
-                  CampusOS builds your milestone execution tree around your target career goal (SDE, AI/ML, Core Engineering, Higher Studies, or Startup Founder).
+                  CampusLit builds your milestone execution tree around your target career goal (SDE, AI/ML, Core Engineering, Higher Studies, or Startup Founder).
                 </p>
               </div>
               <div className="pt-2">

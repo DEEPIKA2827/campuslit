@@ -1,6 +1,6 @@
 /**
  * @file lib/ingestion/csv-parser.ts
- * @description Native lightweight CSV parser for tabular CampusOS discovery feeds.
+ * @description Native lightweight CSV parser for tabular CampusLit discovery feeds.
  * @purpose Parses flat CSV files with quote escaping and array column delimiters (| or ;) into typed JavaScript objects.
  */
 

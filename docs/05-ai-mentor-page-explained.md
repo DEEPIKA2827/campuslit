@@ -2,7 +2,7 @@
 
 ## Purpose of this file
 
-`app/ai-mentor/page.tsx` is the interactive **CampusOS AI Senior Mentor** component located at route `/ai-mentor`.
+`app/ai-mentor/page.tsx` is the interactive **CampusLit AI Senior Mentor** component located at route `/ai-mentor`.
 
 It serves to:
 1. **Provide Context-Aware Academic Guidance**: Deliver instant, senior-vetted advice tailored to VTU and Autonomous college engineering curriculums in Karnataka.
