@@ -39,11 +39,11 @@ export function Navbar() {
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/25 group-hover:scale-105 transition-transform">
-            CO
+            YO
           </div>
           <div className="flex flex-col">
             <span className="text-base font-bold tracking-tight text-white flex items-center gap-2">
-              CampusOS
+              YuktiOS
               <span className="inline-flex items-center rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-400 border border-purple-500/20">
                 Karnataka 2025/26
               </span>
@@ -64,10 +64,6 @@ export function Navbar() {
           <Link href="/scholarships" className="transition hover:text-white flex items-center gap-1.5">
             <GraduationCap className="size-4 text-emerald-400" />
             <span>Scholarships</span>
-          </Link>
-          <Link href="/ai-mentor" className="transition hover:text-white flex items-center gap-1.5">
-            <MessageSquare className="size-4 text-cyan-400" />
-            <span>AI Mentor</span>
           </Link>
           <Link href="/onboarding" className="transition text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1">
             <Sparkles className="size-3.5" />

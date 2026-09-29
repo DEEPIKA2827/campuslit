@@ -14,6 +14,8 @@ export interface EnvironmentVariables {
   DB_MAX_CONNECTIONS?: string;
   GEMINI_API_KEY?: string;
   GEMINI_MODEL?: string;
+  GROQ_API_KEY?: string;
+  GROQ_MODEL?: string;
   XAI_API_KEY?: string;
   XAI_MODEL?: string;
 }

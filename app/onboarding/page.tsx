@@ -49,7 +49,7 @@ const defaultColleges: { collegeId: number; collegeName: string; location: strin
   { collegeId: 8, collegeName: "Dayananda Sagar College of Engineering (DSCE)", location: "Bengaluru" },
 ];
 
-export const engineeringBranches = [
+const engineeringBranches = [
   { id: "cse", name: "Computer Science & Engineering", code: "CSE", desc: "Core computing, systems, algorithms, AI & software engineering." },
   { id: "ise", name: "Information Science & Engineering", code: "ISE", desc: "Software design, data engineering, networking & web technologies." },
   { id: "aiml", name: "Artificial Intelligence & Machine Learning", code: "AIML", desc: "Machine learning, neural networks, data science & analytics." },
@@ -86,7 +86,7 @@ const evaluationTypes = [
   },
 ];
 
-export const careerGoals = [
+const careerGoals = [
   {
     id: "sde",
     title: "Software Engineer (SDE)",

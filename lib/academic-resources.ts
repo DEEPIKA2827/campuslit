@@ -197,3 +197,28 @@ export function getAcademicResourcesForCourse(
   // Strictly no match -> return null to avoid unrelated resource leakage
   return null;
 }
+
+/**
+ * Returns all unique semesters present in the academic catalog (1 through 8).
+ */
+export function getCatalogSemesters(): number[] {
+  const semesters = Array.from(new Set(catalog.map((c) => c.semester))).sort((a, b) => a - b);
+  return semesters.length > 0 ? semesters : [1, 2, 3, 4, 5, 6, 7, 8];
+}
+
+/**
+ * Returns all catalog courses filtered strictly by semester.
+ */
+export function getCatalogCoursesBySemester(semester?: number | null): SubjectAcademicResource[] {
+  if (!semester || typeof semester !== "number") {
+    return catalog;
+  }
+  return catalog.filter((c) => c.semester === semester);
+}
+
+/**
+ * Returns complete catalog list.
+ */
+export function getAllCatalogCourses(): SubjectAcademicResource[] {
+  return catalog;
+}

@@ -1,12 +1,13 @@
-# CampusOS
+# YuktiOS
 
-> **The Intelligent Operating System for Karnataka Engineering Students.**
+> **The Intelligent Strategic Operating System for Karnataka Engineering Students.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.12-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Drizzle_ORM-4169E1?style=for-the-badge&logo=postgresql)](https://orm.drizzle.team/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-Flash_2.5-8E75C6?style=for-the-badge&logo=google)](https://ai.google.dev/)
+[![Groq Cloud](https://img.shields.io/badge/Groq_Cloud-Qwen_27B-F55036?style=for-the-badge&logo=fastapi)](https://groq.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38BDF8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
@@ -14,25 +15,25 @@
 
 ## ⚡ Executive Summary (1-Minute Read for Interviewers)
 
-**What is CampusOS?**  
-CampusOS is a full-stack, production-engineered platform designed to eliminate academic chaos, attendance anxiety, and fragmented career preparation for VTU-affiliated and autonomous engineering students in Karnataka.
+**What is YuktiOS?**  
+YuktiOS (*Yukti* = Sanskrit for strategic ingenuity & problem-solving) is a full-stack, production-engineered platform designed to eliminate academic chaos, attendance anxiety, and fragmented career preparation for VTU-affiliated and autonomous engineering students in Karnataka.
 
 **The Engineering Problem Solved:**
-1. **Attendance Cutoff Panic**: The mandatory 75% VTU attendance rule triggers last-minute detentions and hall-ticket holds. CampusOS provides a **centralized predictive math engine** calculating exact safe bunks and consecutive recovery classes required.
-2. **Context-Blind AI Chatbots**: Generic chatbots lack student state, hallucinate resources, and paste fake links. The **CampusOS AI Senior Mentor** implements a **6-mode intent routing pipeline**, multimodal vision/document processing, zero-dependency OpenXML extraction for lecture slides (`.docx` / `.pptx`), and strict anti-hallucination contracts grounded in the student's authentic PostgreSQL state.
-3. **Static Career Roadmaps**: Standard roadmaps treat all students identically. CampusOS delivers **specialization-aware dynamic roadmaps** (e.g., CSE-ICB vs. Cybersecurity vs. AIML vs. Core CSE) with persistent milestone completion tracking.
-4. **Link Rot in Opportunities & Scholarships**: Students waste hours on dead links. CampusOS includes an automated catalog ingestion engine verified with automated HTTP health audits (0 dead links).
+1. **Attendance Cutoff Panic**: The mandatory 75% VTU attendance rule triggers last-minute detentions and hall-ticket holds. YuktiOS provides a **centralized predictive math engine** calculating exact safe bunks and consecutive recovery classes required.
+2. **Context-Blind AI Chatbots**: Generic chatbots lack student state, hallucinate resources, and paste fake links. The **YuktiOS Floating Copilot & Senior Mentor** implements dual-engine failover (Google Gemini + Groq Cloud Qwen), live DOM context scanning (Comet-style), multimodal document extraction, and strict anti-hallucination contracts grounded in the student's authentic PostgreSQL state.
+3. **Static Career Roadmaps**: Standard roadmaps treat all students identically. YuktiOS delivers **specialization-aware dynamic roadmaps** (e.g., CSE-ICB vs. Cybersecurity vs. AIML vs. Core CSE) with persistent milestone completion tracking.
+4. **Link Rot in Opportunities & Scholarships**: Students waste hours on dead links. YuktiOS includes an automated catalog ingestion engine verified with automated HTTP health audits (0 dead links).
 
 ---
 
 ## 📌 Current Status
 
-CampusOS is an **actively developed, functional engineering platform**. All core workflows described below are currently working and verified end-to-end on localhost:
+YuktiOS is an **actively developed, functional engineering platform**. All core workflows described below are currently working and verified end-to-end on localhost:
 - **Authentication & User Profiles**: Stateless HMAC cookie sessions with user data isolation.
-- **Dashboard & Action Radar**: Real-time attendance summaries, CIE tracking, and daily briefing alerts.
-- **AI Senior Mentor**: Live streaming conversational intelligence using Google Gemini API (`gemini-flash-latest` / `gemini-2.5-flash`), with multi-mode intent routing, chat persistence, and document grounding.
+- **Dashboard & Action Radar**: Real-time attendance summaries, semester-wise course segregation, and daily briefing alerts.
+- **Floating AI Copilot**: Live DOM scanning and screen context assistance powered by a high-availability dual engine (Gemini + Groq Cloud).
 - **Specialization Roadmaps**: Dynamic skill graphs with persistent progress checkboxes saved to PostgreSQL.
-- **Curated Catalog & Validation**: Complete opportunity and scholarship directory with zero dead links.
+- **System Default Theme**: Seamless dark/light OS system theme alignment.
 
 ---
 

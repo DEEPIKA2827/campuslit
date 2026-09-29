@@ -31,6 +31,7 @@ export type LLMCompletionOptions = {
 export interface ILLMProvider {
   getProviderName(): string;
   getModelName?(): string;
+  isConfigured?(): boolean;
   generateText(
     messages: LLMMessage[],
     options?: LLMCompletionOptions
@@ -78,7 +79,7 @@ export class GeminiProviderAdapter implements ILLMProvider {
     fetchFn?: typeof fetch;
   }) {
     this.apiKey = options?.apiKey ?? env.get("GEMINI_API_KEY") ?? process.env.GEMINI_API_KEY ?? "";
-    this.model = options?.model ?? env.get("GEMINI_MODEL", "gemini-2.0-flash") ?? process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+    this.model = options?.model ?? env.get("GEMINI_MODEL", "gemini-3.1-flash-lite") ?? process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite";
     this.baseUrl = options?.baseUrl ?? "https://generativelanguage.googleapis.com/v1beta/models";
     this.customFetch = options?.fetchFn;
   }
@@ -676,8 +677,233 @@ export class GeminiProviderAdapter implements ILLMProvider {
   }
 }
 
+/**
+ * Groq Cloud Provider Adapter (OpenAI-compatible REST API).
+ * Ultra-low latency inference utilizing Groq LPUs.
+ */
+export class GroqProviderAdapter implements ILLMProvider {
+  private apiKey: string;
+  private model: string;
+  private baseUrl: string;
+
+  constructor(options?: { apiKey?: string; model?: string; baseUrl?: string }) {
+    this.apiKey = options?.apiKey ?? env.get("GROQ_API_KEY") ?? process.env.GROQ_API_KEY ?? "";
+    this.model = options?.model ?? env.get("GROQ_MODEL", "llama-3.3-70b-versatile") ?? process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
+    this.baseUrl = options?.baseUrl ?? "https://api.groq.com/openai/v1/chat/completions";
+  }
+
+  public getProviderName(): string {
+    return `Groq Cloud (${this.model})`;
+  }
+
+  public getModelName(): string {
+    return this.model;
+  }
+
+  public isConfigured(): boolean {
+    const key = (this.apiKey || env.get("GROQ_API_KEY") || process.env.GROQ_API_KEY || "").trim();
+    return key.length > 0;
+  }
+
+  public async generateText(
+    messages: LLMMessage[],
+    options?: LLMCompletionOptions
+  ): Promise<string> {
+    const apiKey = (this.apiKey || env.get("GROQ_API_KEY") || process.env.GROQ_API_KEY || "").trim();
+    if (!apiKey) {
+      throw new ProviderConfigError("Groq API key is not configured.");
+    }
+
+    const groqMessages = messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages: groqMessages,
+        temperature: options?.temperature ?? 0.3,
+        max_tokens: options?.maxTokens ?? 1200,
+        stream: false,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "");
+      throw new ProviderUpstreamError(`Groq API returned HTTP ${response.status}: ${errText}`, response.status);
+    }
+
+    const data = await response.json();
+    return data?.choices?.[0]?.message?.content?.trim() || "";
+  }
+
+  public async *generateStream(
+    messages: LLMMessage[],
+    options?: LLMCompletionOptions
+  ): AsyncIterable<string> {
+    const apiKey = (this.apiKey || env.get("GROQ_API_KEY") || process.env.GROQ_API_KEY || "").trim();
+    if (!apiKey) {
+      throw new ProviderConfigError("Groq API key is not configured.");
+    }
+
+    const groqMessages = messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    const response = await fetch(this.baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: this.model,
+        messages: groqMessages,
+        temperature: options?.temperature ?? 0.3,
+        max_tokens: options?.maxTokens ?? 1200,
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => "");
+      throw new ProviderUpstreamError(`Groq streaming failed with HTTP ${response.status}: ${errText}`, response.status);
+    }
+
+    if (!response.body) {
+      throw new ProviderUpstreamError("Groq returned empty response body.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith("data:")) continue;
+          const jsonStr = trimmed.slice(5).trim();
+          if (!jsonStr || jsonStr === "[DONE]") continue;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (typeof delta === "string" && delta.length > 0) {
+              yield delta;
+            }
+          } catch {
+            // Wait for next chunk
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+}
+
+/**
+ * Failover LLM Provider:
+ * Automatically uses Primary (Google Gemini). If Primary experiences a 429 rate limit
+ * or upstream 5xx failure, it seamlessly falls back to Backup (Groq Cloud).
+ */
+export class FailoverLLMProvider implements ILLMProvider {
+  constructor(
+    private primary: GeminiProviderAdapter,
+    private backup: GroqProviderAdapter
+  ) {}
+
+  private getPreferredOrder(): [ILLMProvider, ILLMProvider] {
+    const preference = (process.env.LLM_PROVIDER || "gemini").toLowerCase().trim();
+    if (preference === "groq" && this.backup.isConfigured()) {
+      return [this.backup, this.primary];
+    }
+    return [this.primary, this.backup];
+  }
+
+  public getProviderName(): string {
+    const [first, second] = this.getPreferredOrder();
+    return `${first.getProviderName()} (Failover: ${second.getProviderName()})`;
+  }
+
+  public getModelName(): string {
+    const [first] = this.getPreferredOrder();
+    return first.getModelName ? first.getModelName() : "default";
+  }
+
+  public async generateText(
+    messages: LLMMessage[],
+    options?: LLMCompletionOptions
+  ): Promise<string> {
+    const [first, second] = this.getPreferredOrder();
+    try {
+      return await first.generateText(messages, options);
+    } catch (err: unknown) {
+      if (second.isConfigured && second.isConfigured()) {
+        Logger.warn(`Primary LLM (${first.getProviderName()}) failed. Failing over to ${second.getProviderName()}...`, {
+          error: err instanceof Error ? err.message : String(err),
+        });
+        return await second.generateText(messages, options);
+      }
+      throw err;
+    }
+  }
+
+  public async *generateStream(
+    messages: LLMMessage[],
+    options?: LLMCompletionOptions
+  ): AsyncIterable<string> {
+    const [first, second] = this.getPreferredOrder();
+    let failedOver = false;
+    try {
+      if (first.generateStream) {
+        for await (const chunk of first.generateStream(messages, options)) {
+          yield chunk;
+        }
+        return;
+      }
+    } catch (err: unknown) {
+      if (second.isConfigured && second.isConfigured()) {
+        Logger.warn(`Primary LLM streaming (${first.getProviderName()}) failed. Failing over to ${second.getProviderName()} stream...`, {
+          error: err instanceof Error ? err.message : String(err),
+        });
+        failedOver = true;
+      } else {
+        throw err;
+      }
+    }
+
+    if (failedOver && second.generateStream) {
+      for await (const chunk of second.generateStream(messages, options)) {
+        yield chunk;
+      }
+    }
+  }
+}
+
 export const geminiProvider = new GeminiProviderAdapter();
+export const groqProvider = new GroqProviderAdapter();
+export const failoverProvider = new FailoverLLMProvider(geminiProvider, groqProvider);
+
+// Export active mentor provider (uses failover provider with Gemini default)
+export const activeLlmProvider = failoverProvider;
 
 // Backward compatibility alias for existing tests
 export class XAIProviderAdapter extends GeminiProviderAdapter {}
 export const xaiProvider = geminiProvider;
+

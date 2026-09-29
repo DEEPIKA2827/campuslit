@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { FloatingCopilot } from "@/components/copilot/floating-copilot";
 
 export const metadata: Metadata = {
-  title: "CampusOS | Student operating system for engineering",
+  title: "YuktiOS | Strategic Engineering Operating System",
   description:
-    "A premium student workspace for first-year engineering students in Karnataka.",
+    "A precision student operating system for engineering students in Karnataka.",
 };
 
 export default function RootLayout({
@@ -14,9 +16,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+            <FloatingCopilot />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

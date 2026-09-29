@@ -4,7 +4,7 @@
  * @purpose Gathers verified student context, builds strict system instructions, manages bounded history, and orchestrates LLM completion.
  */
 
-import { ILLMProvider, LLMMessage, LLMAttachment, geminiProvider } from "@/services/llm-provider.service";
+import { ILLMProvider, LLMMessage, LLMAttachment, geminiProvider, activeLlmProvider } from "@/services/llm-provider.service";
 import { roadmapService, RoadmapService } from "@/services/roadmap.service";
 import { ActionRadarService } from "@/services/action-radar.service";
 import { userRepository, UserRepository } from "@/repositories/user.repository";
@@ -200,7 +200,7 @@ export class MentorService {
   private actionRadarSvc: ActionRadarService;
 
   constructor(
-    private llmProvider: ILLMProvider = geminiProvider,
+    private llmProvider: ILLMProvider = activeLlmProvider,
     private roadmapSvc: RoadmapService = roadmapService,
     actionRadarSvc?: ActionRadarService,
     private userRepo: UserRepository = userRepository,

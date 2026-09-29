@@ -11,6 +11,18 @@
   --accent-emerald: #10b981;
 }
 
+:root.light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card-bg: rgba(255, 255, 255, 0.85);
+}
+
+:root.dark {
+  --background: #08090e;
+  --foreground: #f3f4f6;
+  --card-bg: rgba(18, 20, 29, 0.7);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

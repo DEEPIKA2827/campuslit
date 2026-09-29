@@ -70,8 +70,13 @@ export function getSessionSecrets(): string[] {
 }
 
 /**
- * Creates a cryptographically signed HMAC-SHA256 session token.
- * Token structure: <base64url-payload>.<base64url-signature>
+ * Standard RFC 7519 JWT Header for HMAC-SHA256
+ */
+const JWT_HEADER = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" }), "utf8").toString("base64url");
+
+/**
+ * Creates a cryptographically signed standard RFC 7519 JWT token (HS256).
+ * Token structure: <base64url-header>.<base64url-payload>.<base64url-signature>
  * Always signs with the primary (active) secret (index 0).
  */
 export function createSessionToken(
@@ -97,17 +102,18 @@ export function createSessionToken(
   const secrets = getSessionSecrets();
   const primarySecret = secrets[0];
   const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+  const signingInput = `${JWT_HEADER}.${encodedPayload}`;
   const signature = crypto
     .createHmac("sha256", primarySecret)
-    .update(encodedPayload)
+    .update(signingInput)
     .digest("base64url");
 
-  return `${encodedPayload}.${signature}`;
+  return `${signingInput}.${signature}`;
 }
 
 /**
- * Verifies a signed session token.
- * Validates HMAC signature against primary secret, with graceful fallback across all configured rotation secrets.
+ * Verifies a signed JWT (or legacy 2-part token).
+ * Validates HMAC-SHA256 signature against primary secret, with graceful fallback across all configured rotation secrets.
  * Uses constant-time signature comparison to prevent timing attacks, validates expiration, and enforces payload schema.
  */
 export function verifySessionToken(token: string | null | undefined): AuthSession | null {
@@ -117,12 +123,18 @@ export function verifySessionToken(token: string | null | undefined): AuthSessio
 
   const trimmedToken = token.trim();
   const parts = trimmedToken.split(".");
-  if (parts.length !== 2) {
-    // Malformed token or raw value (e.g. "3")
+  
+  // Support both standard RFC 7519 JWT (3 parts: header.payload.signature)
+  // and legacy HMAC tokens (2 parts: payload.signature)
+  if (parts.length !== 2 && parts.length !== 3) {
     return null;
   }
 
-  const [encodedPayload, providedSignature] = parts;
+  const isJwt = parts.length === 3;
+  const encodedPayload = isJwt ? parts[1] : parts[0];
+  const providedSignature = isJwt ? parts[2] : parts[1];
+  const signingInput = isJwt ? `${parts[0]}.${parts[1]}` : parts[0];
+
   if (!encodedPayload || !providedSignature) {
     return null;
   }
@@ -137,7 +149,7 @@ export function verifySessionToken(token: string | null | undefined): AuthSessio
     for (const secret of secrets) {
       const expectedSignature = crypto
         .createHmac("sha256", secret)
-        .update(encodedPayload)
+        .update(signingInput)
         .digest("base64url");
 
       const expectedBuffer = Buffer.from(expectedSignature);

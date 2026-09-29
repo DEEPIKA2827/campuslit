@@ -393,6 +393,33 @@ export class UserRepository {
         : null,
     };
   }
+
+  /**
+   * Fetches paginated users list for administrative inspection.
+   * Strips passwordHash and returns strictly safe user records.
+   */
+  async listAllUsers(limit = 50, offset = 0): Promise<Array<Omit<UserDTO, "passwordHash">>> {
+    const client = this.getDb();
+    Logger.debug("UserRepository.listAllUsers", { limit, offset });
+
+    const records = await client
+      .select({
+        userId: schema.users.userId,
+        email: schema.users.email,
+        role: schema.users.role,
+        createdAt: schema.users.createdAt,
+      })
+      .from(schema.users)
+      .limit(limit)
+      .offset(offset);
+
+    return records.map((r) => ({
+      userId: r.userId,
+      email: r.email,
+      role: r.role as UserRole,
+      createdAt: r.createdAt,
+    }));
+  }
 }
 
 export const userRepository = new UserRepository();

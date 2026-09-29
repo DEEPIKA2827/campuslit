@@ -49,7 +49,11 @@ import {
   GraduationCap,
   Award,
 } from "lucide-react";
-import { getAcademicResourcesForCourse } from "@/lib/academic-resources";
+import {
+  getAcademicResourcesForCourse,
+  getCatalogSemesters,
+  getCatalogCoursesBySemester,
+} from "@/lib/academic-resources";
 import {
   resolveSubjectResources,
   VTU_GENERAL_OFFICIAL_RESOURCES,
@@ -257,6 +261,16 @@ export default function Home() {
   const [vivaQuestions, setVivaQuestions] = useState<VivaQuestionDTO[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [actionRadar, setActionRadar] = useState<ActionRadarResponseDTO | null>(null);
+
+  // Semester Segregation State (Defaults to student's profile semester, or Sem 1)
+  const [selectedSemester, setSelectedSemester] = useState<number>(profile?.semester || 1);
+
+  // Sync selectedSemester when profile loads
+  useEffect(() => {
+    if (profile?.semester && typeof profile.semester === "number") {
+      setSelectedSemester(profile.semester);
+    }
+  }, [profile?.semester]);
 
   // Quick Attendance Logger Modal
   const [showLogModal, setShowLogModal] = useState(false);
@@ -807,46 +821,91 @@ export default function Home() {
             {/* Main Window Dashboard Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-2 sm:p-4 text-left">
               {/* Sidebar (4 Cols) */}
-              <aside className="lg:col-span-3 rounded-xl border border-white/10 bg-white/[0.02] p-3 flex flex-col gap-4">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-400 uppercase tracking-wider px-2">
-                  <span>Enrolled Courses</span>
-                  <span className="text-purple-400">
-                    {courses.length > 0 ? `${courses.length} Subjects` : "4 Subjects"}
+              <aside className="lg:col-span-3 rounded-xl border border-white/10 bg-white/[0.02] p-3 flex flex-col gap-3">
+                <div className="flex items-center justify-between text-xs font-semibold text-gray-400 uppercase tracking-wider px-1">
+                  <span>VTU Curriculum</span>
+                  <span className="text-purple-400 text-[11px] font-mono">
+                    Sem {selectedSemester}
                   </span>
                 </div>
 
-                <div className="space-y-1 text-xs">
-                  {(courses.length > 0
-                    ? courses
-                    : [
-                        { courseId: 1, courseName: "Engg Mathematics I", courseCode: "BMAT101" },
-                        { courseId: 2, courseName: "C Programming Lab", courseCode: "BPOPS103" },
-                        { courseId: 3, courseName: "Physics Cycle Lab", courseCode: "BPHYS102" },
-                        { courseId: 4, courseName: "Basic Electronics", courseCode: "BEC104" },
-                      ]
-                  ).map((c) => {
-                    const isSelected = selectedCourseId === c.courseId;
+                {/* Semester Selector Tabs */}
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar border-b border-white/10">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => {
+                    const isSelected = selectedSemester === sem;
+                    const isStudentSem = profile?.semester === sem;
                     return (
-                      <div
-                        key={c.courseId}
-                        onClick={() => setSelectedCourseId(c.courseId)}
-                        className={`flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer transition ${
+                      <button
+                        key={sem}
+                        type="button"
+                        onClick={() => {
+                          setSelectedSemester(sem);
+                          // Auto select the first subject of the newly chosen semester
+                          const semSubjects = getCatalogCoursesBySemester(sem);
+                          if (semSubjects.length > 0) {
+                            setSelectedCourseId(semSubjects[0].courseId);
+                          }
+                        }}
+                        className={`px-2 py-1 rounded-md text-[11px] font-semibold transition shrink-0 cursor-pointer ${
                           isSelected
-                            ? "bg-purple-500/15 border border-purple-500/30 text-white font-medium"
-                            : "bg-white/[0.03] text-gray-400 hover:bg-white/[0.06]"
+                            ? "bg-purple-600 text-white shadow-sm"
+                            : "bg-white/[0.04] text-gray-400 hover:text-white hover:bg-white/[0.08]"
                         }`}
                       >
-                        <span className="flex items-center gap-2 truncate">
-                          <BookOpen className="size-3.5 text-purple-400 shrink-0" />
-                          <span className="truncate">{c.courseName}</span>
-                        </span>
-                        <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded shrink-0">
-                          {c.courseCode || "VTU"}
-                        </span>
-                      </div>
+                        S{sem}
+                        {isStudentSem && <span className="ml-0.5 text-[9px] text-purple-200">★</span>}
+                      </button>
                     );
                   })}
                 </div>
+
+                {/* Course List for Selected Semester */}
+                {(() => {
+                  const catalogForSem = getCatalogCoursesBySemester(selectedSemester);
+                  // Match database courses or use the catalog for the selected semester
+                  const displaySubjects = catalogForSem.map((cat) => {
+                    const dbMatch = courses.find((c) => c.courseCode?.toUpperCase() === cat.courseCode.toUpperCase());
+                    return {
+                      courseId: dbMatch?.courseId || cat.courseId,
+                      courseName: cat.courseName,
+                      courseCode: cat.courseCode,
+                      branch: cat.branch,
+                    };
+                  });
+
+                  return (
+                    <div className="space-y-1 text-xs overflow-y-auto max-h-[360px] pr-1">
+                      {displaySubjects.length > 0 ? (
+                        displaySubjects.map((c) => {
+                          const isSelected = selectedCourseId === c.courseId;
+                          return (
+                            <div
+                              key={c.courseId}
+                              onClick={() => setSelectedCourseId(c.courseId)}
+                              className={`flex items-center justify-between rounded-lg px-2.5 py-2 cursor-pointer transition ${
+                                isSelected
+                                  ? "bg-purple-500/15 border border-purple-500/30 text-white font-medium"
+                                  : "bg-white/[0.03] text-gray-400 hover:bg-white/[0.06]"
+                              }`}
+                            >
+                              <span className="flex items-center gap-2 truncate">
+                                <BookOpen className="size-3.5 text-purple-400 shrink-0" />
+                                <span className="truncate">{c.courseName}</span>
+                              </span>
+                              <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded shrink-0 font-mono">
+                                {c.courseCode || "VTU"}
+                              </span>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="p-3 text-center text-gray-500 text-xs">
+                          No subjects registered for Semester {selectedSemester}.
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 <div className="mt-auto border-t border-white/10 pt-3">
                   <div className="text-[11px] text-gray-400 flex items-center justify-between">
@@ -860,8 +919,11 @@ export default function Home() {
               <div className="lg:col-span-9 rounded-xl border border-white/10 bg-white/[0.02] p-4 sm:p-6 space-y-6">
                 {/* TAB 1: ACADEMICS */}
                 {activeTab === "academics" && (() => {
+                  const catalogForSem = getCatalogCoursesBySemester(selectedSemester);
                   const selectedCourseObj =
                     courses.find((c) => c.courseId === selectedCourseId) ||
+                    catalogForSem.find((c) => c.courseId === selectedCourseId) ||
+                    catalogForSem[0] ||
                     courses[0] || {
                       courseId: 1,
                       courseName: "Mathematics for CSE Stream-I",
