@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { FloatingCopilot } from "@/components/copilot/floating-copilot";
 
 export const metadata: Metadata = {
-  title: "YuktiOS | Strategic Engineering Operating System",
+  title: "CampusLit | Student Operating System for Engineering",
   description:
     "A precision student operating system for engineering students in Karnataka.",
 };

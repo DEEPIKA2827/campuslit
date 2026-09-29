@@ -39,11 +39,11 @@ export function Navbar() {
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 font-bold text-white shadow-lg shadow-purple-500/25 group-hover:scale-105 transition-transform">
-            YO
+            CL
           </div>
           <div className="flex flex-col">
             <span className="text-base font-bold tracking-tight text-white flex items-center gap-2">
-              YuktiOS
+              CampusLit
               <span className="inline-flex items-center rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-400 border border-purple-500/20">
                 Karnataka 2025/26
               </span>
